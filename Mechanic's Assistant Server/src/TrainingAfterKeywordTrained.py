@@ -1,5 +1,5 @@
-from ClusteringComplaintTraining import train as clusterTrain
-from KNNTraining import train as knnTrain
+from src.ClusteringComplaintTraining import train as clusterTrain
+from src.KNNTraining import train as knnTrain
 
 #assume datafile is in ../Data/trainDat3.txt
 #assume bayesfile is in KeywordPrediction/outmod.nbmdl

@@ -1,5 +1,5 @@
-from SpellingUtils import CustomSpellingDictionary
-from JimDataLoader import openFile
+from src.Spelling import CustomSpellingDictionary
+from src.Util.JimDataLoader import openFile
 from autocorrect import spell
 
 data = openFile("trainDat3.txt")

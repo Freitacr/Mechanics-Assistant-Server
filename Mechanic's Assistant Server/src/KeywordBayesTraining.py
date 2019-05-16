@@ -1,5 +1,5 @@
-from Util.JimDataLoader import openFile
-from KeywordPrediction import KeywordBayes, KeywordBayesTrainingUtils as KBTU
+from src.Util.JimDataLoader import openFile
+from src.KeywordPrediction import KeywordBayes, KeywordBayesTrainingUtils as KBTU
 import sys
 import os
 import nltk as n

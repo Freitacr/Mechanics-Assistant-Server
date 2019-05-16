@@ -1,6 +1,6 @@
-from Clustering.KeywordClustering import Group, Cluster
-from KeywordPrediction import KeywordBayes
-from Util.JimDataLoader import openFile
+from src.Clustering.KeywordClustering import Group, Cluster
+from src.KeywordPrediction import KeywordBayes
+from src.Util.JimDataLoader import openFile
 import sys
 import nltk as n
 

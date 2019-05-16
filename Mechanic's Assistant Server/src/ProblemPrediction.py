@@ -1,6 +1,6 @@
-from KNNPrediction.KNN import KNN
-from Clustering.KeywordClustering import Cluster
-from KeywordPrediction import KeywordBayes
+from src.KNNPrediction.KNN import KNN
+from src.Clustering.KeywordClustering import Cluster
+from src.KeywordPrediction import KeywordBayes
 import sys
 
 #custom distance formula (same point)
@@ -32,7 +32,7 @@ try:
 	open(knnfile, 'r')
 except FileNotFoundError:
 	print("File", knnfile, "was not found, attempting retraining")
-	import TrainingAfterKeywordTrained
+	import src.TrainingAfterKeywordTrained
 	print("retraining successful, continuing without error")
 
 #can almost safely now assume bayes model and clustering model exist

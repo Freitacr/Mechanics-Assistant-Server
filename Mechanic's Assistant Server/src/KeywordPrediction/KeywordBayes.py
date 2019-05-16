@@ -1,5 +1,5 @@
-import KeywordPrediction.KeywordBayesTrainingUtils as KBTU
-from KeywordPrediction.NaiveBayes import NaiveBayes
+import src.KeywordPrediction.KeywordBayesTrainingUtils as KBTU
+from src.KeywordPrediction.NaiveBayes import NaiveBayes
 import sys
 import nltk as n
 

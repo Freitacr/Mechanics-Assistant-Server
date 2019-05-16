@@ -1,0 +1,4 @@
+autocorrect==0.3.0
+nltk==3.4.1
+setuptools==40.6.2
+six==1.12.0

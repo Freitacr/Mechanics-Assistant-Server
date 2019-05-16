@@ -8,10 +8,11 @@
     </StartupFile>
     <SearchPath>
     </SearchPath>
-    <WorkingDirectory>.</WorkingDirectory>
+    <WorkingDirectory>.\src</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Mechanic's Assistant Server</Name>
     <RootNamespace>Mechanic's Assistant Server</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,6 +50,9 @@
     <Compile Include="src\TrainingAfterKeywordTrained.py" />
     <Compile Include="src\Util\JimDataLoader.py" />
     <Compile Include="src\Util\__init.py" />
+    <Compile Include="src\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\Clustering\ComplaintKeywordClusteringModel.kcgmdl" />

@@ -1,7 +1,7 @@
-from KeywordPrediction import KeywordBayes
-from Util.JimDataLoader import openFile
-from Clustering.KeywordClustering import Cluster
-from KNNPrediction.KNN import KNN
+from src.KeywordPrediction import KeywordBayes
+from src.Util.JimDataLoader import openFile
+from src.Clustering.KeywordClustering import Cluster
+from src.KNNPrediction.KNN import KNN
 from random import randint
 
 import sys
