@@ -1,6 +1,8 @@
 from src.KNNPrediction.KNN import KNN
 from src.Clustering.KeywordClustering import Cluster
 from src.KeywordPrediction import KeywordBayes
+from src.ClusteringComplaintTraining import train as clusterTrain
+from src.KNNTraining import train as knnTrain
 import sys
 
 #custom distance formula (same point)
@@ -18,91 +20,89 @@ def distanceCalc(x, y):
         ret += (y[axis_index] - x[axis_index]) ** 2
     return ret ** (1/2)
 
-#TODO
+if __name__ == "__main__":
+    datafile = "Data/trainDat3.txt"
+    knnfile = "Models/KNNProblemPredictionModel.knnmdl"
+    bayesfile = "Models/outmod.nbmdl"
+    complaintclusterfile = "Models/ComplaintKeywordClusteringModel.kcgmdl"
 
 
+    try:
+        open(knnfile, 'r')
+    except FileNotFoundError:
+        print("File", knnfile, "was not found, attempting retraining")
+        clusterTrain(datafile, bayesfile, complaintclusterfile)
+        knnTrain(datafile, bayesfile, complaintclusterfile, knnfile)
+        print("retraining successful, continuing without error")
 
-datafile = "Data/trainDat3.txt"
-knnfile = "src/KNNPrediction/KNNProblemPredictionModel.knnmdl"
-bayesfile = "src/KeywordPrediction/outmod.nbmdl"
-complaintclusterfile = "src/Clustering/ComplaintKeywordClusteringModeltest.kcgmdl"
+    #can almost safely now assume bayes model and clustering model exist
+    additive_mode = False
+    added_data = []
+    curr_data = []
 
+    if len(sys.argv) == 2:
+        if int(sys.argv[1]) == 0:
+            additive_mode = True
 
-try:
-    open(knnfile, 'r')
-except FileNotFoundError:
-    print("File", knnfile, "was not found, attempting retraining")
-    import src.TrainingAfterKeywordTrained
-    print("retraining successful, continuing without error")
-
-#can almost safely now assume bayes model and clustering model exist
-additive_mode = False
-added_data = []
-curr_data = []
-
-if len(sys.argv) == 2:
-    if int(sys.argv[1]) == 0:
-        additive_mode = True
-
-if additive_mode:
-    file = open(datafile, 'r')
-    for line in file:
-        curr_data.extend([line])
-    file.close()
-
-knn = KNN()
-knn.load(knnfile)
-
-complaint_cluster = Cluster()
-complaint_cluster.load(complaintclusterfile)
-
-keywordBayes = KeywordBayes.load_model(bayesfile)
-
-
-usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
-while not usrinput == "exit()":
-    inputsplit = usrinput.lstrip().rstrip().split(" ")
-    make = inputsplit[0]
-    model = inputsplit[1]
-    if (model == ""):
-        usrinput = input("I'm sorry, something wasn't quite right about that\nToo many spaces in between words perhaps?\nPlease try retyping it\n")
-        continue
-    complaint = inputsplit[2:]
-    complaint_string = ""
-    for part in complaint:
-        complaint_string += part + " "
-    complaint_string.rstrip()
-    keywords = KeywordBayes.predict(keywordBayes, complaint_string)
-    groups = complaint_cluster.predict_top_n(keywords, 3)
-    example = [make, model]
-    example.extend(groups)
-    ret = knn.predict(example, 10, 2, distanceCalc)
-    print("\n<-------------------------->")
-    for x in ret:
-        print(x[0][1])
-    print("<-------------------------->")
-    print("\n\n")
-    
     if additive_mode:
-        keep = input("Would you like to add this data to the database?\n")
-        if keep.lower() in ['y', 'yes', 'yeah', 'sure', 'ok', 'why not']:
-            problem = input("Then please enter what the real problem was:\n")
-            vin = input("Thank you, now please enter the VIN:\n")
-            datastring = make + "\t"
-            datastring += model + "\t"
-            datastring += vin + "\t"
-            datastring += "COMPLAINT:" + complaint_string + "\t"
-            datastring += "PRIMARY CAUSE:" + problem + "\n"
-            added_data.extend([datastring])
+        file = open(datafile, 'r')
+        for line in file:
+            curr_data.extend([line])
+        file.close()
+
+    knn = KNN()
+    knn.load(knnfile)
+
+    complaint_cluster = Cluster()
+    complaint_cluster.load(complaintclusterfile)
+
+    keywordBayes = KeywordBayes.load_model(bayesfile)
+
+
+    usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
+    while not usrinput == "exit()":
+        inputsplit = usrinput.lstrip().rstrip().split(" ")
+        make = inputsplit[0]
+        model = inputsplit[1]
+        if (model == ""):
+            usrinput = input("I'm sorry, something wasn't quite right about that\nToo many spaces in between words perhaps?\nPlease try retyping it\n")
+            continue
+        complaint = inputsplit[2:]
+        complaint_string = ""
+        for part in complaint:
+            complaint_string += part + " "
+        complaint_string.rstrip()
+        keywords = KeywordBayes.predict(keywordBayes, complaint_string)
+        groups = complaint_cluster.predict_top_n(keywords, 3)
+        example = [make, model]
+        example.extend(groups)
+        ret = knn.predict(example, 10, 2, distanceCalc)
+        print("\n<-------------------------->")
+        for x in ret:
+            print(x[0][1])
+        print("<-------------------------->")
+        print("\n\n")
+    
+        if additive_mode:
+            keep = input("Would you like to add this data to the database?\n")
+            if keep.lower() in ['y', 'yes', 'yeah', 'sure', 'ok', 'why not']:
+                problem = input("Then please enter what the real problem was:\n")
+                vin = input("Thank you, now please enter the VIN:\n")
+                datastring = make + "\t"
+                datastring += model + "\t"
+                datastring += vin + "\t"
+                datastring += "COMPLAINT:" + complaint_string + "\t"
+                datastring += "PRIMARY CAUSE:" + problem + "\n"
+                added_data.extend([datastring])
         
     
     
     
     
-    usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
+        usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
 
-curr_data.extend(added_data)
-file = open("newTrainDat.txt", 'w')
-for data in curr_data:
-    file.write(data)
-file.close()
+    curr_data.extend(added_data)
+    file = open("newTrainDat.txt", 'w')
+    for data in curr_data:
+        file.write(data)
+    file.close()
