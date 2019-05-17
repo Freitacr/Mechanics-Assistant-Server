@@ -35,6 +35,7 @@
     <Folder Include="src\Clustering\" />
     <Folder Include="src\KeywordPrediction\" />
     <Folder Include="src\KNNPrediction\" />
+    <Folder Include="Models\" />
     <Folder Include="src\Spelling\" />
     <Folder Include="src\Util\" />
   </ItemGroup>
@@ -52,10 +53,8 @@
     <Compile Include="src\KNNPrediction\__init__.py" />
     <Compile Include="src\KNNTraining.py" />
     <Compile Include="src\ProblemPrediction.py" />
-    <Compile Include="src\Spelling\DataPrepper.py" />
     <Compile Include="src\Spelling\SpellingUtils.py" />
     <Compile Include="src\Spelling\__init__.py" />
-    <Compile Include="src\TrainingAfterKeywordTrained.py" />
     <Compile Include="src\Util\JimDataLoader.py" />
     <Compile Include="src\Util\__init__.py" />
     <Compile Include="src\__init__.py">
@@ -66,14 +65,10 @@
     <Content Include="Data\newTrainDat.txt" />
     <Content Include="Data\trainDat3.txt" />
     <Content Include="requirements.txt" />
-    <Content Include="src\Clustering\ComplaintKeywordClusteringModel.kcgmdl" />
-    <Content Include="src\Clustering\ComplaintKeywordClusteringModel.kcmdl" />
-    <Content Include="src\Clustering\ComplaintKeywordClusteringModeltest.kcgmdl" />
-    <Content Include="src\Clustering\ProblemKeywordClusteringModel.kcmdl" />
-    <Content Include="src\KeywordPrediction\KeywordBayesModel.nbmdl" />
-    <Content Include="src\KeywordPrediction\outmod.nbmdl" />
-    <Content Include="src\KNNPrediction\KNNProblemPredictionModel.knnmdl" />
-    <Content Include="src\Spelling\cusDictionary.txt" />
+    <Content Include="Models\ComplaintKeywordClusteringModel.kcgmdl" />
+    <Content Include="Models\cusDictionary.txt" />
+    <Content Include="Models\KNNProblemPredictionModel.knnmdl" />
+    <Content Include="Models\KeywordModel.nbmdl" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="PythonEnvironment\">

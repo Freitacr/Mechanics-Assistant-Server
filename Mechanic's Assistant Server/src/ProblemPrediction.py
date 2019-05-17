@@ -23,7 +23,7 @@ def distanceCalc(x, y):
 if __name__ == "__main__":
     datafile = "Data/trainDat3.txt"
     knnfile = "Models/KNNProblemPredictionModel.knnmdl"
-    bayesfile = "Models/outmod.nbmdl"
+    bayesfile = "Models/KeywordModel.nbmdl"
     complaintclusterfile = "Models/ComplaintKeywordClusteringModel.kcgmdl"
 
 
