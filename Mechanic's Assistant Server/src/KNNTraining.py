@@ -133,8 +133,7 @@ def train(datafile, bayes_model_filename, cluster_complaint_model_filename, out_
     problem_sentences = []
     for training_case in data:
         
-        newDataExamples.append(training_case["make"])
-        newDataExamples.append(training_case["model"])
+        newDataExamples.append([training_case["make"], training_case["model"]])
         complaint_sentences.extend([training_case["complaint"].split(":")[1].lstrip().rstrip()])
         problem_sentences.extend([[training_case["problem"].split(":")[1].lstrip().rstrip().capitalize()]])
     bayes_model = KeywordBayes.load_model(bayes_model_filename)

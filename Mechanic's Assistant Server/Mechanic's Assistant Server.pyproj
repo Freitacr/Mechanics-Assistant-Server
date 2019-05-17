@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>df7b6ede-9c41-4225-b74b-347c9cfcc6c7</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\KeywordBayesTraining.py</StartupFile>
+    <StartupFile>src\ProblemPrediction.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -14,7 +14,8 @@
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>MSBuild|PythonEnvironment|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>Data/trainDat3.txt outmod.nbmod</CommandLineArguments>
+    <CommandLineArguments>
+    </CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
