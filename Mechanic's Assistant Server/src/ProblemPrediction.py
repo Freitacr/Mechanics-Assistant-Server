@@ -22,10 +22,10 @@ def distanceCalc(x, y):
 
 
 
-datafile = "../Data/trainDat3.txt"
-knnfile = "KNNPrediction/KNNProblemPredictionModel.knnmdl"
-bayesfile = "KeywordPrediction/outmod.nbmdl"
-complaintclusterfile = "Clustering/ComplaintKeywordClusteringModeltest.kcgmdl"
+datafile = "Data/trainDat3.txt"
+knnfile = "src/KNNPrediction/KNNProblemPredictionModel.knnmdl"
+bayesfile = "src/KeywordPrediction/outmod.nbmdl"
+complaintclusterfile = "src/Clustering/ComplaintKeywordClusteringModeltest.kcgmdl"
 
 
 try:
