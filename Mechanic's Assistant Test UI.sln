@@ -9,14 +9,18 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Mechanic's Assistant Server
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		DataConverter|Any CPU = DataConverter|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.DataConverter|Any CPU.ActiveCfg = Debug|Any CPU
+		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.DataConverter|Any CPU.Build.0 = Debug|Any CPU
 		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF7B6EDE-9C41-4225-B74B-347C9CFCC6C7}.DataConverter|Any CPU.ActiveCfg = DataConverter|Any CPU
 		{DF7B6EDE-9C41-4225-B74B-347C9CFCC6C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF7B6EDE-9C41-4225-B74B-347C9CFCC6C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection

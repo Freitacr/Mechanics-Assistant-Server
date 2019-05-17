@@ -4,15 +4,18 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>df7b6ede-9c41-4225-b74b-347c9cfcc6c7</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>src\DataJSONConverter.py</StartupFile>
     <SearchPath>
     </SearchPath>
-    <WorkingDirectory>.\src</WorkingDirectory>
+    <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Mechanic's Assistant Server</Name>
     <RootNamespace>Mechanic's Assistant Server</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
+    <InterpreterId>MSBuild|PythonEnvironment|$(MSBuildProjectFullPath)</InterpreterId>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>Data/trainDat3.txt</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +25,11 @@
     <DebugSymbols>true</DebugSymbols>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'DataConverter' ">
+    <OutputPath>bin\DataConverter\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
+    <Folder Include="Data\" />
     <Folder Include="src\" />
     <Folder Include="src\Clustering\" />
     <Folder Include="src\KeywordPrediction\" />
@@ -43,18 +50,24 @@
     <Compile Include="src\KNNPrediction\KNN.py" />
     <Compile Include="src\KNNPrediction\__init__.py" />
     <Compile Include="src\KNNTraining.py" />
+    <Compile Include="src\DataJSONConverter.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\ProblemPrediction.py" />
     <Compile Include="src\Spelling\DataPrepper.py" />
     <Compile Include="src\Spelling\SpellingUtils.py" />
     <Compile Include="src\Spelling\__init__.py" />
     <Compile Include="src\TrainingAfterKeywordTrained.py" />
     <Compile Include="src\Util\JimDataLoader.py" />
-    <Compile Include="src\Util\__init.py" />
+    <Compile Include="src\Util\__init__.py" />
     <Compile Include="src\__init__.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Data\newTrainDat.txt" />
+    <Content Include="Data\trainDat3.txt" />
+    <Content Include="requirements.txt" />
     <Content Include="src\Clustering\ComplaintKeywordClusteringModel.kcgmdl" />
     <Content Include="src\Clustering\ComplaintKeywordClusteringModel.kcmdl" />
     <Content Include="src\Clustering\ComplaintKeywordClusteringModeltest.kcgmdl" />
@@ -63,6 +76,17 @@
     <Content Include="src\KeywordPrediction\outmod.nbmdl" />
     <Content Include="src\KNNPrediction\KNNProblemPredictionModel.knnmdl" />
     <Content Include="src\Spelling\cusDictionary.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="PythonEnvironment\">
+      <Id>PythonEnvironment</Id>
+      <Version>3.7</Version>
+      <Description>PythonEnvironment (Python 3.7 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
