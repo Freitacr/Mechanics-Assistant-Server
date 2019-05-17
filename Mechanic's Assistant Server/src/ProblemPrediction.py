@@ -1,8 +1,8 @@
 from src.KNNPrediction.KNN import KNN
 from src.Clustering.KeywordClustering import Cluster
 from src.KeywordPrediction import KeywordBayes
-from src.ClusteringComplaintTraining import train as clusterTrain
-from src.KNNTraining import train as knnTrain
+from src.Clustering.ClusteringComplaintTraining import train as clusterTrain
+from src.KNNPrediction.KNNTraining import train as knnTrain
 import sys
 
 #custom distance formula (same point)
