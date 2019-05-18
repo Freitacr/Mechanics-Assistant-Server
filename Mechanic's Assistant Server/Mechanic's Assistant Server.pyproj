@@ -14,9 +14,9 @@
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>MSBuild|PythonEnvironment|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>
-    </CommandLineArguments>
+    <CommandLineArguments>-f testdata.txt</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <PublishUrl>C:\Users\colto\Desktop\Mechanics Assistant</PublishUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,18 +40,18 @@
     <Folder Include="src\Util\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\ClusteringComplaintTraining.py" />
-    <Compile Include="src\ClusteringProblemTraining.py" />
+    <Compile Include="src\Clustering\ClusteringComplaintTraining.py" />
+    <Compile Include="src\Clustering\ClusteringProblemTraining.py" />
     <Compile Include="src\Clustering\KeywordClustering.py" />
     <Compile Include="src\Clustering\__init__.py" />
-    <Compile Include="src\KeywordBayesTraining.py" />
+    <Compile Include="src\KeywordPrediction\KeywordBayesTraining.py" />
     <Compile Include="src\KeywordPrediction\KeywordBayes.py" />
     <Compile Include="src\KeywordPrediction\KeywordBayesTrainingUtils.py" />
     <Compile Include="src\KeywordPrediction\NaiveBayes.py" />
     <Compile Include="src\KeywordPrediction\__init__.py" />
     <Compile Include="src\KNNPrediction\KNN.py" />
     <Compile Include="src\KNNPrediction\__init__.py" />
-    <Compile Include="src\KNNTraining.py" />
+    <Compile Include="src\KNNPrediction\KNNTraining.py" />
     <Compile Include="src\ProblemPrediction.py" />
     <Compile Include="src\Spelling\SpellingUtils.py" />
     <Compile Include="src\Spelling\__init__.py" />
@@ -63,12 +63,22 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\newTrainDat.txt" />
-    <Content Include="Data\trainDat3.txt" />
+    <Content Include="Data\trainDat3.txt">
+      <Publish>True</Publish>
+    </Content>
     <Content Include="requirements.txt" />
-    <Content Include="Models\ComplaintKeywordClusteringModel.kcgmdl" />
-    <Content Include="Models\cusDictionary.txt" />
-    <Content Include="Models\KNNProblemPredictionModel.knnmdl" />
-    <Content Include="Models\KeywordModel.nbmdl" />
+    <Content Include="Models\ComplaintKeywordClusteringModel.kcgmdl">
+      <Publish>True</Publish>
+    </Content>
+    <Content Include="Models\cusDictionary.txt">
+      <Publish>True</Publish>
+    </Content>
+    <Content Include="Models\KNNProblemPredictionModel.knnmdl">
+      <Publish>True</Publish>
+    </Content>
+    <Content Include="Models\KeywordModel.nbmdl">
+      <Publish>True</Publish>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="PythonEnvironment\">

@@ -4,6 +4,26 @@ from src.KeywordPrediction import KeywordBayes
 from src.Clustering.ClusteringComplaintTraining import train as clusterTrain
 from src.KNNPrediction.KNNTraining import train as knnTrain
 import sys
+from io import StringIO
+import json
+from argparse import ArgumentParser
+
+datafile = "Data/trainDat3.txt"
+knnfile = "Models/KNNProblemPredictionModel.knnmdl"
+bayesfile = "Models/KeywordModel.nbmdl"
+complaintclusterfile = "Models/ComplaintKeywordClusteringModel.kcgmdl"
+
+
+def parseArgs():
+    ret = ArgumentParser()
+    ret.add_argument("-I", required=False, dest="I", type=bool, default=False)
+    ret.add_argument("-f", required=False, dest="f", type=str, default = "")
+    namespace = ret.parse_args()
+    if (namespace.f == "" and not namespace.I):
+        print("program must be run either in Interactive mode, or with a file as an input")
+        ret.print_usage()
+    return namespace
+
 
 #custom distance formula (same point)
 def distanceCalc(x, y):
@@ -21,34 +41,18 @@ def distanceCalc(x, y):
     return ret ** (1/2)
 
 if __name__ == "__main__":
-    datafile = "Data/trainDat3.txt"
-    knnfile = "Models/KNNProblemPredictionModel.knnmdl"
-    bayesfile = "Models/KeywordModel.nbmdl"
-    complaintclusterfile = "Models/ComplaintKeywordClusteringModel.kcgmdl"
-
-
     try:
-        open(knnfile, 'r')
+        testFile = open(knnfile, 'r')
+        testFile.close()
     except FileNotFoundError:
         print("File", knnfile, "was not found, attempting retraining")
         clusterTrain(datafile, bayesfile, complaintclusterfile)
         knnTrain(datafile, bayesfile, complaintclusterfile, knnfile)
         print("retraining successful, continuing without error")
 
-    #can almost safely now assume bayes model and clustering model exist
-    additive_mode = False
-    added_data = []
-    curr_data = []
+    #can almost safely now assume bayes model and clustering model exists
 
-    if len(sys.argv) == 2:
-        if int(sys.argv[1]) == 0:
-            additive_mode = True
-
-    if additive_mode:
-        file = open(datafile, 'r')
-        for line in file:
-            curr_data.extend([line])
-        file.close()
+    namespace = parseArgs()
 
     knn = KNN()
     knn.load(knnfile)
@@ -58,51 +62,56 @@ if __name__ == "__main__":
 
     keywordBayes = KeywordBayes.load_model(bayesfile)
 
-
-    usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
-    while not usrinput == "exit()":
-        inputsplit = usrinput.lstrip().rstrip().split(" ")
-        make = inputsplit[0]
-        model = inputsplit[1]
-        if (model == ""):
-            usrinput = input("I'm sorry, something wasn't quite right about that\nToo many spaces in between words perhaps?\nPlease try retyping it\n")
-            continue
-        complaint = inputsplit[2:]
-        complaint_string = ""
-        for part in complaint:
-            complaint_string += part + " "
-        complaint_string.rstrip()
-        keywords = KeywordBayes.predict(keywordBayes, complaint_string)
+    if (namespace.I):
+        usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
+        while not usrinput == "exit()":
+            inputsplit = usrinput.lstrip().rstrip().split(" ")
+            make = inputsplit[0]
+            model = inputsplit[1]
+            if (model == ""):
+                usrinput = input("I'm sorry, something wasn't quite right about that\nToo many spaces in between words perhaps?\nPlease try retyping it\n")
+                continue
+            complaint = inputsplit[2:]
+            complaint_string = ""
+            for part in complaint:
+                complaint_string += part + " "
+            complaint_string.rstrip()
+            keywords = KeywordBayes.predict(keywordBayes, complaint_string)
+            groups = complaint_cluster.predict_top_n(keywords, 3)
+            example = [make, model]
+            example.extend(groups)
+            ret = knn.predict(example, 10, 2, distanceCalc)
+            print("\n<-------------------------->")
+            for x in ret:
+                print(x[0][1])
+            print("<-------------------------->")
+            print("\n\n")
+            usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
+    else:
+        dataFile = None
+        try:
+            dataFile = open(namespace.f, "r")
+        except FileNotFoundError:
+            print(namespace.f, "was not found, please verify that the file exists")
+        data = json.load(dataFile)
+        dataFile.close();
+        necessaryComponents = ["Make", "Model", "Complaint"]
+        for component in necessaryComponents:
+            if not component in data:
+                print("Improper format for file", namespace.f)
+                exit(4)
+        make = data[necessaryComponents[0]]
+        model = data[necessaryComponents[1]]
+        complaint = data[necessaryComponents[2]]
+        keywords = KeywordBayes.predict(keywordBayes, complaint)
         groups = complaint_cluster.predict_top_n(keywords, 3)
         example = [make, model]
         example.extend(groups)
-        ret = knn.predict(example, 10, 2, distanceCalc)
-        print("\n<-------------------------->")
-        for x in ret:
-            print(x[0][1])
-        print("<-------------------------->")
-        print("\n\n")
-    
-        if additive_mode:
-            keep = input("Would you like to add this data to the database?\n")
-            if keep.lower() in ['y', 'yes', 'yeah', 'sure', 'ok', 'why not']:
-                problem = input("Then please enter what the real problem was:\n")
-                vin = input("Thank you, now please enter the VIN:\n")
-                datastring = make + "\t"
-                datastring += model + "\t"
-                datastring += vin + "\t"
-                datastring += "COMPLAINT:" + complaint_string + "\t"
-                datastring += "PRIMARY CAUSE:" + problem + "\n"
-                added_data.extend([datastring])
+        results = knn.predict(example, 10, 2, distanceCalc)
+        returnObject = []
+        for resultVal in results:
+            returnObject.append({"Problem":resultVal[0][1][0]})
+        printFormatter = open(namespace.f, "w")
+        json.dump(returnObject, printFormatter)
+        printFormatter.close()
         
-    
-    
-    
-    
-        usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
-
-    curr_data.extend(added_data)
-    file = open("newTrainDat.txt", 'w')
-    for data in curr_data:
-        file.write(data)
-    file.close()

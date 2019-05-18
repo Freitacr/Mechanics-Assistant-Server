@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace Mechanics_Assistant_Client.Forms
 {
     public partial class MechanicsAssistant : Form
@@ -21,6 +22,11 @@ namespace Mechanics_Assistant_Client.Forms
         private string ModelBoxShadowText = "Please Enter Vehicle's Model...";
         private string ComplaintBoxShadowText = "Please Enter Customer's Complaint...";
 
+        private string ModelText = "";
+        private string MakeText = "";
+        private string ComplaintText = "";
+
+        public bool ShouldQuery { get; set; }
 
         public MechanicsAssistant()
         {
@@ -55,8 +61,21 @@ namespace Mechanics_Assistant_Client.Forms
             }
         }
 
+        private bool AreTextBoxesFilled()
+        {
+            if (ComplaintTextBox.Text == "" | ComplaintBoxHasShadowText)
+                return false;
+            if (ModelTextBox.Text == "" | ModelBoxHasShadowText)
+                return false;
+            if (MakeEntry.Text == "" | MakeBoxHasShadowText)
+                return false;
+            return true;
+        }
+
         public void QueryButtonClick(object sender, EventArgs eventArgs)
         {
+            QueryButton.Focus();
+            ShouldQuery = AreTextBoxesFilled();
             this.Close();
         }
 
@@ -66,6 +85,10 @@ namespace Mechanics_Assistant_Client.Forms
             {
                 MakeEntry.Text = MakeBoxShadowText;
                 MakeBoxHasShadowText = true;
+            } else if (MakeEntry.Text != MakeBoxShadowText)
+            {
+                MakeText = MakeEntry.Text;
+                MakeBoxHasShadowText = false;
             }
         }
 
@@ -75,6 +98,10 @@ namespace Mechanics_Assistant_Client.Forms
             {
                 ModelTextBox.Text = ModelBoxShadowText;
                 ModelBoxHasShadowText = true;
+            } else if (ModelTextBox.Text != ModelBoxShadowText)
+            {
+                ModelText = ModelTextBox.Text;
+                ModelBoxHasShadowText = false;
             }
         }
 
@@ -84,7 +111,26 @@ namespace Mechanics_Assistant_Client.Forms
             {
                 ComplaintTextBox.Text = ComplaintBoxShadowText;
                 ComplaintBoxHasShadowText = true;
+            } else if (ComplaintTextBox.Text != ComplaintBoxShadowText)
+            {
+                ComplaintText = ComplaintTextBox.Text;
+                ComplaintBoxHasShadowText = false;
             }
+        }
+
+        public string GetMakeTextBoxValue()
+        {
+            return MakeText;
+        }
+
+        public string GetModelTextBoxValue()
+        {
+            return ModelText;
+        }
+
+        public string GetComplaintTextBoxValue()
+        {
+            return ComplaintText;
         }
     }
 }
