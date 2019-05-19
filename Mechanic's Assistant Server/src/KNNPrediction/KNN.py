@@ -118,6 +118,14 @@ class KNN:
         return ret
     
     def setup_label_mapping(self, X):
+        '''Sets up a mapping for any data that is not a numeric value that converts it to a numeric value
+        This is done based on the index of the data:
+            For instance, considering data like ['a', 'b', 0, 1, 2], then only 'a' and 'b' would need mappings generated
+            However, as all data should be in the same format, 
+            this triggers a mapping dictionary to be generated for all data in that position
+        When the number of label mapping dictionaries has been established,
+            Then each data that needs to be mapped is given a number based on its order of appearance;
+            So if 'a' was seen by the mapping algorithm first, then it is assigned the value 0, etc.'''
         self.label_mapping_dicts = [None] * len(X[0])
         for index in range(len(X[0])):
             for example in X:
@@ -136,7 +144,9 @@ class KNN:
                     if not example[dict_index].lower() in self.label_mapping_dicts[dict_index]:
                         self.label_mapping_dicts[dict_index][example[dict_index].lower()] = len(self.label_mapping_dicts[dict_index])
     
-    def transform_example(self, x):
+    def transform_example(self, x : list):
+        '''Transforms a piece of data x, where not all of the elements are guarenteed to be numeric, into a purely numeric point
+        done through the label_mapping_dictionaries, and this method assumes that all non-numeric data is present in these dictionaries'''
         new_example = []
         for dict_index in range(len(self.label_mapping_dicts)):
             if not self.label_mapping_dicts[dict_index] == None:
@@ -146,6 +156,10 @@ class KNN:
         return (new_example)
 
     def transform_example_volitile(self, x):
+        '''Transforms a piece of data x, where not all of the elements are guarenteed to be numeric, into a purely numeric point
+        done through the label_mapping_dictionaries, but this method does not assume that all non-numeric data is present in these dictionaries;
+        In the case that a particular piece of non-numeric is not registered with the label_mapping_dicts,
+            It is given a value in accordance to the precedent set in setup_label_mapping'''
         transformed_x = []
         for dict_index in range(len(self.label_mapping_dicts)):
             if not self.label_mapping_dicts[dict_index] == None:
