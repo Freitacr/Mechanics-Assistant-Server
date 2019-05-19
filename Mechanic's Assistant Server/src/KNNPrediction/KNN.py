@@ -1,19 +1,24 @@
 import operator
 import math
+from typing import List
 class KNN:
+    '''Implementation of the K Nearest Neighbours Machine Learning Algorithm'''
     
     def __init__(self):
         self.label_mapping_dicts = []
         self.data_points = []
     
     def train(self, X, Y):
+        '''Trains the model, which effectively just means storing all of the points into the model'''
         self.setup_label_mapping(X)
         for example_index in range(len(X)):
-            self.data_points.extend([[self.transform_example(X[example_index]), Y[example_index]]])    
-    def store(self, filename):
+            self.data_points.extend([[self.transform_example(X[example_index]), Y[example_index]]])
+
+    def store(self, filePath):
+        '''Stores the model into the file specified by filePath'''
         file = None
         try:
-            file = open(filename, "w")
+            file = open(filePath, "w")
         except FileNotFoundError:
             return False
         for point in self.data_points:
@@ -33,11 +38,13 @@ class KNN:
                 file.write(dictString[:-1] + "\n")
         file.close()
         return True
-    def load(self, filename):
+
+    def load(self, filePath):
+        '''Loads the model from the file specified by filePath'''
         self.__init__()
         file = None
         try:
-            file = open(filename, "r")
+            file = open(filePath, "r")
         except FileNotFoundError:
             return False
         dictSection = False
@@ -65,7 +72,17 @@ class KNN:
                 dict_index += 1
         file.close()
         return True
+
     def predict(self, x, k, distance_measure=0, function = None):
+        '''Predicts the n most similar points to x, based on the distance between x and the each point
+        @param x: the data to make a prediction for
+        @param k: the number of most similar points to return
+        @param distance_measure: value to determine which distance measure is used
+            0: use euclidian_distance
+            1: use manhattan_distance
+            2: use the function specified by function
+        @param function: function used to calculate the distance between two points
+            Only used if distance_measure is 2'''
         if distance_measure == 2 and function == None:
             raise ValueError("Must supply a custom function for comparing points")
         transformed_x = self.transform_example_volitile(x)
@@ -75,14 +92,15 @@ class KNN:
             if distance_measure == 0:
                 distance = self.euclidian_distance(transformed_x, point[0])
             elif distance_measure == 2:
-                distance = self.custom_distance(function, transformed_x, point[0])
+                distance = function(transformed_x, point[0])
             else:
                 distance = self.manhattan_distance(transformed_x, point[0])
             point_storage.extend([[point, distance]])
         point_storage = sorted(point_storage, key=operator.itemgetter(1))
         return point_storage[:k]
             
-    def euclidian_distance(self, x, y):
+    def euclidian_distance(self, x : List[float], y : List[float]) -> float:
+        '''Calculates the euclidian distance between the points x and y'''
         if not len(x) == len(y):
             raise ValueError("Lengths of inputs must be identical for distance calculation")
         ret = 0.0
@@ -90,10 +108,8 @@ class KNN:
             ret += (y[axis_index] - x[axis_index]) ** 2
         return ret ** (1/2)
         
-    def custom_distance(self, function, x, y):
-        return function(x, y)
-        
-    def manhattan_distance(self, x, y):
+    def manhattan_distance(self, x : List[float], y : List[float]) -> float:
+        '''Calculates the distance between the points x and y using manhattan distance'''
         if not len(x) == len(y):
             raise ValueError("Lengths of inputs must be identical for distance calculation")
         ret = 0.0
@@ -128,6 +144,7 @@ class KNN:
             else:
                 new_example.extend([x[dict_index]])
         return (new_example)
+
     def transform_example_volitile(self, x):
         transformed_x = []
         for dict_index in range(len(self.label_mapping_dicts)):
