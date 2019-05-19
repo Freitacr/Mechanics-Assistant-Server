@@ -118,9 +118,19 @@
 1 1 33 6 0	Found #2 piston cracked
 0 1 3 0 0	Bad ecu
 1 1 17 0 0	Bad cab jack
+0 1 29 38 34	Found air compressor, oil cooler and oil pan leaking
+0 1 13 0 0	Found sunken liners
+7 30 27 2 37	Cracked turbo
+7 28 33 6 0	Found bad icm
+7 28 2 30 28	Found overhead out of spec, also found spark plugs fouled
+1 1 33 6 0	Found icm malfunctioning
+14 31 8 5 0	Found #5 piston cracked
+0 1 12 0 0	Front gearbox cracked
+1 3 12 0 0	Front gearbox cracked
+0 1 8 0 0	Found #4 piston cracked.
 dictBegin
 autocar=0|unknown=1|jlg=2|crane carrier=3|auitocar=4|gmc=5|nissan diesel=6|freightliner=7|kenworth=8|genie=9|kobelco=10|miller=11|ford=12|lincon=13|crain carrier=14|cranecarrier=15|roenbauers=16|autocsr=17|rosenauer=18|wacker=19
-xpediter=0|xpeditor=1|600s=2|unknown=3|660sj=4|truck=5|lemirage xlii=6|s60=7|c6500=8|2600=9|fl70=10|sk210lc-9=11|sk140srlc-03=12|z45/25=13|s65=14|z45=15|z45-25=16|refuse=17|expeditor=18|big blue 500=19|f-750=20|vantage 500=21|f650=22|g10-55a=23|fire apparutu=24|f750=25|fire apparatu=26|g70=27|m2112=28|z-45/25j=29
+xpediter=0|xpeditor=1|600s=2|unknown=3|660sj=4|truck=5|lemirage xlii=6|s60=7|c6500=8|2600=9|fl70=10|sk210lc-9=11|sk140srlc-03=12|z45/25=13|s65=14|z45=15|z45-25=16|refuse=17|expeditor=18|big blue 500=19|f-750=20|vantage 500=21|f650=22|g10-55a=23|fire apparutu=24|f750=25|fire apparatu=26|g70=27|m2112=28|z-45/25j=29|m2 112=30|reubish truck=31
 None
 None
 None
