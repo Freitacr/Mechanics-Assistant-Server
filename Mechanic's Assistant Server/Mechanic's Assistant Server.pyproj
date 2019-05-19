@@ -14,7 +14,7 @@
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>MSBuild|PythonEnvironment|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>-f testdata.txt</CommandLineArguments>
+    <CommandLineArguments>-f entry.txt</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <PublishUrl>C:\Users\colto\Desktop\Mechanics Assistant</PublishUrl>
   </PropertyGroup>
