@@ -39,23 +39,3 @@ def predict(model, sentence):
             #if not sentence_tokens[x][1][0] in keywords:
             keywords.extend([sentence_tokens[x][1][0]])
     return keywords
-    
-#model = load_model("file")
-
-#data = openFile("trainDat3.txt")
-#sentences = []
-#for training_case in data:
-    #sentences.extend([training_case[3].split(":")[1].lstrip().rstrip()])
-    #sentences.extend([training_case[4].split(":")[1].lstrip().rstrip()])
-
-#file = open("keyword-sentenceOutput.txt", 'w')
-    
-#for sentence in sentences:
-    #file.write(str(sentence + "\n"))
-    #file.write(str(str(predict(model, sentence.lower())) + "\n\n"))
-#file.close()
-    
-#sentence = input("Please enter your sentence to have keyworded:\n--->")
-#while "exit" not in sentence.lower():
-    #print(predict(model, sentence.lower()))
-    #sentence = input("Please enter your sentence to have keyworded:\n--->")
