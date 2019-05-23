@@ -3,7 +3,6 @@ from math import log
 import operator
 #
 class Group:
-    #main method
     def __init__(self, keyword):
         self.contained_members = []
         self.contained_keywords = {}
@@ -15,7 +14,7 @@ class Group:
         self.contained_members = []
         for example in data:
             if not example in self.contained_members:
-                num_same_keywords = self.__num_keywords(example)
+                num_same_keywords = self.numberSameKeywords(example)
                 if num_same_keywords == len(self.selected_keywords):
                     self.contained_members.extend([example])
         self.prev_keywords = self.contained_keywords
@@ -32,7 +31,7 @@ class Group:
         self.addMembers(self.contained_members)
 
     #number of keywords in the group
-    def __num_keywords(self, example):
+    def numberSameKeywords(self, example):
         ret = 0
         for keyword in self.selected_keywords:
             if keyword in example:
@@ -60,7 +59,7 @@ class Group:
     def getSimilarityScore(self, example):
         if len(example) == 0:
             return 0
-        sim_keywords = self.__num_keywords(example)
+        sim_keywords = self.numberSameKeywords(example)
         return sim_keywords / len(example)
 
     #set selected_keywords to the given list

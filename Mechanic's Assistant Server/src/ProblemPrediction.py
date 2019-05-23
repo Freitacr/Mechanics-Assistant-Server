@@ -1,6 +1,6 @@
 from src.KNNPrediction.KNN import KNN
 from src.Clustering.KeywordClustering import Cluster
-from src.KeywordPrediction import KeywordBayes
+from src.KeywordPrediction.KeywordBayes import NaiveBayesKeywordPredictor
 from src.Clustering.ClusteringComplaintTraining import train as clusterTrain
 from src.KNNPrediction.KNNTraining import train as knnTrain
 import sys
@@ -65,7 +65,7 @@ def printResultsToStdio(results : list) -> None:
 
 def predictProblem(make, model, complaint, keywordBayes, knn) -> list:
     '''Predicts the top 10 most likely problems given the make, model, complaint using the two machine learning models passed in'''
-    keywords = KeywordBayes.predict(keywordBayes, complaint)
+    keywords = keywordBayes.predict(complaint)
     groups = complaint_cluster.predict_top_n(keywords, 3)
     example = [make, model]
     example.extend(groups)
@@ -119,7 +119,8 @@ if __name__ == "__main__":
     knn.load(knnfile)
     complaint_cluster = Cluster()
     complaint_cluster.load(complaintclusterfile)
-    keywordBayes = KeywordBayes.load_model(bayesfile)
+    keywordBayes = NaiveBayesKeywordPredictor()
+    keywordBayes.loadModel(bayesfile)
 
     #Determine whether we are in interactive mode, or simply reading from a file
     if (namespace.I):
