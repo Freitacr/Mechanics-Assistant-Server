@@ -17,12 +17,8 @@ complaintclusterfile = "Models/ComplaintKeywordClusteringModel.kcgmdl"
 def parseArgs():
     '''Parses the arguments passed into the file and returns them in a namespace object'''
     ret = ArgumentParser()
-    ret.add_argument("-I", required=False, dest="I", type=bool, default=False)
-    ret.add_argument("-f", required=False, dest="f", type=str, default = "")
+    ret.add_argument("-f", required=True, dest="f", type=str, default = "")
     namespace = ret.parse_args()
-    if (namespace.f == "" and not namespace.I):
-        print("program must be run either in Interactive mode, or with a file as an input")
-        ret.print_usage()
     return namespace
 
 
@@ -40,28 +36,6 @@ def distanceCalc(x, y):
                 continue
         ret += (y[axis_index] - x[axis_index]) ** 2
     return ret ** (1 / 2)
-
-def extractDataFromUserResponse(usrInput : str) -> tuple:
-    '''Extracts the make, model, and complaint from the user's response, or throws a value error if their input is invalid'''
-    inputsplit = usrInput.lstrip().rstrip().split(" ")
-    make = inputsplit[0]
-    model = inputsplit[1]
-    if (model == ""):
-        raise ValueError("user input invalid")
-    complaint = inputsplit[2:]
-    complaint_string = ""
-    for part in complaint:
-        complaint_string += part + " "
-    complaint_string.rstrip()
-    return make, model, complaint_string
-
-def printResultsToStdio(results : list) -> None:
-    '''Prints the results from predictProblem to stdio'''
-    print("\n<-------------------------->")
-    for x in results:
-        print(x[0][1])
-    print("<-------------------------->")
-    print("\n\n")
 
 def predictProblem(make, model, complaint, keywordBayes, knn) -> list:
     '''Predicts the top 10 most likely problems given the make, model, complaint using the two machine learning models passed in'''
@@ -121,23 +95,8 @@ if __name__ == "__main__":
     complaint_cluster.load(complaintclusterfile)
     keywordBayes = NaiveBayesKeywordPredictor()
     keywordBayes.loadModel(bayesfile)
-
-    #Determine whether we are in interactive mode, or simply reading from a file
-    if (namespace.I):
-        #We're in interactive mode, so we need to interact with the user.
-        usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
-        while not usrinput == "exit()":
-            make, model, complaint = "", "", "";
-            try:
-                make, model, complaint = extractDataFromUserResponse(usrinput)
-            except ValueError:
-                usrinput = input("I'm sorry, something wasn't quite right about that\nToo many spaces in between words perhaps?\nPlease try retyping it\n")
-                continue
-            results = predictProblem(make, model, complaint, keywordBayes, knn)
-            printResultsToStdio(results)
-            usrinput = input("Please enter the make, model, and customer complaint, or type exit() to exit\n")
-    else:
-        #We are assuming that we need to read data from a file, so let's do that.
-        make, model, complaint = loadData(namespace.f)
-        results = predictProblem(make, model, complaint, keywordBayes, knn)
-        writeResultsToFile(namespace.f, results)
+    
+    #We are assuming that we need to read data from a file, so let's do that.
+    make, model, complaint = loadData(namespace.f)
+    results = predictProblem(make, model, complaint, keywordBayes, knn)
+    writeResultsToFile(namespace.f, results)

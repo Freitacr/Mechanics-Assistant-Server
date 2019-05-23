@@ -60,7 +60,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\formattedData.txt" />
+    <Content Include="Data\formattedKeywordTrainingData.txt" />
     <Content Include="Data\newTrainDat.txt" />
     <Content Include="Data\trainDat3.txt">
       <Publish>True</Publish>
