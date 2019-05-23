@@ -10,11 +10,17 @@ using System.Windows.Forms;
 
 namespace Mechanics_Assistant_Client.Forms
 {
+    /*
+     * Output window, used to display the list of problems the AI returns from the Query
+     */
     public partial class MechanicsAssistantOutputForm : Form
     {
 
         public bool ShouldQueryAgain { get; set; } = false;
 
+        /*
+         * Table format
+         */
         internal class TableRowData
         {
             //public string Make { get; set; } = "";
@@ -23,6 +29,9 @@ namespace Mechanics_Assistant_Client.Forms
             //public string PercentageSimilarity { get; set; } = "";
         }
 
+        /*
+         * Initializer
+         */
         public MechanicsAssistantOutputForm()
         {
             InitializeComponent();
@@ -30,6 +39,9 @@ namespace Mechanics_Assistant_Client.Forms
 
         private List<TableRowData> ContainedData = new List<TableRowData>();
 
+        /*
+         * adds data to containedData to be displayed later
+         */
         public void AddData(List<ProblemStorage> dataIn)
         {
             foreach (ProblemStorage x in dataIn)
@@ -42,6 +54,9 @@ namespace Mechanics_Assistant_Client.Forms
             }
         }
 
+        /*
+         * listener for when the table window is opened. fills the table with data from containedData
+         */
         private void OnOutputTableLoad(object sender, EventArgs e)
         {
             BindingSource src = new BindingSource();
@@ -57,12 +72,19 @@ namespace Mechanics_Assistant_Client.Forms
             //MainOutputTable.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
         }
 
+        /*
+         * listener for when the new query button is clicked. returns to the create query window
+         */
         private void CreateNewQueryButton_Click(object sender, EventArgs e)
         {
             ShouldQueryAgain = true;
             Close();
         }
 
+        /*
+         * listener for when the add problem button is clicked. 
+         *      **currently not implemented**
+         */
         private void AddProblemButton_Click(object sender, EventArgs e)
         {
             MessageBox.Show(

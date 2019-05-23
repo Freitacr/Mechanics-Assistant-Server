@@ -8,6 +8,9 @@ using System.Diagnostics;
 
 namespace Mechanic_Assistant_Client.src
 {
+    /*
+     * Creates and retrieves data from ProblemPredictionProgram
+     */
     class ProblemPredictionWrapper
     {
 
@@ -19,7 +22,10 @@ namespace Mechanic_Assistant_Client.src
         {
             ProcessInfo = new ProcessStartInfo(fileName);
         }
-        
+
+        /*
+         * sets the arguments needed to run ProblemPredictionProgram
+         */
         public void AddArguments(string filename, params string[] args)
         {
             if (args != null)
@@ -32,6 +38,9 @@ namespace Mechanic_Assistant_Client.src
             OutFileName = filename;
         }
 
+        /*
+         * starts the ProblemPredictionProgram windowsless
+         */
         public void StartProblemPredictionProgram()
         {
             ProcessInfo.CreateNoWindow = true;
@@ -39,6 +48,9 @@ namespace Mechanic_Assistant_Client.src
             ProblemPredictionProgram = Process.Start(ProcessInfo);
         }
 
+        /*
+         * waits for ProblemPredictionProgram to end then creates the file reader and returns it
+         */
         public StreamReader BlockAndGetStream()
         {
             ProblemPredictionProgram.WaitForExit();
@@ -46,6 +58,9 @@ namespace Mechanic_Assistant_Client.src
             return fileReader;
         }
 
+        /*
+         * waits for ProblemPredictionProgram to end then reads the data from the file and returns it
+         */
         public string BlockAndGetResults()
         {
             ProblemPredictionProgram.WaitForExit();
