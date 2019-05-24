@@ -15,7 +15,7 @@
     <InterpreterId>MSBuild|PythonEnvironment|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <CommandLineArguments>-f entry.txt</CommandLineArguments>
-    <EnableNativeCodeDebugging>True</EnableNativeCodeDebugging>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <PublishUrl>C:\Users\colto\Desktop\Mechanics Assistant</PublishUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -36,7 +36,9 @@
     <Folder Include="src\KeywordPrediction\" />
     <Folder Include="src\KNNPrediction\" />
     <Folder Include="Models\" />
+    <Folder Include="src\ModelManagement\" />
     <Folder Include="src\Spelling\" />
+    <Folder Include="src\Test\" />
     <Folder Include="src\Util\" />
   </ItemGroup>
   <ItemGroup>
@@ -50,9 +52,32 @@
     <Compile Include="src\KNNPrediction\KNN.py" />
     <Compile Include="src\KNNPrediction\__init__.py" />
     <Compile Include="src\KNNPrediction\KNNTraining.py" />
+    <Compile Include="src\ModelManagement\KeywordClusterer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\ModelManagement\KeywordGroup.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\ModelManagement\KeywordPredictor.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\ModelManagement\ModelManagerFileDictionary.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\ModelManagement\ModelManager.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\ModelManagement\ProblemPredictor.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\ModelManagement\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\ProblemPrediction.py" />
     <Compile Include="src\Spelling\SpellingUtils.py" />
     <Compile Include="src\Spelling\__init__.py" />
+    <Compile Include="src\Test\TestModelManagerFileDictionary.py" />
+    <Compile Include="src\Test\__init__.py" />
     <Compile Include="src\Util\JimDataLoader.py" />
     <Compile Include="src\Util\__init__.py" />
     <Compile Include="src\__init__.py">
@@ -78,6 +103,10 @@
     <Content Include="Models\KeywordModel.nbmdl">
       <Publish>True</Publish>
     </Content>
+    <Content Include="src\doc2.txt" />
+    <Content Include="src\NewFile1.txt" />
+    <Content Include="src\NewFile2.txt" />
+    <Content Include="src\NewFile3.txt" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="PythonEnvironment\">

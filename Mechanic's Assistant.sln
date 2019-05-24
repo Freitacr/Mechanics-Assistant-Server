@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mechanic's Assistant Client
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Mechanic's Assistant Server", "Mechanic's Assistant Server\Mechanic's Assistant Server.pyproj", "{DF7B6EDE-9C41-4225-B74B-347C9CFCC6C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mechanic's Assistant Server Language Rewrite", "Mechanic's Assistant Server Language Rewrite\Mechanic's Assistant Server Language Rewrite.csproj", "{A245D415-84F2-42DD-A275-BDE1F96AA06C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mechanic's Assistant Server Tests", "Mechanic's Assistant Server Tests\Mechanic's Assistant Server Tests.csproj", "{E69BB9B3-D1F0-47D9-B1CC-D2B29066763B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		DataConverter|Any CPU = DataConverter|Any CPU
@@ -23,6 +27,18 @@ Global
 		{DF7B6EDE-9C41-4225-B74B-347C9CFCC6C7}.DataConverter|Any CPU.ActiveCfg = Release|Any CPU
 		{DF7B6EDE-9C41-4225-B74B-347C9CFCC6C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF7B6EDE-9C41-4225-B74B-347C9CFCC6C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A245D415-84F2-42DD-A275-BDE1F96AA06C}.DataConverter|Any CPU.ActiveCfg = Debug|Any CPU
+		{A245D415-84F2-42DD-A275-BDE1F96AA06C}.DataConverter|Any CPU.Build.0 = Debug|Any CPU
+		{A245D415-84F2-42DD-A275-BDE1F96AA06C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A245D415-84F2-42DD-A275-BDE1F96AA06C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A245D415-84F2-42DD-A275-BDE1F96AA06C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A245D415-84F2-42DD-A275-BDE1F96AA06C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E69BB9B3-D1F0-47D9-B1CC-D2B29066763B}.DataConverter|Any CPU.ActiveCfg = Debug|Any CPU
+		{E69BB9B3-D1F0-47D9-B1CC-D2B29066763B}.DataConverter|Any CPU.Build.0 = Debug|Any CPU
+		{E69BB9B3-D1F0-47D9-B1CC-D2B29066763B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E69BB9B3-D1F0-47D9-B1CC-D2B29066763B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E69BB9B3-D1F0-47D9-B1CC-D2B29066763B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E69BB9B3-D1F0-47D9-B1CC-D2B29066763B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
