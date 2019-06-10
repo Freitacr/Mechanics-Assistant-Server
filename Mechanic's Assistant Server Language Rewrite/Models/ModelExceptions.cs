@@ -9,5 +9,8 @@ namespace MechanicsAssistantServer.Models
         public InvalidDataFormatException(string message) : base(message) { }
     }
 
-
+    public class InvalidPredictionParameterException : Exception
+    {
+        public InvalidPredictionParameterException(string message) : base(message) { }
+    }
 }

@@ -224,6 +224,91 @@ namespace MechanicsAssistantServer.Models
             return points;
         }
 
+        public object Predict(List<object> inputData, Func<List<double>, List<double>, double> distanceCalculationFunction )
+        {
+            return PredictTopN(inputData, distanceCalculationFunction, 1)[0];
+        }
+
+        private List<double> ConvertInputData(List<object> inputData)
+        {
+            if (inputData.Count != DataPoints[0].DataPoints.Count)
+                throw new InvalidDataFormatException("Input data has a differing number of elements than all other data seen!");
+            List<double> retPoint = new List<double>();
+            for (int i = 0; i < inputData.Count; i++)
+            {
+                if (LabelMappingDictionaries[i] == null)
+                {
+                    try
+                    {
+                        double val = (double)inputData[i];
+                        retPoint.Add(val);
+                    }
+                    catch (InvalidCastException)
+                    {
+                        throw new InvalidDataFormatException(
+                            "Input data at position " + i + " is required to be numeric and was not"
+                            );
+                    }
+                }
+                else
+                {
+                    retPoint.Add(
+                        LabelMappingDictionaries[i].GetValueOrDefault(
+                                inputData[i],
+                                LabelMappingDictionaries[i].Count
+                            )
+                    );
+                }
+            }
+            return retPoint;
+        }
+
+        private List<KNNDistanceMapping> CalculateDistances(List<double> inputDataPoint, Func<List<double>, List<double>, double> distanceCalculationFunction)
+        {
+            List<KNNDistanceMapping> ret = new List<KNNDistanceMapping>();
+            foreach (KNNDataPoint currPoint in DataPoints)
+            {
+                var currDataPoint = currPoint.DataPoints;
+                double distance = distanceCalculationFunction(currDataPoint, inputDataPoint);
+                ret.Add(new KNNDistanceMapping(distance, currPoint.ExpectedResult));
+            }
+            ret.Sort(KNNDistanceMapping.Compare);
+            return ret;
+        }
+
+        public List<object> PredictTopN(List<object> inputData, Func<List<double>, List<double>, double> distanceCalculationFunction, int n)
+        {
+            List<double> inputDataPoint = ConvertInputData(inputData);
+            var distances = CalculateDistances(inputDataPoint, distanceCalculationFunction);
+            List<object> retObjects = new List<object>();
+            if (n >= distances.Count)
+                foreach (KNNDistanceMapping currMapping in distances)
+                    retObjects.Add(currMapping.MappedObject);
+            else
+                for (int i = 0; i < n; i++)
+                    retObjects.Add(distances[i].MappedObject);
+            return retObjects;
+        }
     }
 
+
+    class KNNDistanceMapping
+    {
+        public double Distance { get; set; }
+        public object MappedObject { get; set; }
+        public KNNDistanceMapping(double distance, object mappedObject)
+        {
+            Distance = distance;
+            MappedObject = mappedObject;
+        }
+
+        public static int Compare(KNNDistanceMapping a, KNNDistanceMapping b)
+        {
+            if (a.Distance < b.Distance)
+                return 1;
+            if (a.Distance > b.Distance)
+                return -1;
+            return 0;
+        }
+    }
 }

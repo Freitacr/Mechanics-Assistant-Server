@@ -103,10 +103,6 @@
     <Content Include="Models\KeywordModel.nbmdl">
       <Publish>True</Publish>
     </Content>
-    <Content Include="src\doc2.txt" />
-    <Content Include="src\NewFile1.txt" />
-    <Content Include="src\NewFile2.txt" />
-    <Content Include="src\NewFile3.txt" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="PythonEnvironment\">

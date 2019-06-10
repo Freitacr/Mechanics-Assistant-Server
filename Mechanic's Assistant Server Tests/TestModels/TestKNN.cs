@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MechanicsAssistantServer.Models;
-using System.Security.Cryptography;
+using System.IO;
 
 namespace Mechanic_s_Assistant_Server_Tests.TestModels
 {
@@ -13,6 +13,16 @@ namespace Mechanic_s_Assistant_Server_Tests.TestModels
         private List<string> StringList = new List<string> { "acbe", "bde", "acc", "ied" };
 
         private KNN KnnModel;
+
+        private double CalcDistance(List<double> pointA, List<double> pointB)
+        {
+            double distance = 0;
+            if (pointA.Count != pointB.Count)
+                Assert.Fail("Point A and B had a different number of elements");
+            for (int i = 0; i < pointA.Count; i++)
+                distance += Math.Pow((pointA[i] - pointB[i]), 2);
+            return Math.Sqrt(distance);
+        }
 
         [TestInitialize]
         public void TestInitialize()
@@ -130,7 +140,7 @@ namespace Mechanic_s_Assistant_Server_Tests.TestModels
                 foreach(object key in savedMappingDict.Keys)
                     Assert.IsTrue(savedMappingDict[key].Equals(loadedMappingDict[key]));
             }
-            //Assert.AreEqual(labelMappingDict, KnnModel.CopyLabelMappingDictionary());
+            File.Delete(modelFileName);
         }
 
         /**
@@ -187,5 +197,15 @@ namespace Mechanic_s_Assistant_Server_Tests.TestModels
                 //Expected, ignore
             }
         }
+
+        [TestMethod]
+        public void TestPredictRunsSuccessfullyWithoutException()
+        {
+            TestTrainValidData();
+            List<object> validData = GenerateValidList(5);
+            KnnModel.Predict(validData, CalcDistance);
+            KnnModel.PredictTopN(validData, CalcDistance, 6);
+        }
+
     }
 }
