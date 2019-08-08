@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MechanicsAssistantServer.Models.KeywordClustering
+{
+    public class ClaimableKeywordExample
+    {
+        public KeywordExample ContainedExample { get; private set; }
+        private short NumberOfClaims = 0;
+        public bool Claimed { get { return NumberOfClaims > 0; } }
+
+        public ClaimableKeywordExample(KeywordExample exampleIn)
+        {
+            ContainedExample = exampleIn;
+        }
+
+        public void Claim() { NumberOfClaims++; }
+        public void ReleaseClaim() { NumberOfClaims--; }
+    }
+}
