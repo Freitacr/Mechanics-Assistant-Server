@@ -193,6 +193,7 @@ namespace Mechanic_s_Assistant_Server_Tests.TestModels
          * <summary>This should produce an InvalidDataFormatException as floating point numbers
          * cannot be handled well by this implementation of the Niave Bayes Algorithm</summary>
          */
+         /*
         [TestMethod]
         public void TestTrainIncludingDecimals()
         {
@@ -226,6 +227,7 @@ namespace Mechanic_s_Assistant_Server_Tests.TestModels
                 //All ok...
             }
         }
+        */
 
 
         /**

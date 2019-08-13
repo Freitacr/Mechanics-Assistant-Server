@@ -39,9 +39,11 @@ class NaiveBayes:
                 #get the index from the dictionary that belongs to the current feature value, then grab the row that specifies from the current_feature_table. Then increment the numerator in the cell that is referenced by label_index. 
                 #or add one to the numerator of current_feature_table[index_from_feature][label_index]
                 self.__incr_row(
-                current_feature_table[self.__index_from_label(
-                current_feature_value, curr_dictionary
-                )], 
+                current_feature_table[
+                    self.__index_from_label(
+                        current_feature_value, curr_dictionary
+                    )
+                ], 
                 label_index
                 )
         #Set all the denominators in all of the feature_probability_tables

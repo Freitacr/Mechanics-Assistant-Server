@@ -212,15 +212,6 @@ namespace MechanicsAssistantServer.Models
         {
             foreach (object label in objectsIn)
             {
-                try
-                {
-                    double x = (double)label;
-                    throw new InvalidDataFormatException("Label " + x + " is not a discrete label and cannot be used as data for this Naive Bayes implementation");
-                }
-                catch (InvalidCastException)
-                {
-                    //All is okay
-                }
                 if (!dict.ContainsKey(label))
                 {
                     dict[label] = dict.Count;
@@ -240,15 +231,6 @@ namespace MechanicsAssistantServer.Models
                 var newMappingDict = new Dictionary<object, int>();
                 foreach (List<object> dataList in X)
                 {
-                    try
-                    {
-                        double x = (double)dataList[i];
-                        throw new InvalidDataFormatException("Label " + x + " is not a discrete label and cannot be used as data for this Naive Bayes implementation");
-                    }
-                    catch (InvalidCastException)
-                    {
-                        //All is okay
-                    }
                     if (!newMappingDict.ContainsKey(dataList[i]))
                     {
                         newMappingDict[dataList[i]] = newMappingDict.Count;
