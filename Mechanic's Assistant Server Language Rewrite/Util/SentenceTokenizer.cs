@@ -13,6 +13,8 @@ namespace MechanicsAssistantServer.Util
             string[] splitSentence = sentenceIn.Split(' ');
             foreach(string word in splitSentence)
             {
+                if (word == "")
+                    continue;
                 string currWord = word;
                 string punc = null;
                 if (char.IsPunctuation(currWord[currWord.Length-1]))

@@ -105,8 +105,7 @@ namespace Mechanic_s_Assistant_Server_Tests.TestUtil
         [TestMethod]
         public void TestLoadKeywordData()
         {
-            DataLoader loader = new DataLoader();
-            List<KeywordTrainingExample> loadedQueries = loader.LoadKeywordTrainingExamples(KeywordDataFileName);
+            List<KeywordTrainingExample> loadedQueries = DataLoader.LoadKeywordTrainingExamples(KeywordDataFileName);
             Assert.AreEqual(loadedQueries.Count, GeneratedKeywords.Count,
                 "The count of the generated and the loaded data are different");
             for (int i = 0; i < loadedQueries.Count; i++)
@@ -119,8 +118,7 @@ namespace Mechanic_s_Assistant_Server_Tests.TestUtil
         [TestMethod]
         public void TestLoadQueryData()
         {
-            DataLoader loader = new DataLoader();
-            List<MechanicQuery> loadedQueries = loader.LoadMechanicQueries(QueryDataFileName);
+            List<MechanicQuery> loadedQueries = DataLoader.LoadMechanicQueries(QueryDataFileName);
             Assert.AreEqual(loadedQueries.Count, GeneratedQueries.Count, 
                 "The count of the generated and the loaded data are different");
             for (int i = 0; i < loadedQueries.Count; i++)

@@ -65,9 +65,15 @@ namespace MechanicsAssistantServer.Util
         // override object.GetHashCode
         public override int GetHashCode()
         {
+            int ret = (Make ?? "").GetHashCode();
+            ret += (Model ?? "").GetHashCode();
+            ret += (Vin ?? "").GetHashCode();
+            ret += (Complaint ?? "").GetHashCode();
+            ret += (Problem ?? "").GetHashCode();
+            return ret;
             // TODO: write your implementation of GetHashCode() here
-            throw new NotImplementedException();
-            return base.GetHashCode();
+            
+            
         }
     }
 
@@ -166,7 +172,7 @@ namespace MechanicsAssistantServer.Util
     public class DataLoader
     {
 
-        public List<KeywordTrainingExample> LoadKeywordTrainingExamples(string keywordDataFilePath)
+        public static List<KeywordTrainingExample> LoadKeywordTrainingExamples(string keywordDataFilePath)
         {
             DataContractJsonSerializer keywordDataSerializer = new DataContractJsonSerializer(
                 typeof(List<KeywordTrainingExample>)
@@ -178,7 +184,7 @@ namespace MechanicsAssistantServer.Util
             return keywordList;
         }
 
-        public List<MechanicQuery> LoadMechanicQueries(string queryFilePath)
+        public static List<MechanicQuery> LoadMechanicQueries(string queryFilePath)
         {
             DataContractJsonSerializer querySerializer = new DataContractJsonSerializer(
                 typeof(List<MechanicQuery>)

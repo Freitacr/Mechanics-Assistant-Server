@@ -114,8 +114,9 @@ namespace MechanicsAssistantServer.Models
                 {
                     if (featureIndices[i] == -1)
                     {
-                        double labelProbabilityPrime = labelEntry.Numerator + 1 / (double)(labelEntry.Denominator + 1);
-                        throw new NotImplementedException("New feature mapping has not been implemented as of yet");
+                        double toAdd = 1.0 / (FeatureProbabilityTables[i].Rows + 1);
+
+                        double labelProbabilityPrime = (labelEntry.Numerator + toAdd) / (labelEntry.Denominator + 1);
                     }
                     else
                     {
@@ -125,8 +126,10 @@ namespace MechanicsAssistantServer.Models
                         double featureProbability = CalculateFeatureProbability(currTable, featureIndex);
                         double divisionResult = CalculateFeatureLikelihood(currTable, entry.Numerator, labelIndex);
                         if (divisionResult == 0)
-                            throw new NotImplementedException("New Case mapping has not been implemented as of yet");
-
+                        {
+                            double toAdd = 1.0 / currTable.Rows;
+                            divisionResult = (entry.Numerator + toAdd) / (entry.Denominator + 1);
+                        }
                         calculatedProbability *= (divisionResult * labelProbability) / featureProbability;
                     }
                 }

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace MechanicsAssistantServer.Models.KeywordPrediction
 {
-    public class NaiveBayesKeywordPredictor : KeywordPredictor
+    public class NaiveBayesKeywordPredictor : IKeywordPredictor
     {
         private NaiveBayes Model;
 
@@ -50,6 +50,12 @@ namespace MechanicsAssistantServer.Models.KeywordPrediction
                 currIndex++;
             }
             return retKeywords;
+        }
+
+        public void Train(List<List<object>> X, List<object> Y)
+        {
+            Model = new NaiveBayes();
+            Model.Train(X, Y);
         }
 
         public bool Save(string filePath)

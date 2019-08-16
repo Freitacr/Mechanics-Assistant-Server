@@ -17,5 +17,10 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
 
         public void Claim() { NumberOfClaims++; }
         public void ReleaseClaim() { NumberOfClaims--; }
+
+        public override string ToString()
+        {
+            return ContainedExample.ToString();
+        }
     }
 }

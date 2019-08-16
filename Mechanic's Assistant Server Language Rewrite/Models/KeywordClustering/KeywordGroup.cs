@@ -97,6 +97,15 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             return SelectedKeywords.CountSimilar(example) / (double)example.Count;
         }
 
+        public double CalculateSimilarityScore(KeywordGroup otherGroup)
+        {
+            double ret = 0;
+            foreach(ClaimableKeywordExample x in ContainedMembers)
+                if (otherGroup.ContainedMembers.Contains(x))
+                    ret += 1;
+            return ret / ContainedMembers.Count;
+        }
+
         // override object.Equals
         public override bool Equals(object obj)
         {
@@ -117,6 +126,14 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
         {
             foreach (ClaimableKeywordExample ex in ContainedMembers)
                 ex.ReleaseClaim();
+        }
+
+        public override string ToString()
+        {
+            List<string> keywords = new List<string>();
+            foreach (string s in SelectedKeywords)
+                keywords.Add(s);
+            return string.Join(' ', keywords);
         }
     }
 }

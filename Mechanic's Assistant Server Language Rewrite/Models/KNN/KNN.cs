@@ -47,6 +47,22 @@ namespace MechanicsAssistantServer.Models
         }
     }
 
+    internal static class KNNTypeDictionaries
+    {
+        public static Dictionary<Type, bool> USE_RAW { get; private set; } = null;
+        public static void InitializeTypeDictionaries()
+        {
+            if (USE_RAW == null)
+            {
+                USE_RAW = new Dictionary<Type, bool>();
+                USE_RAW[typeof(double)] = true;
+                USE_RAW[typeof(int)] = true;
+                USE_RAW[typeof(short)] = true;
+                USE_RAW[typeof(float)] = true;
+            }
+        }
+    }
+
     /**
      * <summary><c>KNN</c> is a modified implementation of the K Nearest Neighbours algorithm</summary>  
      * It is modified in the sense that it returns the classes of the top K most similar data points
@@ -62,18 +78,13 @@ namespace MechanicsAssistantServer.Models
         {
             LabelMappingDictionaries = new List<Dictionary<object, int>>();
             DataPoints = new List<KNNDataPoint>();
+            KNNTypeDictionaries.InitializeTypeDictionaries();
         }
 
         private Type TypeOfDataElement(object obj)
         {
-            try
-            {
-                var o = (double)obj;
-                return o.GetType();
-            } catch(InvalidCastException)
-            {
-                return obj.GetType();
-            }
+            Type ret = obj.GetType();
+            return ret;
         }
 
         private void ValidateTrainingData(List<List<object>> X)
@@ -111,13 +122,16 @@ namespace MechanicsAssistantServer.Models
             ValidateTargetData(Y, X.Count);
         }
 
+
+
         private void SetupLabelDictionary(List<List<object>> x, int indexToFill, Dictionary<object, int> toFill)
         {
-            if (TypeOfDataElement(x[0][indexToFill]) == (0.4).GetType())
+            if (KNNTypeDictionaries.USE_RAW.ContainsKey(x[0][indexToFill].GetType()))
                 return;
             for (int i = 0; i < x.Count; i++)
             {
-                toFill[x[i][indexToFill]] = toFill.Count;
+                if(!toFill.ContainsKey(x[i][indexToFill]))
+                    toFill[x[i][indexToFill]] = toFill.Count;
             }
         }
 
@@ -131,9 +145,9 @@ namespace MechanicsAssistantServer.Models
          *   Then each data that needs to be mapped is given a number based on its order of appearance;
          *   So if 'a' was seen by the mapping algorithm first, then it is assigned the value 0, etc.
          */
-        public void SetupLabelMapping(List<List<object>> X)
+        private void SetupLabelMapping(List<List<object>> X)
         {
-            for (int i = 0; i < X.Count; i++)
+            for (int i = 0; i < X[0].Count; i++)
             {
                 var toFill = new Dictionary<object, int>();
                 SetupLabelDictionary(X, i, toFill);
@@ -160,21 +174,23 @@ namespace MechanicsAssistantServer.Models
         private KNNDataPoint GenerateKNNDataPoint(List<object> x, object y)
         {
             List<double> dataPoints = new List<double>();
+            var typeDictionary = KNNTypeDictionaries.USE_RAW;
             for (int i = 0; i < x.Count; i++)
             {
-                try
+                if (typeDictionary.ContainsKey(x[i].GetType()))
                 {
-                    double axisValue = (double)x[i];
-                    dataPoints.Add(axisValue);
-                } catch (InvalidCastException)
+                    dataPoints.Add(Convert.ToDouble(x[i]));
+                } else
                 {
                     if (LabelMappingDictionaries[i] == null)
                         throw new InvalidDataFormatException(
                             "Input data format did not match trained data format for index " + i
                         );
-                    try {
+                    try
+                    {
                         dataPoints.Add(LabelMappingDictionaries[i][x[i]]);
-                    } catch(KeyNotFoundException)
+                    }
+                    catch (KeyNotFoundException)
                     {
                         LabelMappingDictionaries[i][x[i]] = LabelMappingDictionaries[i].Count;
                         dataPoints.Add(LabelMappingDictionaries[i][x[i]]);
@@ -236,12 +252,11 @@ namespace MechanicsAssistantServer.Models
             List<double> retPoint = new List<double>();
             for (int i = 0; i < inputData.Count; i++)
             {
-                if (LabelMappingDictionaries[i] == null)
+                if (LabelMappingDictionaries[i].Count == 0)
                 {
                     try
                     {
-                        double val = (double)inputData[i];
-                        retPoint.Add(val);
+                        retPoint.Add(Convert.ToDouble(inputData[i]));
                     }
                     catch (InvalidCastException)
                     {
@@ -305,9 +320,9 @@ namespace MechanicsAssistantServer.Models
         public static int Compare(KNNDistanceMapping a, KNNDistanceMapping b)
         {
             if (a.Distance < b.Distance)
-                return 1;
-            if (a.Distance > b.Distance)
                 return -1;
+            if (a.Distance > b.Distance)
+                return 1;
             return 0;
         }
     }

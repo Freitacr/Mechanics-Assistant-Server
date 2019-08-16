@@ -26,7 +26,7 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
 
         public void AddKeyword(string toAdd)
         {
-            ModifiableKeywords.Add(toAdd);
+            ModifiableKeywords.Add(toAdd.ToLower());
         }
 
         public bool Contains(string keyword)
@@ -67,6 +67,11 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             foreach (string keyword in this)
                 ret.AddKeyword(keyword);
             return ret;
+        }
+
+        public override string ToString()
+        {
+            return string.Join(' ', ModifiableKeywords);
         }
     }
 }
