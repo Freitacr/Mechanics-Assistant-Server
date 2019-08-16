@@ -22,6 +22,17 @@ namespace MechanicsAssistantServer.Net
             return true;
         }
 
+        public void AddMappings(Api.ApiDefinition defIn)
+        {
+            AddMappings(defIn.ContainedDefinition);
+        }
+
+        public void AddMappings(UriMappingCollection collectionIn)
+        {
+            foreach (KeyValuePair<UriMapping, Action<HttpListenerContext>> mapping in collectionIn)
+                ContainedCollection.Add(mapping.Key, mapping.Value);
+        }
+
         public IEnumerator<KeyValuePair<UriMapping, Action<HttpListenerContext>>> GetEnumerator()
         {
             return ContainedCollection.GetEnumerator();
