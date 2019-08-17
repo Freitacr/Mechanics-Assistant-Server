@@ -8,10 +8,16 @@ namespace MechanicsAssistantServer.Net
 {
     public class QueryResponseServer
     {
-        private readonly HttpListener Listener;
-        private readonly UriMappingCollection PrefixMapping;
+        private HttpListener Listener;
+        private UriMappingCollection PrefixMapping;
+        public bool IsAlive { get; private set; }
        
-        public QueryResponseServer(UriMappingCollection prefixMapping)
+        public QueryResponseServer()
+        {
+
+        }
+
+        public void ListenForResponses(UriMappingCollection prefixMapping)
         {
             Listener = new HttpListener();
             foreach (KeyValuePair<UriMapping, Action<HttpListenerContext>> prefixPair in prefixMapping)
@@ -20,11 +26,9 @@ namespace MechanicsAssistantServer.Net
                     Listener.Prefixes.Add(prefixPair.Key.Uri);
             }
             PrefixMapping = prefixMapping;
-        }
 
-        public void ListenForResponses()
-        {
             Listener.Start();
+            IsAlive = true;
             ThreadPool.QueueUserWorkItem(
             (unused) => {
                 Console.WriteLine("Server has begun listening for responses...");
@@ -50,7 +54,7 @@ namespace MechanicsAssistantServer.Net
                             (context) => action(context as HttpListenerContext), ctx
                         );
                     }
-                    Console.WriteLine("HTTP request came in: " + ctx.Request.HttpMethod + " " + ctx.Request.Url);
+                    //Console.WriteLine("HTTP request came in: " + ctx.Request.HttpMethod + " " + ctx.Request.Url);
                 }
             }
             );
@@ -59,8 +63,12 @@ namespace MechanicsAssistantServer.Net
 
         public void Close()
         {
-            Listener.Stop();
-            Listener.Close();
+            if (Listener.IsListening)
+            {
+                Listener.Stop();
+                Listener.Close();
+                IsAlive = false;
+            }
         }
     }
 }

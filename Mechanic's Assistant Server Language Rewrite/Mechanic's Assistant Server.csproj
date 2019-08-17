@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>MechanicsAssistantServer</RootNamespace>
+    <StartupObject>MechanicsAssistantServer.ProgramMain</StartupObject>
+    <ApplicationIcon />
+    <AssemblyName>server</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="PosTagger.exe" />
+  </ItemGroup>
+
+</Project>

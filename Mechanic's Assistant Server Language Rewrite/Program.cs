@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Net;
-using System.Collections.Generic;
-using MechanicsAssistantServer.Net;
+using System.Threading;
+using MechanicsAssistantServer.Net.Api;
+using MechanicsAssistantServer.Models;
 
 namespace MechanicsAssistantServer
 {
@@ -15,15 +16,12 @@ namespace MechanicsAssistantServer
             ctx.Response.OutputStream.Close();
         }
 
+
         static void Main(string[] args)
         {
-            UriMappingCollection mappingCollection = new UriMappingCollection();
-            mappingCollection.AddMapping("put", "http://localhost:16384/testput", HandleTestPut);
-            QueryResponseServer server = new QueryResponseServer(mappingCollection);
-            server.ListenForResponses();
-            Console.WriteLine("Simple server started... press any key to exit");
-            Console.ReadKey();
-            server.Close();
+            var server = ApiLoader.LoadApiAndListen(16384, new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings()));
+            while (server.IsAlive)
+                Thread.Sleep(100);
             //QueryProcessor processor = new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings());
             //processor.ProcessQuery(new Util.MechanicQuery("autocar", "xpeditor", null, null, "runs rough"));
         }

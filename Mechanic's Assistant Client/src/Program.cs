@@ -74,6 +74,7 @@ namespace Mechanics_Assistant_Client
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             bool ShouldQuery;
+            QueryProcessingServerUtils.StartServer();
             //do while the User is signed in
             do
             {
@@ -86,24 +87,17 @@ namespace Mechanics_Assistant_Client
                     string make = MainForm.GetMakeTextBoxValue();
                     string model = MainForm.GetModelTextBoxValue();
                     string complaint = MainForm.GetComplaintTextBoxValue();
-                    MechanicsEntry entry = new MechanicsEntry(make, model, complaint);
-                    DataContractJsonSerializer entrySerializer = new DataContractJsonSerializer(typeof(MechanicsEntry));
-                    OpenOutfileStream("entry.txt", out StreamWriter fileOut);
-                    entrySerializer.WriteObject(fileOut.BaseStream, entry);
-                    fileOut.Close();
-                    ProblemPredictionWrapper programWrapper = new ProblemPredictionWrapper("ProblemPrediction.exe");
-                    programWrapper.AddArguments("entry.txt");
-                    programWrapper.StartProblemPredictionProgram();
-                    StreamReader returnVal = programWrapper.BlockAndGetStream();
-                    DataContractJsonSerializer resultSerializer = new DataContractJsonSerializer(typeof(List<ProblemStorage>));
-                    var returnValues = (List<ProblemStorage>)resultSerializer.ReadObject(returnVal.BaseStream);
-                    returnVal.Close();
+                    List<string> predictedProblems = QueryProcessingServerUtils.ProcessQuery(make, model, complaint);
+                    List<ProblemStorage> returnValues = new List<ProblemStorage>();
+                    foreach (string s in predictedProblems)
+                        returnValues.Add(new ProblemStorage(s));
                     MechanicsAssistantOutputForm outputForm = new MechanicsAssistantOutputForm();
                     outputForm.AddData(returnValues);
                     Application.Run(outputForm);
                     ShouldQuery = outputForm.ShouldQueryAgain;
                 }
             } while (ShouldQuery);
+            QueryProcessingServerUtils.CloseServer();
         }
     }
 }

@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mechanic's Assistant Server Language Rewrite\Mechanic's Assistant Server Language Rewrite.csproj" />
+    <ProjectReference Include="..\Mechanic's Assistant Server Language Rewrite\Mechanic's Assistant Server.csproj" />
   </ItemGroup>
 
 </Project>

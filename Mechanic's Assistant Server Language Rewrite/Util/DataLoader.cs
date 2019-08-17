@@ -17,13 +17,13 @@ namespace MechanicsAssistantServer.Util
         [DataMember(Name = "model")]
         public string Model { get; set; }
 
-        [DataMember(Name = "problem")]
+        [DataMember(Name = "problem", IsRequired = false)]
         public string Problem { get; set; }
 
         [DataMember(Name = "complaint")]
         public string Complaint { get; set; }
 
-        [DataMember(Name = "vin")]
+        [DataMember(Name = "vin", IsRequired = false)]
         public string Vin { get; set; }
 
         public MechanicQuery(string make, string model, string problem, string vin, string complaint)
