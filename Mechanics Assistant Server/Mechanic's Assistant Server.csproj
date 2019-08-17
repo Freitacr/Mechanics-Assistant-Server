@@ -8,9 +8,4 @@
     <ApplicationIcon />
     <AssemblyName>server</AssemblyName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="PosTagger.exe" />
-  </ItemGroup>
-
 </Project>

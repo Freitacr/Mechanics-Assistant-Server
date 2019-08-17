@@ -252,7 +252,7 @@ namespace MechanicsAssistantServer.Models
             List<double> retPoint = new List<double>();
             for (int i = 0; i < inputData.Count; i++)
             {
-                if (LabelMappingDictionaries[i].Count == 0)
+                if (LabelMappingDictionaries[i] == null || LabelMappingDictionaries[i].Count == 0)
                 {
                     try
                     {

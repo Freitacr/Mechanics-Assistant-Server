@@ -15,4 +15,9 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Mechanic's Assistant Server\Mechanic's Assistant Server.csproj" />
+    <ProjectReference Include="..\Mechanics Assistant Server\Mechanic's Assistant Server.csproj" />
+  </ItemGroup>
+
 </Project>
