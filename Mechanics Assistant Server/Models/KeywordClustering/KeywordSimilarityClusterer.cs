@@ -177,7 +177,7 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
                 {
                     KeywordGroup tempGroup = new KeywordGroup(topKeywords[currentKeywordIndex]);
                     tempGroup.UpdateMembers(data);
-                    if (tempGroup.Count > minimumMembers && !IsGroupInContainedGroups(tempGroup))
+                    if (tempGroup.Count > minimumMembers && !IsGroupInContainedGroups(tempGroup) && !currentGroups.Contains(tempGroup))
                     {
                         bool wasAdded = currentGroups.Add(tempGroup);
                         if (wasAdded)

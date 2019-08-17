@@ -5,6 +5,7 @@ using MechanicsAssistantServer.Models.POSTagger;
 using MechanicsAssistantServer.Models.KeywordPrediction;
 using MechanicsAssistantServer.Models.KeywordClustering;
 using MechanicsAssistantServer.Models.QueryProblemPrediction;
+using MechanicsAssistantServer.Data;
 using MechanicsAssistantServer.Util;
 
 namespace MechanicsAssistantServer.Models
@@ -20,6 +21,8 @@ namespace MechanicsAssistantServer.Models
         public string KeywordClustererIdString;
         public string ProblemPredictorIdString;
 
+        public DataSource DataSource;
+
         public bool IsComplete()
         {
             return !(TaggerFilePath == null ||
@@ -28,7 +31,8 @@ namespace MechanicsAssistantServer.Models
                 ProblemPredictorFilePath == null ||
                 KeywordPredictorIdString == null ||
                 KeywordClustererIdString == null ||
-                ProblemPredictorIdString == null);
+                ProblemPredictorIdString == null ||
+                DataSource == null);
         }
 
         public static QueryProcessorSettings GenerateDefaultSettings()
@@ -41,6 +45,7 @@ namespace MechanicsAssistantServer.Models
             ret.KeywordClustererIdString = "";
             ret.ProblemPredictorFilePath = "";
             ret.ProblemPredictorIdString = "";
+            ret.DataSource = new FileSystemDataSource();
             return ret;
         }
     }
@@ -54,11 +59,13 @@ namespace MechanicsAssistantServer.Models
         private IKeywordPredictor KeywordPredictor;
         private IKeywordClusterer KeywordClusterer;
         private IQueryProblemPredictor ProblemPredictor;
+        private DataSource DataSource;
 
         public QueryProcessor(QueryProcessorSettings settingsIn)
         {
             if (!settingsIn.IsComplete())
                 throw new ArgumentException("Settings was not fully filled out prior to attempted use");
+            DataSource = settingsIn.DataSource;
 
             if (!LoadModels(settingsIn))
                 RestoreModels();
@@ -196,7 +203,7 @@ namespace MechanicsAssistantServer.Models
 
         private bool RestoreKeywordPredictor()
         {
-            var examplesIn = DataLoader.LoadKeywordTrainingExamples(DefaultDataFileLocations.KEYWORD_DATA_TRAINING_FILE);
+            var examplesIn = DataSource.LoadKeywordTrainingExamples();
             var X = KeywordPredictorTrainingUtils.GenerateKeywordTrainingData(examplesIn);
             var Y = KeywordPredictorTrainingUtils.GenerateKeywordTargetData(examplesIn);
             KeywordPredictor.Train(X, Y);
@@ -212,7 +219,7 @@ namespace MechanicsAssistantServer.Models
 
         private bool RestoreKeywordClusterer()
         {
-            List<MechanicQuery> mechanicQueries = DataLoader.LoadMechanicQueries(DefaultDataFileLocations.MECHANIC_QUERY_DATA_FILE);
+            List<MechanicQuery> mechanicQueries = DataSource.LoadMechanicQueries();
             List<KeywordExample> trainingExamples = new List<KeywordExample>();
             foreach(MechanicQuery query in mechanicQueries)
             {
@@ -240,7 +247,7 @@ namespace MechanicsAssistantServer.Models
         private bool RestoreProblemPredictor()
         {
             ProblemPredictor = new KNNProblemPredictor();
-            List<MechanicQuery> mechanicQueries = DataLoader.LoadMechanicQueries(DefaultDataFileLocations.MECHANIC_QUERY_DATA_FILE);
+            List<MechanicQuery> mechanicQueries = DataSource.LoadMechanicQueries();
             List<List<object>> trainingExamples = new List<List<object>>();
             List<object> targetExamples = new List<object>();
             foreach (MechanicQuery query in mechanicQueries)

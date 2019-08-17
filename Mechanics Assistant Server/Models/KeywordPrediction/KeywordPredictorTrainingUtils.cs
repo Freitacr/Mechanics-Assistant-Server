@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MechanicsAssistantServer.Util;
+using MechanicsAssistantServer.Data;
 using System.Text;
 
 namespace MechanicsAssistantServer.Models.KeywordPrediction
