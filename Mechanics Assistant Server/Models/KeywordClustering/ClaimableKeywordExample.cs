@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MechanicsAssistantServer.Models.KeywordClustering
+﻿namespace MechanicsAssistantServer.Models.KeywordClustering
 {
     public class ClaimableKeywordExample
     {

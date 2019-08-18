@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MechanicsAssistantServer.Data;
-using System.Text;
 
 namespace MechanicsAssistantServer.Models.KeywordPrediction
 {
