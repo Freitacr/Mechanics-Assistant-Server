@@ -10,5 +10,6 @@ namespace MechanicsAssistantServer.Data
 
         public abstract List<KeywordTrainingExample> LoadKeywordTrainingExamples();
 
+        public abstract bool AddData(MechanicQuery toAdd);
     }
 }

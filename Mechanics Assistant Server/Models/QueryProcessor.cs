@@ -103,6 +103,11 @@ namespace MechanicsAssistantServer.Models
             return returnProblems;
         }
 
+        public bool AddData(MechanicQuery toAdd)
+        {
+            return DataSource.AddData(toAdd);
+        }
+
         private bool LoadModels(QueryProcessorSettings settingsIn)
         {
             bool ret = LoadPartOfSpeechTagger(DefaultModelFileLocations.POS_TAGGER_ENG_FILE);

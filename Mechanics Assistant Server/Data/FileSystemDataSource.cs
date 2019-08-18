@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
+using System.Runtime.Serialization;
 
 namespace MechanicsAssistantServer.Data
 {
@@ -32,6 +33,45 @@ namespace MechanicsAssistantServer.Data
                 .ReadObject(queryFileReader.BaseStream);
             queryFileReader.Close();
             return retList;
+        }
+
+        public override bool AddData(MechanicQuery toAdd)
+        {
+            DataContractJsonSerializer querySerializer = new DataContractJsonSerializer(
+                typeof(List<MechanicQuery>)
+                );
+
+            StreamReader queryFileReader;
+            try
+            {
+                queryFileReader = new StreamReader(DEFAULT_MECHANIC_QUERY_FILE_PATH);
+            } catch (IOException)
+            {
+                return false;
+            }
+            List<MechanicQuery> retList = (List<MechanicQuery>)querySerializer
+                .ReadObject(queryFileReader.BaseStream);
+            queryFileReader.Close();
+            retList.Add(toAdd);
+            StreamWriter queryFileWriter;
+            try
+            {
+                queryFileWriter = new StreamWriter(DEFAULT_MECHANIC_QUERY_FILE_PATH);
+            } catch (IOException)
+            {
+                return false;
+            }
+            try
+            {
+                querySerializer.WriteObject(queryFileWriter.BaseStream, retList);
+            } catch (SerializationException)
+            {
+                retList.RemoveAt(retList.Count - 1);
+                querySerializer.WriteObject(queryFileWriter.BaseStream, retList);
+                return false;
+            }
+            queryFileWriter.Close();
+            return true;
         }
     }
 }
