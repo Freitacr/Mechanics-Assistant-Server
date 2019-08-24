@@ -62,6 +62,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\forms\TextInputForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\forms\TextInputForm.Designer.cs">
+      <DependentUpon>TextInputForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="src\ProbelmPredictionWrapper.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -93,6 +99,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="src\forms\MechanicsAssistantOutputForm.resx">
       <DependentUpon>MechanicsAssistantOutputForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="src\forms\TextInputForm.resx">
+      <DependentUpon>TextInputForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

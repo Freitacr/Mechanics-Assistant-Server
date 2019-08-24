@@ -41,6 +41,8 @@ namespace MechanicsAssistantServer.Net.Api
                 return;
             }
             MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
+            query.Make = query.Make.ToLower();
+            query.Model = query.Model.ToLower();
             List<string> possibleProblems = QueryProcessor.ProcessQuery(query);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<string>));
             MemoryStream stream = new MemoryStream();

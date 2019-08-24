@@ -1,4 +1,4 @@
-﻿namespace Mechanics_Assistant_Client.Forms
+﻿namespace MechanicsAssistantClient.Forms
 {
     partial class MechanicsAssistantOutputForm
     {

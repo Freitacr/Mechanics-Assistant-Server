@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Mechanics_Assistant_Client.Forms;
+using MechanicsAssistantClient.Forms;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
-using Mechanic_Assistant_Client.src;
+using MechanicsAssistantClient.src;
 
-namespace Mechanics_Assistant_Client
+namespace MechanicsAssistantClient
 {
     /*
      * Storage class for the query data from the User
@@ -87,11 +87,13 @@ namespace Mechanics_Assistant_Client
                     string make = MainForm.GetMakeTextBoxValue();
                     string model = MainForm.GetModelTextBoxValue();
                     string complaint = MainForm.GetComplaintTextBoxValue();
-                    List<string> predictedProblems = QueryProcessingServerUtils.ProcessQuery(make, model, complaint);
+                    Query query = new Query(make, model, complaint);
+                    List<string> predictedProblems = QueryProcessingServerUtils.ProcessQuery(query);
                     List<ProblemStorage> returnValues = new List<ProblemStorage>();
                     foreach (string s in predictedProblems)
                         returnValues.Add(new ProblemStorage(s));
                     MechanicsAssistantOutputForm outputForm = new MechanicsAssistantOutputForm();
+                    outputForm.ContainedQuery = query;
                     outputForm.AddData(returnValues);
                     Application.Run(outputForm);
                     ShouldQuery = outputForm.ShouldQueryAgain;

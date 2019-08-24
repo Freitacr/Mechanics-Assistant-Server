@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 
-namespace Mechanic_Assistant_Client.src
+namespace MechanicsAssistantClient.src
 {
     /*
      * Creates and retrieves data from ProblemPredictionProgram

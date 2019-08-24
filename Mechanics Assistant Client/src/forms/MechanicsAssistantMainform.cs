@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
-namespace Mechanics_Assistant_Client.Forms
+namespace MechanicsAssistantClient.Forms
 {
     /*
      * the query creation window

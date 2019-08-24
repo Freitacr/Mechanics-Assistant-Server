@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Mechanics_Assistant_Client.Forms
+namespace MechanicsAssistantClient.Forms
 {
     /*
      * Output window, used to display the list of problems the AI returns from the Query
@@ -17,7 +17,7 @@ namespace Mechanics_Assistant_Client.Forms
     {
 
         public bool ShouldQueryAgain { get; set; } = false;
-
+        public Query ContainedQuery;
         /*
          * Table format
          */
@@ -87,12 +87,27 @@ namespace Mechanics_Assistant_Client.Forms
          */
         private void AddProblemButton_Click(object sender, EventArgs e)
         {
+            TextInputForm problemForm = TextInputForm.Show("Please give a short description of the problem", "Input Required");
+            if (problemForm.Result != DialogResult.OK)
+                return;
+            string listedProblem = problemForm.InputBoxContents;
+            ContainedQuery.Problem = listedProblem;
+            if(!QueryProcessingServerUtils.AddProblemToServer(ContainedQuery))
+            {
+                MessageBox.Show(
+                    "Error Occurred; Problem not added to server",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                    );
+                return;
+            }
             MessageBox.Show(
-                "Feature is currently not supported",
-                "Apologies...",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error
-                );
+                    "Problem successfully added to server",
+                    "Success",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                    );
         }
     }
 }

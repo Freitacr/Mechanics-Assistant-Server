@@ -7,10 +7,10 @@ using System.Diagnostics;
 using System.Threading;
 using System.Net;
 
-namespace Mechanic_Assistant_Client.src
+namespace MechanicsAssistantClient
 {
     [DataContract]
-    internal class Query
+    public class Query
     {
         [DataMember(Name = "make")]
         public string Make;
@@ -18,6 +18,8 @@ namespace Mechanic_Assistant_Client.src
         public string Model;
         [DataMember(Name = "complaint")]
         public string Complaint;
+        [DataMember(Name = "problem", IsRequired = false)]
+        public string Problem;
 
         public Query()
         {
@@ -29,6 +31,11 @@ namespace Mechanic_Assistant_Client.src
             Make = make;
             Model = model;
             Complaint = complaint;
+        }
+
+        public Query(string make, string model, string complaint, string problem) : this(make, model, complaint)
+        {
+            Problem = problem;
         }
     }
 
@@ -50,9 +57,8 @@ namespace Mechanic_Assistant_Client.src
             QueryServer = Process.Start(info);
         }
 
-        public static List<string> ProcessQuery(string make, string model, string complaint)
+        public static List<string> ProcessQuery(Query query)
         {
-            Query query = new Query(make, model, complaint);
             WebRequest req = WebRequest.CreateHttp("http://localhost:16384/query");
             req.Method = "PUT";
             req.ContentType = "application/json";
@@ -73,6 +79,25 @@ namespace Mechanic_Assistant_Client.src
             List<string> ret = listSerializer.ReadObject(resp.GetResponseStream()) as List<string>;
             resp.GetResponseStream().Close();
             queryBytes.Close();
+            return ret;
+        }
+
+        public static bool AddProblemToServer(Query query)
+        {
+            HttpWebRequest req = WebRequest.CreateHttp("http://localhost:16384/query");
+            req.Method = "POST";
+            req.ContentType = "application/json";
+            req.Credentials = CredentialCache.DefaultCredentials;
+            MemoryStream queryBytes = new MemoryStream();
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Query));
+            serializer.WriteObject(queryBytes, query);
+            byte[] serialized = queryBytes.ToArray();
+            req.ContentLength = serialized.LongLength;
+            req.GetRequestStream().Write(serialized, 0, serialized.Length);
+            req.GetRequestStream().Close();
+            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+            bool ret = resp.StatusCode == HttpStatusCode.OK;
+            resp.Close();
             return ret;
         }
 
