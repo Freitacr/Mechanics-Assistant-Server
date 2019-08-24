@@ -29,7 +29,7 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             double minimumMembers = Math.Pow(1.2,
                     (Math.Log(data.Count) / Math.Log(1.88))
                 );
-            minimumMembers -= 3;
+            //minimumMembers -= 3;
 
             List<ClaimableKeywordExample> claimableData = new List<ClaimableKeywordExample>();
             foreach (KeywordExample ex in data)
@@ -92,6 +92,12 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             AddGroupsFromData(data, topKeywords, minimumMembers, defaults, ret);
             bool groupListChanged = true;
             int epochCount = 0;
+            int largestGroupSize = CalculateLargestGroupSize(ret);
+            List<KeywordGroup> subGroups = new List<KeywordGroup>();
+            foreach (KeywordGroup x in ret)
+                subGroups.AddRange(x.GenerateSubGroups(largestGroupSize, minimumMembers));
+            ret.UnionWith(subGroups);
+            /*
             while (groupListChanged && epochCount < maxEpochs)
             {
 
@@ -147,6 +153,7 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
                 ret = RemoveDuplicateAndInvalidGroups(ret, minimumMembers);
                 epochCount++;
             }
+            */
             return ret;
         }
 
@@ -180,6 +187,7 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
                     if (tempGroup.Count > minimumMembers && !IsGroupInContainedGroups(tempGroup) && !currentGroups.Contains(tempGroup))
                     {
                         bool wasAdded = currentGroups.Add(tempGroup);
+                        //List<KeywordGroup> subGroups = tempGroup.GenerateSubGroups(CalculateLargestGroupSize(currentGroups), minimumMembers);
                         if (wasAdded)
                             break;
                         else

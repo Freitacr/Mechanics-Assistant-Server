@@ -194,13 +194,20 @@ namespace MechanicsAssistantServer.Models
         {
             if (PartOfSpeechTagger == null)
                 return false;
+            bool previousModelRestored = false;
             if (KeywordPredictor == null)
+            {
                 if (!RestoreKeywordPredictor())
                     return false;
-            if (KeywordClusterer == null)
+                previousModelRestored = true;
+            }
+            if (KeywordClusterer == null || previousModelRestored)
+            {
                 if (!RestoreKeywordClusterer())
                     return false;
-            if (ProblemPredictor == null)
+                previousModelRestored = true;
+            }
+            if (ProblemPredictor == null || previousModelRestored)
                 if (!RestoreProblemPredictor())
                     return false;
             return true;

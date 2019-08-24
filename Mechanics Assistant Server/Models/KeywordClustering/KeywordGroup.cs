@@ -70,6 +70,39 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             UpdateMembers();
         }
 
+        public List<KeywordGroup> GenerateSubGroups(int maxGroupSize, double minimumMembers)
+        {
+            double globalThreshold = .25;
+            HashSet<KeywordGroup> ret = new HashSet<KeywordGroup>();
+
+            foreach(string keyword in ContainedKeywords.Keys)
+            {
+                if(!SelectedKeywords.Contains(keyword))
+                {
+                    if (ContainedKeywords[keyword] / (double)ContainedMembers.Count >= globalThreshold)
+                    {
+                        var keywords = SelectedKeywords.ContainedKeywords;
+                        keywords.MoveNext();
+                        KeywordGroup temp = new KeywordGroup(keywords.Current);
+                        while (keywords.MoveNext())
+                            temp.SelectedKeywords.AddKeyword(keywords.Current);
+                        temp.SelectedKeywords.AddKeyword(keyword);
+                        temp.UpdateMembers(ContainedMembers);
+                        if(temp.ContainedMembers.Count < minimumMembers)
+                        {
+                            temp.DeleteClaims();
+                            continue;
+                        }
+                        foreach (KeywordGroup tempSubGroup in temp.GenerateSubGroups(maxGroupSize, minimumMembers))
+                            if (!ret.Add(tempSubGroup))
+                                tempSubGroup.DeleteClaims();
+                        ret.Add(temp);
+                    }
+                }
+            }
+            return new List<KeywordGroup>(ret);
+        }
+
         private void UpdateMembers()
         {
             List<ClaimableKeywordExample> toRemove = new List<ClaimableKeywordExample>();
