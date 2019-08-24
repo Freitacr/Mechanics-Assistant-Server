@@ -68,7 +68,6 @@
     <Compile Include="src\forms\TextInputForm.Designer.cs">
       <DependentUpon>TextInputForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="src\ProbelmPredictionWrapper.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\forms\MechanicsAssistantMainform.cs">
