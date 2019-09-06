@@ -9,8 +9,8 @@ namespace MechanicsAssistantServer.Data
 {
     class FileSystemDataSource : DataSource
     {
-        private static readonly string DEFAULT_KEYWORD_DATA_FILE_PATH = "Data\\formattedKeywordTrainingData.ans";
-        private static readonly string DEFAULT_MECHANIC_QUERY_FILE_PATH = "Data\\mechanicQueries.ans";
+        private static readonly string DEFAULT_KEYWORD_DATA_FILE_PATH = "InitialData\\formattedKeywordTrainingData.ans";
+        private static readonly string DEFAULT_MECHANIC_QUERY_FILE_PATH = "InitialData\\mechanicQueries.ans";
 
         public override List<KeywordTrainingExample> LoadKeywordTrainingExamples()
         {

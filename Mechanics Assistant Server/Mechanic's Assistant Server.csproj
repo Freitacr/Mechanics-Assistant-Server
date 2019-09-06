@@ -13,4 +13,16 @@
     <ProjectReference Include="..\ANSEncodingLib\ANSEncodingLib.csproj" />
     <ProjectReference Include="..\EncodingUtilities\EncodingUtilities.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="InitialData\averaged_perceptron_tagger.ans">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="InitialData\formattedKeywordTrainingData.ans">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="InitialData\mechanicQueries.ans">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

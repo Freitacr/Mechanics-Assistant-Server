@@ -218,7 +218,7 @@ namespace MechanicsAssistantServer.Models
             try
             {
                 streamIn = new AnsDecoderStream(new FileStream(filePath, FileMode.Open, FileAccess.Read));
-            } catch(FileNotFoundException)
+            } catch(IOException)
             {
                 return false;
             }
@@ -236,6 +236,7 @@ namespace MechanicsAssistantServer.Models
         {
             if (PartOfSpeechTagger == null)
                 return false;
+            Directory.CreateDirectory("Models");
             bool previousModelRestored = false;
             if (!KeywordPredictorValid)
             {
