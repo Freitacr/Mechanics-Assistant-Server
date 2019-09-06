@@ -12,9 +12,8 @@ namespace MechanicsAssistantServer.Models.POSTagger
         private Dictionary<string, string> KnownTags;
         public List<string> Classes { get; private set; }
         private AveragedPerceptron Model;
-        public static AveragedPerceptronTagger Load(string filePath)
+        public static AveragedPerceptronTagger Load(Stream fileStreamIn)
         {
-            FileStream fileStreamIn = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             StreamReader textReader = new StreamReader(fileStreamIn);
             List<object> dataContents = CustomJsonParser.ParseList(textReader);
             AveragedPerceptronTagger tagger = new AveragedPerceptronTagger();

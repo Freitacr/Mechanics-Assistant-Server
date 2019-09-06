@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace MechanicsAssistantServer.Models.KeywordClustering
 {
@@ -6,9 +7,9 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
     {
         void Train(List<KeywordExample> data);
 
-        bool Load(string filePath);
+        bool Load(Stream streamIn);
 
-        bool Save(string filePath);
+        bool Save(Stream streamIn);
 
         List<int> PredictGroupSimilarity(KeywordExample exampleIn);
 

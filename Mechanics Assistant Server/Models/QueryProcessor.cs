@@ -7,6 +7,7 @@ using MechanicsAssistantServer.Models.KeywordClustering;
 using MechanicsAssistantServer.Models.QueryProblemPrediction;
 using MechanicsAssistantServer.Data;
 using MechanicsAssistantServer.Util;
+using ANSEncodingLib;
 
 namespace MechanicsAssistantServer.Models
 {
@@ -60,6 +61,9 @@ namespace MechanicsAssistantServer.Models
         private IKeywordClusterer KeywordClusterer;
         private IQueryProblemPredictor ProblemPredictor;
         private DataSource DataSource;
+        private bool KeywordPredictorValid;
+        private bool KeywordClustererValid;
+        private bool ProblemPredictorValid;
 
         public QueryProcessor(QueryProcessorSettings settingsIn)
         {
@@ -119,9 +123,14 @@ namespace MechanicsAssistantServer.Models
 
         private bool LoadPartOfSpeechTagger(string filePath)
         {
+
             try
             {
-                PartOfSpeechTagger = AveragedPerceptronTagger.Load(filePath);
+                AnsDecoderStream stream = new AnsDecoderStream(
+                    new FileStream(filePath, FileMode.Open, FileAccess.Read)
+                );
+                PartOfSpeechTagger = AveragedPerceptronTagger.Load(stream);
+                stream.Close();
             }
             catch (IOException)
             {
@@ -141,14 +150,24 @@ namespace MechanicsAssistantServer.Models
         private bool LoadKeywordPredictor(string filePath)
         {
             KeywordPredictor = new NaiveBayesKeywordPredictor();
+            AnsDecoderStream streamIn;
             try
             {
-                KeywordPredictor.Load(filePath);
+                streamIn = new AnsDecoderStream(
+                    new FileStream(filePath, FileMode.Open, FileAccess.Read)
+                );
             } catch (IOException)
             {
-                KeywordPredictor = null;
                 return false;
             }
+            if (!KeywordPredictor.Load(streamIn))
+            {
+                streamIn.Close();
+                KeywordPredictorValid = false;
+                return false;
+            }
+            streamIn.Close();
+            KeywordPredictorValid = true;
             return true;
         }
 
@@ -163,12 +182,24 @@ namespace MechanicsAssistantServer.Models
         private bool LoadKeywordClusterer(string filePath)
         {
             KeywordClusterer = new KeywordSimilarityClusterer();
-
-            if (!KeywordClusterer.Load(filePath))
+            AnsDecoderStream decoderStream;
+            try
             {
-                KeywordClusterer = null;
+                decoderStream = new AnsDecoderStream(
+                    new FileStream(filePath, FileMode.Open, FileAccess.Read)
+                );
+            } catch (IOException)
+            {
                 return false;
             }
+            if (!KeywordClusterer.Load(decoderStream))
+            {
+                decoderStream.Close();
+                KeywordClustererValid = false;
+                return false;
+            }
+            decoderStream.Close();
+            KeywordClustererValid = true;
             return true;
         }
 
@@ -183,10 +214,21 @@ namespace MechanicsAssistantServer.Models
         private bool LoadProblemPredictor(string filePath)
         {
             ProblemPredictor = new KNNProblemPredictor();
-            if(!ProblemPredictor.Load(filePath)) {
-                ProblemPredictor = null;
+            Stream streamIn;
+            try
+            {
+                streamIn = new AnsDecoderStream(new FileStream(filePath, FileMode.Open, FileAccess.Read));
+            } catch(FileNotFoundException)
+            {
                 return false;
             }
+            if(!ProblemPredictor.Load(streamIn)) {
+                streamIn.Close();
+                ProblemPredictorValid = false;
+                return false;
+            }
+            streamIn.Close();
+            ProblemPredictorValid = true;
             return true;
         }
 
@@ -195,19 +237,19 @@ namespace MechanicsAssistantServer.Models
             if (PartOfSpeechTagger == null)
                 return false;
             bool previousModelRestored = false;
-            if (KeywordPredictor == null)
+            if (!KeywordPredictorValid)
             {
                 if (!RestoreKeywordPredictor())
                     return false;
                 previousModelRestored = true;
             }
-            if (KeywordClusterer == null || previousModelRestored)
+            if (!KeywordClustererValid || previousModelRestored)
             {
                 if (!RestoreKeywordClusterer())
                     return false;
                 previousModelRestored = true;
             }
-            if (ProblemPredictor == null || previousModelRestored)
+            if (!ProblemPredictorValid || previousModelRestored)
                 if (!RestoreProblemPredictor())
                     return false;
             return true;
@@ -221,7 +263,13 @@ namespace MechanicsAssistantServer.Models
             KeywordPredictor.Train(X, Y);
             try
             {
-                KeywordPredictor.Save(DefaultModelFileLocations.NAIVE_BAYES_KEYWORD_PREDICTOR_FILE);
+                AnsEncoderStream stream = new AnsEncoderStream(
+                    new FileStream(DefaultModelFileLocations.NAIVE_BAYES_KEYWORD_PREDICTOR_FILE, FileMode.Create, FileAccess.Write),
+                    1048576,
+                    4096);
+                KeywordPredictor.Save(stream);
+                stream.Flush();
+                stream.Close();
             } catch (IOException)
             {
                 return false;
@@ -244,11 +292,16 @@ namespace MechanicsAssistantServer.Models
                     example.AddKeyword(s);
                 trainingExamples.Add(example);
             }
-            KeywordClusterer = new KeywordSimilarityClusterer();
             KeywordClusterer.Train(trainingExamples);
             try
             {
-                KeywordClusterer.Save(DefaultModelFileLocations.KEYWORD_SIMILARITY_CLUSTERER_FILE);
+                AnsEncoderStream streamOut = new AnsEncoderStream(
+                    new FileStream(DefaultModelFileLocations.KEYWORD_SIMILARITY_CLUSTERER_FILE, FileMode.Create, FileAccess.Write),
+                    1048576,
+                    4096
+                );
+                KeywordClusterer.Save(streamOut);
+                streamOut.Close();
             } catch (IOException)
             {
                 return false;
@@ -258,7 +311,6 @@ namespace MechanicsAssistantServer.Models
 
         private bool RestoreProblemPredictor()
         {
-            ProblemPredictor = new KNNProblemPredictor();
             List<MechanicQuery> mechanicQueries = DataSource.LoadMechanicQueries();
             List<List<object>> trainingExamples = new List<List<object>>();
             List<object> targetExamples = new List<object>();
@@ -283,7 +335,14 @@ namespace MechanicsAssistantServer.Models
             ProblemPredictor.Train(trainingExamples, targetExamples);
             try
             {
-                ProblemPredictor.Save(DefaultModelFileLocations.KNN_QUERY_PROBLEM_PREDICTOR_FILE);
+                AnsEncoderStream saveStream = new AnsEncoderStream(
+                    new FileStream(DefaultModelFileLocations.KNN_QUERY_PROBLEM_PREDICTOR_FILE, FileMode.Create, FileAccess.Write),
+                    1048576,
+                    4096
+                );
+                ProblemPredictor.Save(saveStream);
+                saveStream.Flush();
+                saveStream.Close();
             } catch(IOException)
             {
                 return false;

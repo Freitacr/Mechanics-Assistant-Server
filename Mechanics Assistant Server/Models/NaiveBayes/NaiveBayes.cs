@@ -138,9 +138,9 @@ namespace MechanicsAssistantServer.Models
             return retPredictionProbabilites;
         }
 
-        public void Load(string filePath)
+        public void Load(Stream streamIn)
         {
-            StreamReader fileReader = new StreamReader(filePath);
+            StreamReader fileReader = new StreamReader(streamIn);
             DataContractJsonSerializer naiveBayesSerializer = new DataContractJsonSerializer(this.GetType());
             var naiveBayesObject = (NaiveBayes)naiveBayesSerializer.ReadObject(fileReader.BaseStream);
             fileReader.Close();
@@ -150,9 +150,9 @@ namespace MechanicsAssistantServer.Models
             this.ClassProbabilityTable = naiveBayesObject.ClassProbabilityTable;
         }
 
-        public void Save(string filePath)
+        public void Save(Stream streamIn)
         {
-            StreamWriter fileWriter = new StreamWriter(filePath);
+            StreamWriter fileWriter = new StreamWriter(streamIn);
             DataContractJsonSerializer selfSerializer = new DataContractJsonSerializer(this.GetType());
             selfSerializer.WriteObject(fileWriter.BaseStream, this);
             fileWriter.Close();

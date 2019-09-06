@@ -21,12 +21,12 @@ namespace MechanicsAssistantServer.Models.KeywordPrediction
             return retExamples;
         }
 
-        public bool Load(string filePath)
+        public bool Load(Stream streamIn)
         {
             Model = new NaiveBayes();
             try
             {
-                Model.Load(filePath);
+                Model.Load(streamIn);
             } catch (FileNotFoundException)
             {
                 return false;
@@ -58,11 +58,11 @@ namespace MechanicsAssistantServer.Models.KeywordPrediction
             Model.Train(X, Y);
         }
 
-        public bool Save(string filePath)
+        public bool Save(Stream streamIn)
         {
             try
             {
-                Model.Save(filePath);
+                Model.Save(streamIn);
             } catch (Exception)
             {
                 return false;

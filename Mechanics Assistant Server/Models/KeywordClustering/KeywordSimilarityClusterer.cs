@@ -85,75 +85,14 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
 
         private HashSet<KeywordGroup> GetGroupsFromData(List<ClaimableKeywordExample> data, List<string> topKeywords, double minimumMembers, int maxEpochs)
         {
-            HashSet<KeywordGroup> ret = new HashSet<KeywordGroup>(),
-                previousGroups = new HashSet<KeywordGroup>();
+            HashSet<KeywordGroup> ret = new HashSet<KeywordGroup>();
             List<ClaimableKeywordExample> defaults = data;
-            List<string> currentDisplayedKeywords = topKeywords;
             AddGroupsFromData(data, topKeywords, minimumMembers, defaults, ret);
-            bool groupListChanged = true;
-            int epochCount = 0;
             int largestGroupSize = CalculateLargestGroupSize(ret);
             List<KeywordGroup> subGroups = new List<KeywordGroup>();
             foreach (KeywordGroup x in ret)
                 subGroups.AddRange(x.GenerateSubGroups(largestGroupSize, minimumMembers));
             ret.UnionWith(subGroups);
-            /*
-            while (groupListChanged && epochCount < maxEpochs)
-            {
-
-                bool groupChangesObserved = false;
-                if (ret.Count == previousGroups.Count)
-                {
-                    foreach (KeywordGroup g in ret)
-                    {
-                        if (!previousGroups.Contains(g))
-                        {
-                            groupChangesObserved = true;
-                            break;
-                        }
-                    }
-                }
-
-                //Strange loop break condition.
-                //Basically, if the list of active groups didn't actually change last epoch
-                //And we've tried as many times as we are expecting there to be KeywordExamples in each group
-                //Then break... TODO: Decide about the fate of this condition.
-                if (!groupChangesObserved && epochCount > minimumMembers)
-                {
-                    groupListChanged = false;
-                    continue;
-                }
-                int largestGroupSize = CalculateLargestGroupSize(ret);
-                foreach (KeywordGroup g in ret)
-                {
-                    g.UpdateSelectedKeywords(largestGroupSize);
-                    if (g.ChangeState)
-                    {
-                        if (g.Count > largestGroupSize)
-                            largestGroupSize = g.Count;
-                    }
-                }
-                defaults = GetDefaultExamples(data);
-                currentDisplayedKeywords = GetKKeywordsFromData(defaults, DEFAULT_NUMBER_OF_GROUPS);
-                previousGroups = new HashSet<KeywordGroup>(ret);
-                AddGroupsFromData(data, currentDisplayedKeywords, minimumMembers, defaults, ret);
-
-                groupListChanged = false;
-                foreach (KeywordGroup g in ret)
-                {
-                    if (!previousGroups.Contains(g))
-                    {
-                        groupListChanged = true;
-                        break;
-                    }
-                }
-
-                //This is necessary because the hashCode of the KeywordGroups are based off of mutable data
-                //This is essentially resyncing the hashes to the changed data
-                ret = RemoveDuplicateAndInvalidGroups(ret, minimumMembers);
-                epochCount++;
-            }
-            */
             return ret;
         }
 
@@ -241,12 +180,12 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             return currMax;
         }
 
-        public bool Load(string filePath)
+        public bool Load(Stream streamIn)
         {
             StreamReader fileReader;
             try
             {
-                fileReader = new StreamReader(filePath);
+                fileReader = new StreamReader(streamIn);
             } catch(FileNotFoundException)
             {
                 return false;
@@ -263,12 +202,12 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             return true;
         }
 
-        public bool Save(string filePath)
+        public bool Save(Stream streamIn)
         {
             StreamWriter fileWriter;
             try
             {
-                fileWriter = new StreamWriter(filePath);
+                fileWriter = new StreamWriter(streamIn);
             } catch(FileNotFoundException)
             {
                 return false;

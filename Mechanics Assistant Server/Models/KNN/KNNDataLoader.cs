@@ -24,9 +24,9 @@ namespace MechanicsAssistantServer.Models
 
     static class KNNDataManager
     {
-        public static void LoadData(string filePath, KNN model, out List<Dictionary<object, int>> labelMappingDict, out List<KNNDataPoint> dataPoints)
+        public static void LoadData(Stream fileStream, KNN model, out List<Dictionary<object, int>> labelMappingDict, out List<KNNDataPoint> dataPoints)
         {
-            StreamReader fileReader = new StreamReader(filePath);
+            StreamReader fileReader = new StreamReader(fileStream);
             DataContractJsonSerializer dataSerializer = new DataContractJsonSerializer(typeof(KNNData));
             KNNData data = (KNNData) dataSerializer.ReadObject(fileReader.BaseStream);
             labelMappingDict = data.LabelMappingDictionary;
@@ -34,7 +34,7 @@ namespace MechanicsAssistantServer.Models
             fileReader.Close();
         }
 
-        public static void SaveData(string filePath, KNN model)
+        public static void SaveData(Stream fileStream, KNN model)
         {
             KNNData data = new KNNData(
                 model.CopyLabelMappingDictionary(),
@@ -42,7 +42,7 @@ namespace MechanicsAssistantServer.Models
                 );
             //As a note, this method assumes that all objects inside of each of the dictionaries are serializable by a DataContractJsonSerializer
             DataContractJsonSerializer dataSerializer = new DataContractJsonSerializer(data.GetType());
-            StreamWriter fileWriter = new StreamWriter(filePath);
+            StreamWriter fileWriter = new StreamWriter(fileStream);
             dataSerializer.WriteObject(fileWriter.BaseStream, data);
             fileWriter.Close();
         }

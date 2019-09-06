@@ -13,12 +13,12 @@ namespace MechanicsAssistantServer.Models.QueryProblemPrediction
             Model = new KNN();
         }
 
-        public bool Load(string filePath)
+        public bool Load(Stream fileStream)
         {
             try
             {
                 Model = new KNN();
-                Model.Load(filePath);
+                Model.Load(fileStream);
             } catch (IOException)
             {
                 return false;
@@ -36,11 +36,11 @@ namespace MechanicsAssistantServer.Models.QueryProblemPrediction
             return Model.PredictTopN(inputData, distanceCalculationFunction, n);
         }
 
-        public bool Save(string filePath)
+        public bool Save(Stream fileStream)
         {
             try
             {
-                Model.Save(filePath);
+                Model.Save(fileStream);
             } catch(IOException)
             {
                 return false;

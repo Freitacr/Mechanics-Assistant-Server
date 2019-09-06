@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.IO;
 
 namespace MechanicsAssistantServer.Models
 {
@@ -199,16 +200,16 @@ namespace MechanicsAssistantServer.Models
             return new KNNDataPoint(dataPoints, y);
         }
 
-        public void Load(string filePath)
+        public void Load(Stream fileStream)
         {
-            KNNDataManager.LoadData(filePath, this, out List<Dictionary<object, int>> md, out List<KNNDataPoint> dp );
+            KNNDataManager.LoadData(fileStream, this, out List<Dictionary<object, int>> md, out List<KNNDataPoint> dp );
             LabelMappingDictionaries = md;
             DataPoints = dp;
         }
 
-        public void Save(string filePath)
+        public void Save(Stream fileStream)
         {
-            KNNDataManager.SaveData(filePath, this);
+            KNNDataManager.SaveData(fileStream, this);
         }
 
         public List<Dictionary<object, int>> CopyLabelMappingDictionary()

@@ -8,4 +8,9 @@
     <ApplicationIcon />
     <AssemblyName>server</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ANSEncodingLib\ANSEncodingLib.csproj" />
+    <ProjectReference Include="..\EncodingUtilities\EncodingUtilities.csproj" />
+  </ItemGroup>
 </Project>

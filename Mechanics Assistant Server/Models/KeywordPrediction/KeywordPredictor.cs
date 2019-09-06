@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace MechanicsAssistantServer.Models.KeywordPrediction
 {
@@ -8,8 +9,8 @@ namespace MechanicsAssistantServer.Models.KeywordPrediction
 
         void Train(List<List<object>> X, List<object> Y);
 
-        bool Load(string filePath);
+        bool Load(Stream streamIn);
 
-        bool Save(string filePath);
+        bool Save(Stream filePath);
     }
 }
