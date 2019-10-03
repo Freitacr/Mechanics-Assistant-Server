@@ -1,44 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using MechanicsAssistantServer.Net.Api;
 
 namespace MechanicsAssistantServer.Net
 {
     public class UriMappingCollection
     {
-        private Dictionary<UriMapping, Action<HttpListenerContext>> ContainedCollection;
+        private Dictionary<string, ApiDefinition> ContainedCollection;
 
         public UriMappingCollection()
         {
-            ContainedCollection = new Dictionary<UriMapping, Action<HttpListenerContext>>();
+            ContainedCollection = new Dictionary<string, ApiDefinition>();
         }
 
-        public bool AddMapping(string method, string uri, Action<HttpListenerContext> action)
+        public bool AddMapping(ApiDefinition action)
         {
-            UriMapping mapping = new UriMapping(method, uri);
-            if (ContainedCollection.ContainsKey(mapping))
+            if (ContainedCollection.ContainsKey(action.URI))
                 return false;
-            ContainedCollection[mapping] = action;
+            ContainedCollection[action.URI] = action;
             return true;
         }
 
-        public void AddMappings(Api.ApiDefinition defIn)
-        {
-            AddMappings(defIn.ContainedDefinition);
-        }
-
-        public void AddMappings(UriMappingCollection collectionIn)
-        {
-            foreach (KeyValuePair<UriMapping, Action<HttpListenerContext>> mapping in collectionIn)
-                ContainedCollection.Add(mapping.Key, mapping.Value);
-        }
-
-        public IEnumerator<KeyValuePair<UriMapping, Action<HttpListenerContext>>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, ApiDefinition>> GetEnumerator()
         {
             return ContainedCollection.GetEnumerator();
         }
 
-        public Action<HttpListenerContext> this[UriMapping x] {
+        public ApiDefinition this[string x] {
             get => ContainedCollection.GetValueOrDefault(x, null);
         }
     }

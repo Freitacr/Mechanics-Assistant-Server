@@ -1,4 +1,6 @@
-﻿using MechanicsAssistantServer.Models;
+﻿using System.Reflection;
+using System.Linq;
+using MechanicsAssistantServer.Models;
 
 namespace MechanicsAssistantServer.Net.Api
 {
@@ -9,8 +11,8 @@ namespace MechanicsAssistantServer.Net.Api
         {
             QueryResponseServer ret = new QueryResponseServer();
             UriMappingCollection api = new UriMappingCollection();
-            api.AddMappings(new TopLevelApi(portIn, ret));
-            api.AddMappings(new QueryLevelApi(portIn, processorIn));
+            api.AddMapping(new TopLevelApi(portIn, ret));
+            api.AddMapping(new QueryLevelApi(portIn, processorIn));
             ret.ListenForResponses(api);
             return ret;
         }

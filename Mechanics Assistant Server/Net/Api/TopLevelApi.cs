@@ -9,7 +9,20 @@ namespace MechanicsAssistantServer.Net.Api
         public TopLevelApi(int port, QueryResponseServer serverIn) : base("http://localhost:" + port)
         {
             Server = serverIn;
-            AddAction("delete", ShutdownServer);
+            DELETE += ShutdownServer;
+            GET += NotSupported;
+            POST += NotSupported;
+            PUT += NotSupported;
+            OPTIONS += HandleOptionRequest;
+        }
+
+        public void HandleOptionRequest(HttpListenerContext ctxIn)
+        {
+            ctxIn.Response.StatusCode = 200;
+            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "DELETE");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
+            ctxIn.Response.Close();
         }
 
         public void ShutdownServer(HttpListenerContext ctxIn)

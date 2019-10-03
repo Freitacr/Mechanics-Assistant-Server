@@ -16,8 +16,14 @@ namespace MechanicsAssistantServer.Net.Api
         public QueryLevelApi(int port, QueryProcessor processorIn) : base("http://localhost:" + port + "/query")
         {
             QueryProcessor = processorIn;
-            AddAction("put", HandlePutRequest);
-            AddAction("post", HandlePostRequest);
+            PUT += HandlePutRequestJson;
+            PUT += HandlePutRequestHtml;
+            POST += HandlePostRequest;
+            DELETE += NotSupported;
+            GET += NotSupported;
+            OPTIONS += HandleOptionRequest;
+            //AddAction("put", HandlePutRequest);
+            //AddAction("post", HandlePostRequest);
         }
 
         private MechanicQuery ReadMechanicQuery (Stream streamIn)
@@ -26,8 +32,64 @@ namespace MechanicsAssistantServer.Net.Api
             return serializer.ReadObject(streamIn) as MechanicQuery;
         }
 
-        public void HandlePutRequest(HttpListenerContext ctxIn)
+        public void HandleOptionRequest(HttpListenerContext ctxIn)
         {
+            ctxIn.Response.StatusCode = 200;
+            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "PUT,POST");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
+            ctxIn.Response.Close();
+        }
+
+        public void HandlePutRequestHtml(HttpListenerContext ctxIn)
+        {
+            if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("text/html"))
+                return;
+            if (!ctxIn.Request.HasEntityBody)
+            {
+                ctxIn.Response.StatusCode = 400;
+                ctxIn.Response.StatusDescription = "Bad Request";
+                string body = "No Body";
+                ctxIn.Response.ContentType = "text/plain";
+                byte[] resp = Encoding.UTF32.GetBytes(body);
+                ctxIn.Response.ContentLength64 = resp.LongLength;
+                ctxIn.Response.OutputStream.Write(resp, 0, resp.Length);
+                ctxIn.Response.OutputStream.Close();
+                return;
+            }
+            MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
+            query.Make = query.Make.ToLower();
+            query.Model = query.Model.ToLower();
+            List<string> possibleProblems = QueryProcessor.ProcessQuery(query);
+            StringBuilder tableBuilder = new StringBuilder();
+            tableBuilder.Append("<tr><th>Make</th><th>Model</th><th>Year</th><th>Problem</th><th>Similarity</th></tr>");
+            foreach(string possibleProblem in possibleProblems)
+            {
+                tableBuilder.Append("<tr>");
+                tableBuilder.Append("<td></td>");
+                tableBuilder.Append("<td></td>");
+                tableBuilder.Append("<td></td>");
+                tableBuilder.Append("<td>" + possibleProblem + "</td>");
+                tableBuilder.Append("<td>0.0</td>");
+                tableBuilder.AppendLine("</tr>");
+            }
+            string tableString = tableBuilder.ToString();
+            byte[] problemResp = Encoding.UTF8.GetBytes(tableString);
+            ctxIn.Response.StatusCode = 200;
+            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
+            ctxIn.Response.StatusDescription = "OK";
+            ctxIn.Response.ContentType = "text/html";
+            ctxIn.Response.ContentLength64 = problemResp.LongLength;
+            ctxIn.Response.OutputStream.Write(problemResp, 0, problemResp.Length);
+            ctxIn.Response.OutputStream.Close();
+
+        }
+
+        public void HandlePutRequestJson(HttpListenerContext ctxIn)
+        {
+            if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("application/json"))
+                return;
             if(!ctxIn.Request.HasEntityBody)
             {
                 ctxIn.Response.StatusCode = 400;
