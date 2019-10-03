@@ -10,7 +10,6 @@ namespace ANSEncodingLib
         private int[] Block;
         private BitWriter Output;
         private int MaskBits;
-        private byte[] EncryptionKey;
 
         public AnsBlockEncoder(int blockSize, BitWriter bitWriterOut)
         {
