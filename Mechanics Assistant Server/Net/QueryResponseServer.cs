@@ -36,7 +36,6 @@ namespace MechanicsAssistantServer.Net
                     var ctx = Listener.GetContext();
                     if (ctx == null)
                         continue;
-
                     string method = ctx.Request.HttpMethod;
                     string uri = ctx.Request.Url.ToString();
                     if (!uri.EndsWith('/'))

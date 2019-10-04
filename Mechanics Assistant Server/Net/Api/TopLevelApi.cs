@@ -6,7 +6,7 @@ namespace MechanicsAssistantServer.Net.Api
     public class TopLevelApi : ApiDefinition
     {
         private QueryResponseServer Server;
-        public TopLevelApi(int port, QueryResponseServer serverIn) : base("http://localhost:" + port)
+        public TopLevelApi(int port, QueryResponseServer serverIn) : base("https://+:" + port)
         {
             Server = serverIn;
             DELETE += ShutdownServer;

@@ -27,8 +27,16 @@ namespace MechanicsAssistantServer.Net
             return ContainedCollection.GetEnumerator();
         }
 
+        private ApiDefinition GetApi(string uri)
+        {
+            int hostnamePos = uri.IndexOf("//") + 2;
+            int hostnameEnd = uri.IndexOf(":", hostnamePos);
+            uri = uri.Replace(uri.Substring(hostnamePos, hostnameEnd - hostnamePos), "+");
+            return ContainedCollection.GetValueOrDefault(uri, null);
+        }
+
         public ApiDefinition this[string x] {
-            get => ContainedCollection.GetValueOrDefault(x, null);
+            get => GetApi(x);
         }
     }
 

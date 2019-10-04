@@ -13,7 +13,7 @@ namespace MechanicsAssistantServer.Net.Api
 
         private QueryProcessor QueryProcessor;
 
-        public QueryLevelApi(int port, QueryProcessor processorIn) : base("http://localhost:" + port + "/query")
+        public QueryLevelApi(int port, QueryProcessor processorIn) : base("https://+:" + port + "/query")
         {
             QueryProcessor = processorIn;
             PUT += HandlePutRequestJson;
