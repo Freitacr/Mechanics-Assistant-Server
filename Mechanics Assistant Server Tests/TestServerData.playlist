@@ -1,0 +1,1 @@
+<Playlist Version="1.0"><Add Test="MechanicsAssistantServerTests.TestData.TestFileSystemDataSource.TestAddKeywordExample" /><Add Test="MechanicsAssistantServerTests.TestData.TestFileSystemDataSource.TestAddMechanicQuery" /><Add Test="MechanicsAssistantServerTests.TestData.TestFileSystemDataSource.TestReadInitial" /></Playlist>

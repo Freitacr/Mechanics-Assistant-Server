@@ -19,4 +19,11 @@
     <ProjectReference Include="..\Mechanics Assistant Server\Mechanic's Assistant Server.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestNet\TestApi\" />
+    <Folder Include="TestNet\" />
+    <Folder Include="TestModels\TestKeywordPrediction\" />
+    <Folder Include="TestUtil\" />
+  </ItemGroup>
+
 </Project>

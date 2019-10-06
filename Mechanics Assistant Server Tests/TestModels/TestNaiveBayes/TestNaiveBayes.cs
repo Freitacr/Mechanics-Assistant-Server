@@ -4,7 +4,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MechanicsAssistantServer.Models;
 
-namespace Mechanic_s_Assistant_Server_Tests.TestModels
+namespace MechanicsAssistantServerTests.TestModels
 {
     [TestClass]
     public class TestNaiveBayes
@@ -251,9 +251,9 @@ namespace Mechanic_s_Assistant_Server_Tests.TestModels
         {
             TestTrainValidData();
             string modelFileName = "NaiveBayesFile.txt";
-            NaiveBayesModel.Save(modelFileName);
+            NaiveBayesModel.Save(new StreamWriter(modelFileName).BaseStream);
             var nbTestModel = new NaiveBayes();
-            nbTestModel.Load(modelFileName);
+            nbTestModel.Load(new StreamReader(modelFileName).BaseStream);
             Assert.AreEqual(nbTestModel, NaiveBayesModel);
             File.Delete(modelFileName);
         }

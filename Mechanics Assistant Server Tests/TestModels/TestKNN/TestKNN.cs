@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MechanicsAssistantServer.Models;
 using System.IO;
 
-namespace Mechanic_s_Assistant_Server_Tests.TestModels
+namespace MechanicsAssistantServerTests.TestModels
 {
     [TestClass]
     public class TestKNN
@@ -124,11 +124,11 @@ namespace Mechanic_s_Assistant_Server_Tests.TestModels
         {
             TestTrainValidData(); //Sets up a KNN with data
             string modelFileName = "KNNModel.txt";
-            KnnModel.Save(modelFileName);
+            KnnModel.Save(new StreamWriter(modelFileName).BaseStream);
             List<Dictionary<object, int>> labelMappingDict = KnnModel.CopyLabelMappingDictionary();
             List<KNNDataPoint> dataPoints = KnnModel.CopyDataPoints();
             KnnModel = new KNN();
-            KnnModel.Load(modelFileName);
+            KnnModel.Load(new StreamReader(modelFileName).BaseStream);
             List<KNNDataPoint> loadedDataPoints = KnnModel.CopyDataPoints();
             var loadedMappingDicts = KnnModel.CopyLabelMappingDictionary();
             for (int i = 0; i < dataPoints.Count; i++)
