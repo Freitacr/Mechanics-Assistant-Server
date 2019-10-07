@@ -6,7 +6,9 @@ using EncodingUtilities;
 using ANSEncodingLib;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
+#if DEBUG
+    [assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
+#endif
 
 namespace MechanicsAssistantServer.Data
 {

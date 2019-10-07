@@ -1,7 +1,9 @@
 ﻿using System.Net;
+using System.IO;
 using System.Threading;
 using MechanicsAssistantServer.Net.Api;
 using MechanicsAssistantServer.Models;
+using System;
 
 namespace MechanicsAssistantServer
 {
@@ -14,7 +16,6 @@ namespace MechanicsAssistantServer
             ctx.Response.StatusDescription = "Ok";
             ctx.Response.OutputStream.Close();
         }
-
 
         static void Main(string[] args)
         {

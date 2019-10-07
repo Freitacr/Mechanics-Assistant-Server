@@ -1,4 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+#if DEBUG
+[assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
+#endif
 
 namespace MechanicsAssistantServer.Models.KeywordClustering
 {

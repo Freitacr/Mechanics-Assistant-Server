@@ -1,4 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+#if DEBUG
+[assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
+#endif
 
 namespace MechanicsAssistantServer.Models.KeywordClustering
 {
@@ -43,33 +48,6 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             toRemove.ReleaseClaim();
         }
 
-        public void UpdateSelectedKeywords(int maxGroupSize)
-        {
-            double globalThreshold = 1 -
-            ( (ContainedMembers.Count / (double)maxGroupSize) *
-              (1 - (SelectedKeywords.Count / 4.0))
-            );
-
-            bool keywordFound = false;
-            foreach (string keyword in ContainedKeywords.Keys)
-            {
-                if (!SelectedKeywords.Contains(keyword))
-                    if (ContainedKeywords[keyword] / (double)ContainedMembers.Count >= globalThreshold)
-                    {
-                        SelectedKeywords.AddKeyword(keyword);
-                        ChangeState = true;
-                        keywordFound = true;
-                        break;
-                    }
-            }
-            if (!keywordFound)
-            {
-                ChangeState = false;
-                return;
-            }
-            UpdateMembers();
-        }
-
         public List<KeywordGroup> GenerateSubGroups(int maxGroupSize, double minimumMembers)
         {
             double globalThreshold = .25;
@@ -101,16 +79,6 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
                 }
             }
             return new List<KeywordGroup>(ret);
-        }
-
-        private void UpdateMembers()
-        {
-            List<ClaimableKeywordExample> toRemove = new List<ClaimableKeywordExample>();
-            foreach(ClaimableKeywordExample ex in ContainedMembers)
-                if (SelectedKeywords.CountSimilar(ex.ContainedExample) != SelectedKeywords.Count)
-                    toRemove.Add(ex);
-            foreach (ClaimableKeywordExample ex in toRemove)
-                RemoveMember(ex);
         }
 
         public void UpdateMembers(List<ClaimableKeywordExample> dataIn)
