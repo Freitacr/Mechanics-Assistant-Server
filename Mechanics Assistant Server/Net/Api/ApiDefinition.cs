@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using MechanicsAssistantServer.Data;
 
 namespace MechanicsAssistantServer.Net.Api
 {
@@ -7,19 +8,16 @@ namespace MechanicsAssistantServer.Net.Api
 
     public class ApiDefinition
     {
-        protected string Uri;
-        public string URI { get { return Uri; } }
+        protected HttpUri Uri;
+        public HttpUri URI { get { return Uri; } }
         public HttpMessageHandler PUT { get; protected set; }
         public HttpMessageHandler POST { get; protected set; }
         public HttpMessageHandler GET { get; protected set; }
         public HttpMessageHandler DELETE { get; protected set; }
         public HttpMessageHandler OPTIONS { get; protected set; }
-
-        public UriMappingCollection ContainedDefinition { get; private set; }
         public ApiDefinition(string baseUri)
         {
-            ContainedDefinition = new UriMappingCollection();
-            Uri = baseUri + "/";
+            Uri = new HttpUri(baseUri);
         }
 
         public void NotSupported (HttpListenerContext ctx) {

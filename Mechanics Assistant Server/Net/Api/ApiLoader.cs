@@ -11,8 +11,9 @@ namespace MechanicsAssistantServer.Net.Api
         {
             QueryResponseServer ret = new QueryResponseServer();
             UriMappingCollection api = new UriMappingCollection();
-            api.AddMapping(new TopLevelApi(portIn, ret));
             api.AddMapping(new QueryLevelApi(portIn, processorIn));
+            api.AddMapping(new CertValidationApi());
+            api.AddMapping(new TopLevelApi());
             ret.ListenForResponses(api);
             return ret;
         }

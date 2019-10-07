@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RootNamespace>Mechanic_s_Assistant_Server_Tests</RootNamespace>
+    <RootNamespace>MechanicsAssistantServerTests</RootNamespace>
 
     <IsPackable>false</IsPackable>
 
@@ -20,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TestNet\TestApi\" />
-    <Folder Include="TestNet\" />
     <Folder Include="TestModels\TestKeywordPrediction\" />
     <Folder Include="TestUtil\" />
   </ItemGroup>

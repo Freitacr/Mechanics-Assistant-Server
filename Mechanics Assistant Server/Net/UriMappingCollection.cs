@@ -1,38 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using MechanicsAssistantServer.Data;
 using MechanicsAssistantServer.Net.Api;
 
 namespace MechanicsAssistantServer.Net
 {
     public class UriMappingCollection
     {
-        private Dictionary<string, ApiDefinition> ContainedCollection;
+        private List<ApiDefinition> ContainedCollection;
+        private HashSet<HttpUri> Prefixes;
 
         public UriMappingCollection()
         {
-            ContainedCollection = new Dictionary<string, ApiDefinition>();
+            ContainedCollection = new List<ApiDefinition>();
+            Prefixes = new HashSet<HttpUri>();
         }
 
         public bool AddMapping(ApiDefinition action)
         {
-            if (ContainedCollection.ContainsKey(action.URI))
+            if (Prefixes.Contains(action.URI))
                 return false;
-            ContainedCollection[action.URI] = action;
+            ContainedCollection.Add(action);
+            Prefixes.Add(action.URI);
             return true;
         }
 
-        public IEnumerator<KeyValuePair<string, ApiDefinition>> GetEnumerator()
+        public IEnumerator<ApiDefinition> GetEnumerator()
         {
             return ContainedCollection.GetEnumerator();
         }
 
+        public void AddPrefixes(HttpListener listener)
+        {
+            foreach (HttpUri prefix in Prefixes)
+            {
+                listener.Prefixes.Add(prefix.Prefix);
+                Console.WriteLine("Registering prefix: " + prefix.Prefix);
+            }
+        }
+
         private ApiDefinition GetApi(string uri)
         {
-            int hostnamePos = uri.IndexOf("//") + 2;
-            int hostnameEnd = uri.IndexOf(":", hostnamePos);
-            uri = uri.Replace(uri.Substring(hostnamePos, hostnameEnd - hostnamePos), "+");
-            return ContainedCollection.GetValueOrDefault(uri, null);
+            HttpUri uriIn = new HttpUri(uri);
+            foreach (ApiDefinition def in this)
+                if (def.URI.IsPrefixOf(uriIn))
+                    return def;
+            return null;
         }
 
         public ApiDefinition this[string x] {

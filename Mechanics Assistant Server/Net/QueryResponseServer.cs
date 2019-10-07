@@ -8,7 +8,7 @@ namespace MechanicsAssistantServer.Net
     public class QueryResponseServer
     {
         private HttpListener Listener;
-        private UriMappingCollection PrefixMapping;
+
         public bool IsAlive { get; private set; }
        
         public QueryResponseServer()
@@ -19,13 +19,7 @@ namespace MechanicsAssistantServer.Net
         public void ListenForResponses(UriMappingCollection prefixMapping)
         {
             Listener = new HttpListener();
-            foreach (KeyValuePair<string, Api.ApiDefinition> prefixPair in prefixMapping)
-            {
-                if (!Listener.Prefixes.Contains(prefixPair.Key))
-                    Listener.Prefixes.Add(prefixPair.Key);
-            }
-            PrefixMapping = prefixMapping;
-
+            prefixMapping.AddPrefixes(Listener);
             Listener.Start();
             IsAlive = true;
             ThreadPool.QueueUserWorkItem(
@@ -38,9 +32,11 @@ namespace MechanicsAssistantServer.Net
                         continue;
                     string method = ctx.Request.HttpMethod;
                     string uri = ctx.Request.Url.ToString();
+                    Console.WriteLine("Received request for " + uri);
+                    Console.WriteLine("Request came from " + ctx.Request.UserHostAddress);
                     if (!uri.EndsWith('/'))
                         uri += '/';
-                    var action = PrefixMapping[uri];
+                    var action = prefixMapping[uri];
                     if (action == null)
                     {
                         //Assume unsupported operation

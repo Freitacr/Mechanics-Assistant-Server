@@ -5,12 +5,10 @@ namespace MechanicsAssistantServer.Net.Api
 {
     public class TopLevelApi : ApiDefinition
     {
-        private QueryResponseServer Server;
-        public TopLevelApi(int port, QueryResponseServer serverIn) : base("https://+:" + port)
+        public TopLevelApi() : base("http://+")
         {
-            Server = serverIn;
-            DELETE += ShutdownServer;
-            GET += NotSupported;
+            DELETE += NotSupported;
+            GET += SendRedirect;
             POST += NotSupported;
             PUT += NotSupported;
             OPTIONS += HandleOptionRequest;
@@ -19,23 +17,21 @@ namespace MechanicsAssistantServer.Net.Api
         public void HandleOptionRequest(HttpListenerContext ctxIn)
         {
             ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "DELETE");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "GET");
             ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
             ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
             ctxIn.Response.Close();
         }
 
-        public void ShutdownServer(HttpListenerContext ctxIn)
+        public void SendRedirect(HttpListenerContext ctxIn)
         {
+            string html = "<html><head><meta http-equiv=\"Refresh\" content=\"0; url=https://oldmanintheshop.web.app\"></head><body></body></html>";
+            byte[] htmlBytes = Encoding.UTF8.GetBytes(html);
+            ctxIn.Response.ContentType = "text/html";
             ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.StatusDescription = "OK";
-            ctxIn.Response.ContentType = "text/plain";
-            string resp = "Attempting to close server...";
-            byte[] toWrite = Encoding.UTF8.GetBytes(resp);
-            ctxIn.Response.ContentLength64 = toWrite.LongLength;
-            ctxIn.Response.OutputStream.Write(toWrite, 0, toWrite.Length);
-            ctxIn.Response.OutputStream.Close();
-            Server.Close();
+            ctxIn.Response.ContentLength64 = htmlBytes.Length;
+            ctxIn.Response.OutputStream.Write(htmlBytes, 0, htmlBytes.Length);
+            ctxIn.Response.Close();
         }
     }
 }
