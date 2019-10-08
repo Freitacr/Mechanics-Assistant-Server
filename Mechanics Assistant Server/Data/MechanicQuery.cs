@@ -2,6 +2,7 @@
 
 namespace MechanicsAssistantServer.Data
 {
+    /** <summary>Representation of a query that would be made by a mechanic</summary> */
     [DataContract]
     public class MechanicQuery
     {

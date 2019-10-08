@@ -5,15 +5,23 @@ using System.Runtime.CompilerServices;
 
 namespace MechanicsAssistantServer.Data
 {
+    /**
+     * <summary>Class that represents an Http protocol URI with support for the prefixes required by an HttpListener</summary>
+     */
     public class HttpUri
     {
+        /** <summary>Hostname portion of the uri</summary> */
         public string Hostname { get; set; }
+        /** <summary>Port portion of the uri</summary> */
         public string Port { get; set; }
+        /** <summary>Location portion of the uri, aka the portion after the first hostname:port part of the screen</summary> */
         public string Location { get; set; }
+        /** <summary>Protocol portion of the uri</summary> */
         public string Protocol { get; set; }
-
+        /** <summary>Boolean of whether the default port for the protocol was used as a fallback</summary> */
         public bool UsedDefaultPort { get; set; } = false;
 
+        /** <summary>Returns a prefix representation of the URI for use with an HttpListener</summary> */
         public string Prefix { get
             {
                 if (UsedDefaultPort)
@@ -23,6 +31,9 @@ namespace MechanicsAssistantServer.Data
             }
         }
 
+        /** <summary>Constructs an HttpUri from the provided string</summary>
+         * <param name="uriString">String to convert into an HttpUri</param>
+         */
         public HttpUri(string uriString)
         {
             ParseUri(uriString);
@@ -60,6 +71,9 @@ namespace MechanicsAssistantServer.Data
             Location = uriParse.Substring(uriParse.IndexOf("/", doubleSlashIndex));
         }
 
+        /** <summary>Returns true if this uri is a prefix for the specified uri</summary>
+         * <param name="other">The specified uri</param>
+         */
         public bool IsPrefixOf(HttpUri other)
         {
             if (!(Hostname.Equals("*") || Hostname.Equals("+")))

@@ -4,9 +4,15 @@ using System.Text;
 
 namespace MechanicsAssistantServer.Data
 {
+    /**
+     * <summary>Representation of a keyword training example for the Keyword Prediction Models</summary>
+     */
     [DataContract]
     public class KeywordTrainingExample
     {
+        /**
+         * <summary>Representation of a keyword and its part of speech</summary>
+         */
         [DataContract]
         public class KeywordPair
         {
@@ -48,9 +54,11 @@ namespace MechanicsAssistantServer.Data
             }
         }
 
+        /** <summary>List of KeywordPairs that make up the example</summary> */
         [DataMember(Name = "data")]
         public List<KeywordPair> KeywordPairs { get; set; }
 
+        /** <summary>Whether the keyword pair in the centre of the List of KeywordPairs is supposed to be a keyword</summary> */
         [DataMember(Name = "correct")]
         public bool IsCorrect { get; set; }
 
