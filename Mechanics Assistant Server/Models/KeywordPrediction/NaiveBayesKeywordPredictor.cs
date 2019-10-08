@@ -4,6 +4,8 @@ using System.IO;
 
 namespace MechanicsAssistantServer.Models.KeywordPrediction
 {
+    /**<summary>NaiveBayes implementation of a keyword predictor. Uses the part of speech of the word in question and the part of speech of the words immediately before and after
+     * it to make its predictions</summary>*/
     public class NaiveBayesKeywordPredictor : IKeywordPredictor
     {
         private NaiveBayes Model;

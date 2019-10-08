@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace MechanicsAssistantServer.Models.KeywordClustering
 {
+    /**<summary>Represents one keyword example. This example is made up of individual key words, and cannot contain duplicate keywords</summary>*/
     public class KeywordExample
     {
         private HashSet<string> ModifiableKeywords;

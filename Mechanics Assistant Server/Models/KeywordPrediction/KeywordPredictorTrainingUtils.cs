@@ -3,6 +3,7 @@ using MechanicsAssistantServer.Data;
 
 namespace MechanicsAssistantServer.Models.KeywordPrediction
 {
+    /**<summary>Utilities to make generating the training and target data from a list of keyword training examples easier</summary>*/
     public class KeywordPredictorTrainingUtils
     {
         public static List<List<object>> GenerateKeywordTrainingData(List<KeywordTrainingExample> examplesIn)

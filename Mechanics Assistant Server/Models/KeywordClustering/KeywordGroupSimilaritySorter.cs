@@ -7,6 +7,8 @@ using System.Runtime.CompilerServices;
 
 namespace MechanicsAssistantServer.Models.KeywordClustering
 {
+    /**<summary>Class to sort keyword groups based on shared examples. The sorting is based on the most similar to all sorted groups, with similarity being weighted by the distance
+     * from a group to the new potential sorted slot</summary>*/
     class KeywordGroupSimilaritySorter
     {
 

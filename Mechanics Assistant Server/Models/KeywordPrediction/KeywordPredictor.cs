@@ -3,6 +3,7 @@ using System.IO;
 
 namespace MechanicsAssistantServer.Models.KeywordPrediction
 {
+    /**<summary>Interface to provide use to an arbitrary keyword predictor</summary>*/
     public interface IKeywordPredictor
     {
         List<string> PredictKeywords(List<List<string>> sentencePosTokensIn);

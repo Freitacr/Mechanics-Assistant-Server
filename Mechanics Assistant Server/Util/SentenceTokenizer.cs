@@ -2,6 +2,7 @@
 
 namespace MechanicsAssistantServer.Util
 {
+    /**<summary>Splits an input sentence into tokens</summary>*/
     public static class SentenceTokenizer
     {
 

@@ -7,6 +7,9 @@ using System.Runtime.CompilerServices;
 
 namespace MechanicsAssistantServer.Models.KeywordClustering
 {
+    /**<summary>Class that represents a group of keyword examples. 
+     * This group is defined by a set of selected keywords, 
+     * and all elements of the group must contain all of the defining keywords</summary>*/
     public class KeywordGroup
     {
         private List<ClaimableKeywordExample> ContainedMembers;
@@ -48,6 +51,8 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             toRemove.ReleaseClaim();
         }
 
+        /**<summary>Generates all sub groups of the current group. A sub group is created if a quarter of the keywords contained within its examples are the same. If so,
+         * then those keywords are added to its definition, and it becomes a new group. As a note, its parent group still exists as well.</summary>*/
         public List<KeywordGroup> GenerateSubGroups(int maxGroupSize, double minimumMembers)
         {
             double globalThreshold = .25;
@@ -81,6 +86,11 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             return new List<KeywordGroup>(ret);
         }
 
+        /** 
+         * Updates the contained keyword examples based on the data passed in. An example is only added to this group if it contains
+         * all of the keywords that are within the groups definition.
+         *
+         */
         public void UpdateMembers(List<ClaimableKeywordExample> dataIn)
         {
             ContainedMembers = new List<ClaimableKeywordExample>();

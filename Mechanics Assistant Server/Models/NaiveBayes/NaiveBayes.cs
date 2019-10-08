@@ -29,6 +29,7 @@ namespace MechanicsAssistantServer.Models
         }
     }
 
+    /**<summary>Naive Bayes C# implementation</summary>*/
     [DataContract]
     public class NaiveBayes
     {

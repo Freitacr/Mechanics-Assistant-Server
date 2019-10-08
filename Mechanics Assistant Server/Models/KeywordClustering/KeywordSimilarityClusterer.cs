@@ -4,6 +4,7 @@ using System.IO;
 
 namespace MechanicsAssistantServer.Models.KeywordClustering
 {
+    /**<summary>Keyword Clusterer designed to cluster keywords together into groups based on the frequency the keywords are used with one another</summary>*/
     public class KeywordSimilarityClusterer : IKeywordClusterer
     {
         internal class KeyValuePairSorter : IComparer<KeyValuePair<string, int>>
@@ -223,6 +224,7 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             return true;
         }
 
+        /**<summary>Calculates the similarity for the provided example to every one of the groups contained in this clusterer.</summary>*/
         public List<int> PredictGroupSimilarity(KeywordExample exampleIn)
         {
             SortedDictionary<double, List<int>> similarityScores = new SortedDictionary<double, List<int>>();
@@ -246,6 +248,7 @@ namespace MechanicsAssistantServer.Models.KeywordClustering
             return sortedGroups;
         }
 
+        /**<summary>Calculates the similarity for the provided example to every one of the groups contained in this clusterer and returns the top n.</summary>*/
         public List<int> PredictTopNSimilarGroups(KeywordExample exampleIn, int n)
         {
             List<int> similarityScores = PredictGroupSimilarity(exampleIn);

@@ -1,5 +1,14 @@
 ﻿using System.Collections.Generic;
 
+/** 
+ * An averaged perceptron, as implemented by Matthew Honnibal.
+ * See more implementation details here:
+ * https://explosion.ai/blog/part-of-speech-pos-tagger-in-python
+ * Author: Matthew Honnibal <honnibal+gh@gmail.com>
+ * Copyright 2013 Matthew Honnibal
+ * This module is provided under the terms of the MIT License.
+*/
+
 namespace MechanicsAssistantServer.Models.POSTagger
 {
     class AveragedPerceptron

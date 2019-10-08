@@ -1,5 +1,6 @@
 ﻿namespace MechanicsAssistantServer.Models.KeywordClustering
 {
+    /**<summary>Represents a keyword example that can be claimed, and keeps tracks of the number of claims that it has</summary>*/
     public class ClaimableKeywordExample
     {
         public KeywordExample ContainedExample { get; private set; }
