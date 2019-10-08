@@ -53,34 +53,4 @@ namespace MechanicsAssistantServer.Net
             get => GetApi(x);
         }
     }
-
-    public class UriMapping
-    {
-        public string Method { get; private set; }
-        public string Uri { get; private set; }
-        
-        public UriMapping(string method, string uri)
-        {
-            Method = method ?? throw new ArgumentNullException("method");
-            Uri = uri ?? throw new ArgumentNullException("uri");
-            Method = Method.ToUpper();
-            if (!Uri.EndsWith('/'))
-                Uri += "/";
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-                return false;
-            if (obj.GetType() != this.GetType())
-                return false;
-            UriMapping other = obj as UriMapping;
-            return other.Method == Method && other.Uri == Uri;
-        }
-
-        public override int GetHashCode()
-        {
-            return Method.GetHashCode() + Uri.GetHashCode();
-        }
-    }
 }

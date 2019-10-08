@@ -8,11 +8,12 @@ using MechanicsAssistantServer.Data;
 
 namespace MechanicsAssistantServer.Net.Api
 {
+    /**<summary>Api definition for all query requests</summary>*/
     class QueryLevelApi : ApiDefinition
     {
 
         private QueryProcessor QueryProcessor;
-
+        
         public QueryLevelApi(int port, QueryProcessor processorIn) : base("https://+:" + port + "/query")
         {
             QueryProcessor = processorIn;
@@ -41,6 +42,11 @@ namespace MechanicsAssistantServer.Net.Api
             ctxIn.Response.Close();
         }
 
+        /**<summary>Responds to the put request made by a client</summary>
+         * <example>If the user inquires with a bad request in the body of their http request, they will receive an http code 400 response</example>
+         * <example>If the user inquires with a valid request, then they are sent back html code corresponding to a table containing the possible 
+         * problems for the query.</example>
+         */
         public void HandlePutRequestHtml(HttpListenerContext ctxIn)
         {
             if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("text/html"))
@@ -86,6 +92,11 @@ namespace MechanicsAssistantServer.Net.Api
 
         }
 
+        /**<summary>Responds to the put request made by a client</summary>
+         * <example>If the user inquires with a bad request in the body of their http request, they will receive an http code 400 response</example>
+         * <example>If the user inquires with a valid request, then they are sent back a json list containing the possible 
+         * problems for the query.</example>
+         */
         public void HandlePutRequestJson(HttpListenerContext ctxIn)
         {
             if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("application/json"))
@@ -117,7 +128,11 @@ namespace MechanicsAssistantServer.Net.Api
             ctxIn.Response.OutputStream.Write(problemResp, 0, problemResp.Length);
             ctxIn.Response.OutputStream.Close();
         }
-
+        
+        /**<summary>Responds to the post request made by a client</summary>
+         * <example>If the user inquires with a bad request in the body of their http request, they will receive an http code 400 response</example>
+         * <example>If the user inquires with a valid request, then the server attempts to add the query sent in to the active data store.</example>
+         */
         public void HandlePostRequest(HttpListenerContext ctxIn)
         {
             if (!ctxIn.Request.HasEntityBody)

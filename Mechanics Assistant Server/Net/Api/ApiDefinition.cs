@@ -4,8 +4,10 @@ using MechanicsAssistantServer.Data;
 
 namespace MechanicsAssistantServer.Net.Api
 {
+    /**<summary>Definition of an HttpMessageHandler Method</summary>*/
     public delegate void HttpMessageHandler(HttpListenerContext ctxIn);
 
+    /** <summary>Class that represents the definition of one part of a web api</summary> */
     public class ApiDefinition
     {
         protected HttpUri Uri;
@@ -20,6 +22,7 @@ namespace MechanicsAssistantServer.Net.Api
             Uri = new HttpUri(baseUri);
         }
 
+        /** <summary>Method to reliably tell the requesting client that the method they used to request a resource is not valid</summary> */
         public void NotSupported (HttpListenerContext ctx) {
             ctx.Response.StatusCode = 405;
             ctx.Response.StatusDescription = "Method Not Supported";

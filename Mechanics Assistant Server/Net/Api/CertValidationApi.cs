@@ -5,6 +5,7 @@ using System.IO;
 
 namespace MechanicsAssistantServer.Net.Api
 {
+    /**<summary>Api defintion for responding to the HTTP challenge made by the Lets Encrypt ACME Api</summary>*/
     class CertValidationApi : ApiDefinition
     {
         public CertValidationApi() : base("http://+/.well-known/acme-challenge")
@@ -26,7 +27,9 @@ namespace MechanicsAssistantServer.Net.Api
         }
 
 
-
+        /**<summary>Responds to the http challenge by sending the contents of the file that was requested.
+         * This is secure because the only entities that know the token (what the file is name) is our server
+         * and the Let's Encrypt server</summary>*/
         public void HandleGetRequest(HttpListenerContext ctx)
         {
             string fileName = ctx.Request.RawUrl;
