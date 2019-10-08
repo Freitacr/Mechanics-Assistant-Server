@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mechanic's Assistant Client", "Mechanics Assistant Client\Mechanic's Assistant Client.csproj", "{E579CE15-C504-44B3-B6EA-F36ADB7520B2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6E30B34F-1FD1-4307-861A-3B430931F037} = {6E30B34F-1FD1-4307-861A-3B430931F037}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mechanic's Assistant Server", "Mechanics Assistant Server\Mechanic's Assistant Server.csproj", "{6E30B34F-1FD1-4307-861A-3B430931F037}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mechanic's Assistant Server Tests", "Mechanics Assistant Server Tests\Mechanic's Assistant Server Tests.csproj", "{21C31458-E7E8-4975-A162-DDCBB54587E4}"
@@ -24,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E579CE15-C504-44B3-B6EA-F36ADB7520B2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E30B34F-1FD1-4307-861A-3B430931F037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E30B34F-1FD1-4307-861A-3B430931F037}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E30B34F-1FD1-4307-861A-3B430931F037}.Release|Any CPU.ActiveCfg = Release|Any CPU
