@@ -1,0 +1,1 @@
+exit (Get-ChildItem cert:\localmachine\my -recurse -ExpiringInDays 30).count
