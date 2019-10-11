@@ -44,7 +44,17 @@ namespace MechanicsAssistantServer.Net.Api
                 return;
             }
             fileName = fileName.Substring(challengeIndex+15);
-            StreamReader reader = new StreamReader(fileName);
+            StreamReader reader;
+            try
+            {
+                reader = new StreamReader("tokens/" + fileName);
+            } catch(FileNotFoundException)
+            {
+                ctx.Response.StatusCode = 404;
+                ctx.Response.StatusDescription = "Not Found";
+                ctx.Response.OutputStream.Close();
+                return;
+            }
             string authzToken = reader.ReadToEnd();
             reader.Close();
             byte[] token = Encoding.UTF8.GetBytes(authzToken);

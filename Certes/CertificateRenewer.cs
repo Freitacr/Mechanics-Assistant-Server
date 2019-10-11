@@ -94,7 +94,9 @@ namespace CertesWrapper
             IChallengeContext httpContext = currentAuthContext.Http().Result;
             if (httpContext.Resource().Result.Status != ChallengeStatus.Valid)
             {
-                StreamWriter writer = new StreamWriter(httpContext.Token);
+                if (!System.IO.Directory.Exists("tokens"))
+                    System.IO.Directory.CreateDirectory("tokens");
+                StreamWriter writer = new StreamWriter("tokens/"+httpContext.Token);
                 writer.Write(httpContext.KeyAuthz);
                 writer.Close();
                 Challenge httpChallenge = httpContext.Validate().Result;
