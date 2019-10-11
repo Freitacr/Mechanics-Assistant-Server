@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MySql.Data.MySqlClient;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using MechanicsAssistantServer.Data.MySql;
 
 namespace MechanicsAssistantServerTests.TestData.TestMySql
 {
@@ -37,7 +38,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = "create table " + TableName + "(id int primary key auto_increment, MappedText text, UserId int);";
+                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.UserEmailTable;
                 cmd.ExecuteNonQuery();
             }
             catch (MySqlException e)

@@ -36,7 +36,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = "create table " + TableName + "(id int primary key auto_increment, LegalName text);";
+                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.CompanyIdTable;
                 cmd.ExecuteNonQuery();
             } catch (MySqlException e)
             {

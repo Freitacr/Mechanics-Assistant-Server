@@ -4,6 +4,7 @@ using System.Text;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MySql.Data.MySqlClient;
+using MechanicsAssistantServer.Data.MySql;
 
 
 namespace MechanicsAssistantServerTests.TestData.TestMySql
@@ -38,9 +39,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = "create table " + TableName + "(id int primary key auto_increment, AccessLevel int," +
-                    " DerivedSecurityToken varbinary(64), SecurityQuestion text, PersonalData varbinary(1024), Settings text," +
-                    " Company int, AuthToken varbinary(64), LoggedToken text);";
+                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.OverallUserTable;
                 cmd.ExecuteNonQuery();
             }
             catch (MySqlException e)
@@ -72,7 +71,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 Company = 1,
                 AuthToken = new byte[] { 1, 2, 3, 4 },
                 DerivedSecurityToken = new byte[] { 5, 6, 7, 8 },
-                LoggedToken = "hi",
+                LoggedTokens = "hi",
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
                 Settings = "try"
@@ -83,7 +82,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 Company = 1,
                 AuthToken = new byte[] { 1, 8, 3, 4 },
                 DerivedSecurityToken = new byte[] { 5, 6, 7, 8 },
-                LoggedToken = "hi",
+                LoggedTokens = "hi",
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
                 Settings = "try"
@@ -94,7 +93,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 Company = 1,
                 AuthToken = new byte[] { 1, 2, 3, 4 },
                 DerivedSecurityToken = new byte[] { 5, 6, 7, 8 },
-                LoggedToken = "hi",
+                LoggedTokens = "hi",
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
                 Settings = "try"

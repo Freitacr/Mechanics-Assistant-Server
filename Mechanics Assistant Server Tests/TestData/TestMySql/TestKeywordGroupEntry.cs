@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using MechanicsAssistantServer.Data.MySql;
 using MySql.Data.MySqlClient;
 
 namespace MechanicsAssistantServerTests.TestData.TestMySql
@@ -37,7 +38,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = "create table " + TableName + "(id int primary key auto_increment, GroupDefinition text);";
+                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.GroupDefinitionTable;
                 cmd.ExecuteNonQuery();
             }
             catch (MySqlException e)
