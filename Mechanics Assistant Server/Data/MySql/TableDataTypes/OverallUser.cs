@@ -16,7 +16,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string Settings { get; set; }
         public int Company { get; set; }
         public byte[] AuthToken { get; set; }
-        public string LoggedToken { get; set; }
+        public string LoggedTokens { get; set; }
 
         private static string ConvertToHexString(byte[] a)
         {
@@ -47,7 +47,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
                 Settings = Settings,
                 Company = Company,
                 AuthToken = (byte[])AuthToken.Clone(),
-                LoggedToken = LoggedToken
+                LoggedTokens = LoggedTokens
             };
             return ret;
         }
@@ -61,7 +61,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             Settings = (string)reader["Settings"];
             Company = (int)reader["Company"];
             AuthToken = (byte[])reader["AuthToken"];
-            LoggedToken = (string)reader["LoggedToken"];
+            LoggedTokens = (string)reader["LoggedToken"];
         }
 
         public string Serialize(string tableName)
@@ -84,7 +84,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             retBuilder.Append(",");
             retBuilder.Append(ConvertToHexString(AuthToken));
             retBuilder.Append(",");
-            retBuilder.Append("\"" + LoggedToken + "\");");
+            retBuilder.Append("\"" + LoggedTokens + "\");");
             return retBuilder.ToString();
         }
 
@@ -118,7 +118,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 
         public override int GetHashCode()
         {
-            return Company + AccessLevel + SecurityQuestion.GetHashCode() + LoggedToken.GetHashCode();
+            return Company + AccessLevel + SecurityQuestion.GetHashCode() + LoggedTokens.GetHashCode();
         }
     }
 }
