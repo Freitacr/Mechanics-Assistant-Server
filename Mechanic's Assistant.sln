@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EncodingUtilities", "Encodi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CertesWrapper", "Certes\CertesWrapper.csproj", "{2E505639-286C-4E35-9097-51BDB4A1866E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMISSecLib", "OMISSecLib\OMISSecLib.csproj", "{548833C1-BB70-46A2-B495-69936E7DD918}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMISSecLibTest", "OMISSecLibTest\OMISSecLibTest.csproj", "{958796F5-F8FD-4885-BB38-07D225F80F3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{2E505639-286C-4E35-9097-51BDB4A1866E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E505639-286C-4E35-9097-51BDB4A1866E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E505639-286C-4E35-9097-51BDB4A1866E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{548833C1-BB70-46A2-B495-69936E7DD918}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{548833C1-BB70-46A2-B495-69936E7DD918}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{548833C1-BB70-46A2-B495-69936E7DD918}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{548833C1-BB70-46A2-B495-69936E7DD918}.Release|Any CPU.Build.0 = Release|Any CPU
+		{958796F5-F8FD-4885-BB38-07D225F80F3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{958796F5-F8FD-4885-BB38-07D225F80F3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{958796F5-F8FD-4885-BB38-07D225F80F3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{958796F5-F8FD-4885-BB38-07D225F80F3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

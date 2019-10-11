@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ANSEncodingLib\ANSEncodingLib.csproj" />
     <ProjectReference Include="..\Certes\CertesWrapper.csproj" />
     <ProjectReference Include="..\EncodingUtilities\EncodingUtilities.csproj" />

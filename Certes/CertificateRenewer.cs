@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace CertesTest
+namespace CertesWrapper
 {
     class ContextAccountBundle
     {
@@ -21,23 +21,37 @@ namespace CertesTest
         }
     }
 
-    class Program
+    public static class CertificateRenewer
     {
+
         private static readonly string STAGING_ACC_LOC = "pemkey.key";
         private static readonly string ACC_LOC = "accountKey.key";
+
+        public static bool CertificateNeedsRenewal()
+        {
+            ProcessStartInfo psi = new ProcessStartInfo("powershell", "-Command ./countExpiring.ps1");
+            psi.CreateNoWindow = true;
+            var countProcess = Process.Start(psi);
+            countProcess.WaitForExit();
+            if (countProcess.ExitCode > 0)
+                return true;
+            return false;
+        }
+
 
         static async Task<IAccountContext> RetrieveAccount(AcmeContext acme)
         {
             return await acme.Account();
         }
 
-        static void GetFirstCert(bool staging=true)
+        public static void GetFirstCert(bool staging = true)
         {
             ContextAccountBundle bundle;
-            if(staging)
+            if (staging)
             {
                 bundle = GetStagingParameters();
-            } else
+            }
+            else
             {
                 bundle = GetNonStagingParameters();
             }
@@ -118,7 +132,8 @@ namespace CertesTest
             if (File.Exists(STAGING_ACC_LOC))
             {
                 ctx = AccountHelper.GetContextWithAccount(STAGING_ACC_LOC, server);
-            } else
+            }
+            else
             {
                 ctx = new AcmeContext(server);
             }
@@ -153,14 +168,5 @@ namespace CertesTest
             return new ContextAccountBundle(ctx, account);
         }
 
-        static void Main(string[] args)
-        {
-            ProcessStartInfo psi = new ProcessStartInfo("powershell", "-Command ./countExpiring.ps1");
-            psi.CreateNoWindow = true;
-            var countProcess = Process.Start(psi);
-            countProcess.WaitForExit();
-            if (countProcess.ExitCode > 0)
-                GetFirstCert(false);
-        }
     }
 }

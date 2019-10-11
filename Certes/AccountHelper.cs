@@ -5,7 +5,7 @@ using Certes;
 using Certes.Acme;
 using Certes.Acme.Resource;
 
-namespace CertesTest
+namespace CertesWrapper
 {
     static class AccountHelper
     {
