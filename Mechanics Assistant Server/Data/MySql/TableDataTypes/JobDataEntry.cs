@@ -14,7 +14,8 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string Model { get; set; }
         public string Complaint { get; set; }
         public string Problem { get; set; }
-        public string Groups { get; set; }
+        public string ComplaintGroups { get; set; }
+        public string ProblemGroups { get; set; }
         public string Requirements { get; set; }
         public int Year { get; set; }
 
@@ -23,21 +24,22 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 
         }
 
-        public JobDataEntry(string jobId, string make, string model, string complaint, string problem, string groups, string requirements, int year)
+        public JobDataEntry(string jobId, string make, string model, string complaint, string problem, string complaintGroups, string problemGroups, string requirements, int year)
         {
             JobId = jobId;
             Make = make;
             Model = model;
             Complaint = complaint;
             Problem = problem;
-            Groups = groups;
+            ComplaintGroups = complaintGroups;
+            ProblemGroups = problemGroups;
             Requirements = requirements;
             Year = year;
         }
 
         public ISqlSerializable Copy()
         {
-            return new JobDataEntry(JobId, Make, Model, Complaint, Problem, Groups, Requirements, Year);
+            return new JobDataEntry(JobId, Make, Model, Complaint, Problem, ComplaintGroups, ProblemGroups, Requirements, Year);
         }
 
         public void Deserialize(MySqlDataReader reader)
@@ -47,16 +49,17 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             Model = (string)reader["Model"];
             Complaint = (string)reader["Complaint"];
             Problem = (string)reader["Problem"];
-            Groups = (string)reader["Groupings"];
+            ComplaintGroups = (string)reader["ComplaintGroupings"];
+            ProblemGroups = (string)reader["ProblemGroupings"];
             Requirements = (string)reader["Requirements"];
             Year = (int)reader["Year"];
         }
 
         public string Serialize(string tableName)
         {
-            return "insert into " + tableName + "(JobId, Make, Model, Complaint, Problem, Groupings, Requirements, Year) values (\"" +
+            return "insert into " + tableName + "(JobId, Make, Model, Complaint, Problem, ComplaintGroupings, ProblemGroupings, Requirements, Year) values (\"" +
                 JobId + "\",\"" + Make + "\",\"" + Model + "\",\"" + Complaint + "\",\"" + Problem +
-                "\",\"" + Groups + "\",\"" + Requirements + "\"," + Year + ")";
+                "\",\"" + ComplaintGroups + "\",\"" + ProblemGroups + "\",\"" + Requirements + "\"," + Year + ")";
         }
 
         public override bool Equals(object obj)

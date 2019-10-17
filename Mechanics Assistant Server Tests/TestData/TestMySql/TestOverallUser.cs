@@ -74,7 +74,10 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 LoggedTokens = "hi",
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
-                Settings = "try"
+                Settings = "try",
+                Job1Results = new byte[] { 0 },
+                Job2Results = new byte[] { 0 },
+                RequestHistory = new byte[] { 0 }
             };
             Id2 = new OverallUser()
             {
@@ -85,7 +88,10 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 LoggedTokens = "hi",
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
-                Settings = "try"
+                Settings = "try",
+                Job1Results = new byte[] { 0 },
+                Job2Results = new byte[] { 0 },
+                RequestHistory = new byte[] { 0 }
             };
             Id3 = new OverallUser()
             {
@@ -96,7 +102,10 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 LoggedTokens = "hi",
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
-                Settings = "try"
+                Settings = "try",
+                Job1Results = new byte[] { 0 },
+                Job2Results = new byte[] { 0 },
+                RequestHistory = new byte[] { 0 }
             };
         }
 

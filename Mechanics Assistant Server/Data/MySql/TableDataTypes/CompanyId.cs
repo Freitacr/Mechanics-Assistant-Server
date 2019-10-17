@@ -10,30 +10,33 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public static readonly TableDataManipulator<CompanyId> Manipulator = new TableDataManipulator<CompanyId>();
 
         public string LegalName { get; set; }
+        public float ModelAccuracy { get; set; }
 
         public CompanyId()
         {
 
         }
 
-        public CompanyId(string legalName)
+        public CompanyId(string legalName, float modelAccuracy)
         {
             LegalName = legalName;
+            ModelAccuracy = modelAccuracy;
         }
 
         public ISqlSerializable Copy()
         {
-            return new CompanyId(LegalName);
+            return new CompanyId(LegalName, ModelAccuracy);
         }
 
         public void Deserialize(MySqlDataReader reader)
         {
             LegalName = (string)reader["LegalName"];
+            ModelAccuracy = (float)reader["ModelAccuracy"];
         }
 
         public string Serialize(string tableName)
         {
-            return "insert into " + tableName + "(LegalName) values (\"" + LegalName + "\");";
+            return "insert into " + tableName + "(LegalName, ModelAccuracy) values (\"" + LegalName + "\"," + ModelAccuracy.ToString() + ");";
         }
 
         public override bool Equals(object obj)

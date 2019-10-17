@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Certes" Version="2.3.3" />
+    <PackageReference Include="Certes" Version="2.3.3">
+      <IncludeAssets></IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

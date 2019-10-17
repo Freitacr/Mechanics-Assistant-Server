@@ -17,9 +17,17 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public int Company { get; set; }
         public byte[] AuthToken { get; set; }
         public string LoggedTokens { get; set; }
+        public string Job1Id { get; set; }
+        public string Job2Id { get; set; }
+        public byte[] Job1Results { get; set; }
+        public byte[] Job2Results { get; set; }
+        public string Email { get; set; }
+        public byte[] RequestHistory { get; set; }
 
         private static string ConvertToHexString(byte[] a)
         {
+            if (a == null)
+                return "0x00";
             StringBuilder ret = new StringBuilder("0x");
             foreach (byte b in a)
             {
@@ -33,7 +41,8 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 
         public OverallUser()
         {
-
+            Job1Results = new byte[] { 0 };
+            Job2Results = new byte[] { 0 };
         }
 
         public ISqlSerializable Copy()
@@ -47,7 +56,13 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
                 Settings = Settings,
                 Company = Company,
                 AuthToken = (byte[])AuthToken.Clone(),
-                LoggedTokens = LoggedTokens
+                LoggedTokens = LoggedTokens,
+                Job1Id = Job1Id,
+                Job2Id = Job2Id,
+                Job1Results = Job1Results,
+                Job2Results = Job2Results,
+                Email = Email,
+                RequestHistory = RequestHistory
             };
             return ret;
         }
@@ -62,6 +77,12 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             Company = (int)reader["Company"];
             AuthToken = (byte[])reader["AuthToken"];
             LoggedTokens = (string)reader["LoggedToken"];
+            Email = (string)reader["Email"];
+            RequestHistory = (byte[])reader["RequestHistory"];
+            Job1Id = (string)reader["Job1Id"];
+            Job2Id = (string)reader["Job2Id"];
+            Job1Results = (byte[])reader["Job1Results"];
+            Job2Results = (byte[])reader["Job2Results"];
         }
 
         public string Serialize(string tableName)
@@ -69,7 +90,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             StringBuilder retBuilder = new StringBuilder();
             retBuilder.Append("insert into ");
             retBuilder.Append(tableName);
-            retBuilder.Append("(AccessLevel, DerivedSecurityToken, SecurityQuestion, PersonalData, Settings, Company, AuthToken, LoggedToken) Values (");
+            retBuilder.Append("(AccessLevel, DerivedSecurityToken, SecurityQuestion, PersonalData, Settings, Company, AuthToken, LoggedToken, Job1Id, Job2Id, Job1Results, Job2Results, Email, RequestHistory) Values (");
             retBuilder.Append(AccessLevel);
             retBuilder.Append(",");
             retBuilder.Append(ConvertToHexString(DerivedSecurityToken));
@@ -84,7 +105,20 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             retBuilder.Append(",");
             retBuilder.Append(ConvertToHexString(AuthToken));
             retBuilder.Append(",");
-            retBuilder.Append("\"" + LoggedTokens + "\");");
+            retBuilder.Append("\"" + LoggedTokens + "\"");
+            retBuilder.Append(",");
+            retBuilder.Append("\"" + Job1Id + "\"");
+            retBuilder.Append(",");
+            retBuilder.Append("\"" + Job2Id + "\"");
+            retBuilder.Append(",");
+            retBuilder.Append(ConvertToHexString(Job1Results));
+            retBuilder.Append(",");
+            retBuilder.Append(ConvertToHexString(Job2Results));
+            retBuilder.Append(",");
+            retBuilder.Append("\"" + Email + "\"");
+            retBuilder.Append(",");
+            retBuilder.Append(ConvertToHexString(RequestHistory));
+            retBuilder.Append(");");
             return retBuilder.ToString();
         }
 

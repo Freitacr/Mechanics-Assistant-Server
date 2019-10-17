@@ -65,9 +65,9 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [TestInitialize]
         public void Init()
         {
-            Id1 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "Pass-Code: ICM-OVERRIDE", -1);
-            Id2 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "cracked piston", "{0, 1, 2}", "Pass-Code: ICM-OVERRIDE", -1);
-            Id3 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "Pass-Code: ICM-OVERRIDE", -1);
+            Id1 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
+            Id2 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "cracked piston", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
+            Id3 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
         }
 
         [TestMethod]

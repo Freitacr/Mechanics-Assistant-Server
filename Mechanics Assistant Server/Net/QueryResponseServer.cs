@@ -33,7 +33,7 @@ namespace MechanicsAssistantServer.Net
                     string method = ctx.Request.HttpMethod;
                     string uri = ctx.Request.Url.ToString();
                     Console.WriteLine("Received request for " + uri);
-                    Console.WriteLine("Request came from " + ctx.Request.UserHostAddress);
+                    Console.WriteLine("Request came from " + ctx.Request.RemoteEndPoint.ToString());
                     if (!uri.EndsWith('/'))
                         uri += '/';
                     var action = prefixMapping[uri];

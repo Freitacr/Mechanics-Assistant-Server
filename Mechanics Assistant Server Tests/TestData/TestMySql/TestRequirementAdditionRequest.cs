@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MySql.Data.MySqlClient;
-using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using MechanicsAssistantServer.Data.MySql;
+using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using MySql.Data.MySqlClient;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MechanicsAssistantServerTests.TestData.TestMySql
 {
     [TestClass]
-    public class TestUserToTextEntry
+    public class TestRequirementAdditionRequest
     {
         private static MySqlConnection TestConnection;
-        private static readonly string TableName = "test_user_to_text_table";
+        private static readonly string TableName = "test_requirement_addition_request_table";
 
-        private UserToTextEntry Id1, Id2, Id3;
+        private RequirementAdditionRequest Id1, Id2, Id3;
 
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
@@ -38,7 +38,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.UserForumEntryTable;
+                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.PartsListAdditionRequest;
                 cmd.ExecuteNonQuery();
             }
             catch (MySqlException e)
@@ -64,9 +64,9 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [TestInitialize]
         public void Init()
         {
-            Id1 = new UserToTextEntry(1, "a@b.com");
-            Id2 = new UserToTextEntry(2, "a@c.com");
-            Id3 = new UserToTextEntry(1, "a@b.com");
+            Id1 = new RequirementAdditionRequest(1, 2, "a");
+            Id2 = new RequirementAdditionRequest(2, 2, "a");
+            Id3 = new RequirementAdditionRequest(1, 2, "a");
         }
 
         [TestMethod]
@@ -79,17 +79,17 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [TestMethod]
         public void TestSerialize()
         {
-            Assert.AreEqual(1, UserToTextEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
-            Assert.AreEqual(1, UserToTextEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "MappedText=\"" + Id1.Text + "\""));
+            Assert.AreEqual(1, RequirementAdditionRequest.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
+            Assert.AreEqual(1, RequirementAdditionRequest.Manipulator.RemoveDataWhere(TestConnection, TableName, "UserId=" + Id1.UserId));
         }
 
         [TestMethod]
         public void TestDeserialize()
         {
-            Assert.AreEqual(1, UserToTextEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
-            UserToTextEntry toTest = UserToTextEntry.Manipulator.RetrieveDataWhere(TestConnection, TableName, "MappedText=\"" + Id1.Text + "\"")[0];
+            Assert.AreEqual(1, RequirementAdditionRequest.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
+            RequirementAdditionRequest toTest = RequirementAdditionRequest.Manipulator.RetrieveDataWhere(TestConnection, TableName, "UserId=" + Id1.UserId)[0];
             Assert.AreEqual(Id1, toTest);
-            Assert.AreEqual(1, UserToTextEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "MappedText=\"" + Id1.Text + "\""));
+            Assert.AreEqual(1, RequirementAdditionRequest.Manipulator.RemoveDataWhere(TestConnection, TableName, "UserId=" + Id1.UserId));
         }
     }
 }

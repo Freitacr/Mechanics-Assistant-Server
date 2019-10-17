@@ -12,6 +12,9 @@ namespace MechanicsAssistantServer.Net.Api
         {
             GET += HandleGetRequest;
             OPTIONS += HandleOptionRequest;
+            DELETE += NotSupported;
+            PUT += NotSupported;
+            POST += NotSupported;
             
             //AddAction("put", HandlePutRequest);
             //AddAction("post", HandlePostRequest);

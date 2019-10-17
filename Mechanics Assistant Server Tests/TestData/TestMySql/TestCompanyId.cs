@@ -61,9 +61,9 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [TestInitialize]
         public void Init()
         {
-            Id1 = new CompanyId("Whack LLC");
-            Id2 = new CompanyId("Mole Inc");
-            Id3 = new CompanyId("Whack LLC");
+            Id1 = new CompanyId("Whack LLC", .75f);
+            Id2 = new CompanyId("Mole Inc", .75f);
+            Id3 = new CompanyId("Whack LLC", .75f);
         }
 
         [TestMethod]
