@@ -37,13 +37,22 @@ namespace MechanicsAssistantServer
             Thread t = new Thread(RenewCertificate);
             t.Start();
             bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString(""));
-            if(!res)
+            if(!res && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 1049)
             {
                 Console.WriteLine("Encountered an error opening the global configuration connection");
                 Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
                 t.Interrupt();
                 return;
             }
+            if(!MySqlDataManipulator.GlobalConfiguration.ValidateDatabaseIntegrity("db_test"))
+            {
+                Console.WriteLine("Encountered an error opening the global configuration connection");
+                Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
+                t.Interrupt();
+                return;
+            }
+            MySqlDataManipulator.GlobalConfiguration.Close();
+            MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString(""));
             MySqlDataManipulator.GlobalConfiguration.Close();
             var server = ApiLoader.LoadApiAndListen(16384, new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings()));
             while (server.IsAlive)

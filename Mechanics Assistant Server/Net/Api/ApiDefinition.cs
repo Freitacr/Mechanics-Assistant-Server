@@ -34,7 +34,7 @@ namespace MechanicsAssistantServer.Net.Api
             ctx.Response.StatusCode = responseCode;
             ctx.Response.StatusDescription = responseString;
             ctx.Response.ContentType = "text/plain";
-            byte[] resp = Encoding.UTF32.GetBytes(responseBody);
+            byte[] resp = Encoding.UTF8.GetBytes(responseBody);
             ctx.Response.ContentLength64 = resp.LongLength;
             ctx.Response.OutputStream.Write(resp, 0, resp.Length);
             ctx.Response.OutputStream.Close();

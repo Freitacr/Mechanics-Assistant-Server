@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
 using MySql.Data.MySqlClient;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using OMISSecLib;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
@@ -68,7 +70,17 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public OverallUser GetUserById(int id)
         {
-            OverallUser ret = OverallUser.Manipulator.RetrieveDataWithId(Connection, "overall_user_table", id.ToString());
+            OverallUser ret = OverallUser.Manipulator.RetrieveDataWithId(Connection, TableNameStorage.OverallUserTable, id.ToString());
+            if(ret == null)
+            {
+                LastException = OverallUser.Manipulator.LastException;
+            }
+            return ret;
+        }
+
+        public List<OverallUser> GetUserWhere(string where)
+        {
+            List<OverallUser> ret = OverallUser.Manipulator.RetrieveDataWhere(Connection, TableNameStorage.OverallUserTable, where);
             if(ret == null)
             {
                 LastException = OverallUser.Manipulator.LastException;
@@ -87,7 +99,39 @@ namespace MechanicsAssistantServer.Data.MySql
          */
         public bool AddUser(string email, string password, string securityQuestion, string securityAnswer)
         {
-            throw new NotImplementedException();
+            OverallUser toAdd = new OverallUser();
+            toAdd.Email = email;
+            toAdd.SecurityQuestion = securityQuestion;
+            SecuritySchemaLib secLib = new SecuritySchemaLib(SHA512.Create().ComputeHash);
+            toAdd.DerivedSecurityToken = secLib.ConstructDerivedSecurityToken(Encoding.UTF32.GetBytes(email), Encoding.UTF32.GetBytes(password));
+            toAdd.AccessLevel = 1;
+            toAdd.Company = -1;
+            toAdd.Job1Id = "";
+            toAdd.Job2Id = "";
+            toAdd.LoggedTokens = "";
+            toAdd.Settings = "";
+            byte[] key, iv;
+            key = new byte[32];
+            iv = new byte[16];
+            var encKey = secLib.ConstructUserEncryptionKey(toAdd.DerivedSecurityToken, Encoding.UTF32.GetBytes(securityAnswer));
+            for (int i = 0, j = 32; j < toAdd.DerivedSecurityToken.Length; i++, j++)
+            {
+                key[i] = encKey[i];
+                if ((i&1) == 0)
+                    iv[i>>1] = encKey[j];
+            }
+            Aes aes = Aes.Create();
+            aes.Key = key;
+            aes.IV = iv;
+            byte[] toEncode = Encoding.UTF32.GetBytes("pass");
+            toAdd.AuthToken = aes.CreateEncryptor().TransformFinalBlock(toEncode, 0, toEncode.Length);
+            int rowsAffected = OverallUser.Manipulator.InsertDataInto(Connection, TableNameStorage.OverallUserTable, toAdd);
+            if(rowsAffected == -1)
+            {
+                LastException = OverallUser.Manipulator.LastException;
+                return false;
+            }
+            return true;
         }
 
         /**
@@ -139,14 +183,71 @@ namespace MechanicsAssistantServer.Data.MySql
             throw new NotImplementedException();
         }
 
+        public bool CreateTable(string tableName, string tableData)
+        {
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = ("create table " + tableName + tableData);
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return true;
+            } catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+        }
+
+        public bool CreateDatabase(string databaseName)
+        {
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = ("create schema " + databaseName);
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+        }
+
         /**
          * <summary>Validates whether the database is in the correct format to be worked with by this class</summary>
          * <param name="createIfMissing">Flag for whether to create missing tables or the database itself if it is found to be missing</param>
          * <param name="databaseName">The name of the database to verify integrity of</param>
          */
-        public bool ValidateDatabaseIntegrity(string databaseName, bool createIfMissing=true)
+        public bool ValidateDatabaseIntegrity(string databaseName)
         {
-            throw new NotImplementedException();
+            string connectionString = Connection.ConnectionString;
+            int databaseKeyLoc = connectionString.IndexOf("database");
+            int databaseValueEnd = connectionString.IndexOf(";", databaseKeyLoc);
+            connectionString = connectionString.Remove(databaseKeyLoc, (databaseValueEnd - databaseKeyLoc)+1);
+            if (!Connect(connectionString))
+                return false;
+            if(!CreateDatabase(databaseName))
+            {
+                if(LastException.Number != 1007)
+                {
+                    return false;
+                }
+            }
+            try
+            {
+                Connection.ChangeDatabase(databaseName);
+            } catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            if (!CreateTable(TableNameStorage.OverallUserTable, TableCreationDataDeclarationStrings.OverallUserTable))
+            {
+                if (LastException.Number != 1050)
+                    return false;
+            }
+            return true;
         }
     }
 }
