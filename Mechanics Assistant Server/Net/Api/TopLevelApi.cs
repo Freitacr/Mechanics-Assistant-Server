@@ -8,10 +8,7 @@ namespace MechanicsAssistantServer.Net.Api
     {
         public TopLevelApi() : base("http://+")
         {
-            DELETE += NotSupported;
             GET += SendRedirect;
-            POST += NotSupported;
-            PUT += NotSupported;
             OPTIONS += HandleOptionRequest;
         }
 

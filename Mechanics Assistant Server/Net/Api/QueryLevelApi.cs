@@ -20,8 +20,6 @@ namespace MechanicsAssistantServer.Net.Api
             PUT += HandlePutRequestJson;
             PUT += HandlePutRequestHtml;
             POST += HandlePostRequest;
-            DELETE += NotSupported;
-            GET += NotSupported;
             OPTIONS += HandleOptionRequest;
             //AddAction("put", HandlePutRequest);
             //AddAction("post", HandlePostRequest);

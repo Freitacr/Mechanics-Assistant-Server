@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Collections.Generic;
+using MechanicsAssistantServer.Net.Api;
 
 namespace MechanicsAssistantServer.Net
 {
@@ -45,39 +46,29 @@ namespace MechanicsAssistantServer.Net
                         ctx.Response.OutputStream.Close();
                     } else
                     {
+                        HttpMessageHandler handler = null;
                         switch(method)
                         {
                             case "DELETE":
-                                ThreadPool.QueueUserWorkItem(
-                                    (context) => action.DELETE(context as HttpListenerContext), ctx
-                                );
+                                handler = action.DELETE;
                                 break;
                             case "GET":
-                                ThreadPool.QueueUserWorkItem(
-                                    (context) => action.GET(context as HttpListenerContext), ctx
-                                );
+                                handler = action.GET;
                                 break;
                             case "PUT":
-                                ThreadPool.QueueUserWorkItem(
-                                    (context) => action.PUT(context as HttpListenerContext), ctx
-                                );
+                                handler = action.PUT;
                                 break;
                             case "POST":
-                                ThreadPool.QueueUserWorkItem(
-                                    (context) => action.POST(context as HttpListenerContext), ctx
-                                );
+                                handler = action.POST;
                                 break;
                             case "OPTIONS":
-                                ThreadPool.QueueUserWorkItem(
-                                    (context) => action.OPTIONS(context as HttpListenerContext), ctx
-                                );
-                                break;
-                            default:
-                                ctx.Response.StatusCode = 405;
-                                ctx.Response.StatusDescription = "Method Not Supported";
-                                ctx.Response.OutputStream.Close();
+                                handler = action.OPTIONS;
                                 break;
                         }
+                        if (handler == null)
+                            ThreadPool.QueueUserWorkItem((context) => ApiDefinition.NotSupported(context as HttpListenerContext), ctx);
+                        else
+                            ThreadPool.QueueUserWorkItem((context) => handler(context as HttpListenerContext), ctx);
                     }
                     //Console.WriteLine("HTTP request came in: " + ctx.Request.HttpMethod + " " + ctx.Request.Url);
                 }
