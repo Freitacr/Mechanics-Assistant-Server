@@ -2,9 +2,27 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using MechanicsAssistantServer.Util;
+using System.Runtime.Serialization;
 
 namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 {
+    [DataContract]
+    class LoggedTokens
+    {
+        [DataMember]
+        public string BaseLoggedInToken;
+
+        [DataMember]
+        public string BaseLoggedInTokenExpiration;
+
+        [DataMember]
+        public string AuthLoggedInToken;
+
+        [DataMember]
+        public string AuthLoggedInTokenExpiration;
+    }
+
     class OverallUser : ISqlSerializable
     {
         public static readonly TableDataManipulator<OverallUser> Manipulator = new TableDataManipulator<OverallUser>();
@@ -24,20 +42,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string Email { get; set; }
         public byte[] RequestHistory { get; set; }
 
-        private static string ConvertToHexString(byte[] a)
-        {
-            if (a == null)
-                return "0x00";
-            StringBuilder ret = new StringBuilder("0x");
-            foreach (byte b in a)
-            {
-                if (b < 16)
-                    ret.Append("0" + Convert.ToString(b, 16));
-                else
-                    ret.Append(Convert.ToString(b, 16));
-            }
-            return ret.ToString();
-        }
+        
 
         public OverallUser()
         {
@@ -93,17 +98,17 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             retBuilder.Append("(AccessLevel, DerivedSecurityToken, SecurityQuestion, PersonalData, Settings, Company, AuthToken, LoggedToken, Job1Id, Job2Id, Job1Results, Job2Results, Email, RequestHistory) Values (");
             retBuilder.Append(AccessLevel);
             retBuilder.Append(",");
-            retBuilder.Append(ConvertToHexString(DerivedSecurityToken));
+            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(DerivedSecurityToken));
             retBuilder.Append(",");
             retBuilder.Append("\"" + SecurityQuestion + "\"");
             retBuilder.Append(",");
-            retBuilder.Append(ConvertToHexString(PersonalData));
+            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(PersonalData));
             retBuilder.Append(",");
             retBuilder.Append("\"" + Settings + "\"");
             retBuilder.Append(",");
             retBuilder.Append(Company);
             retBuilder.Append(",");
-            retBuilder.Append(ConvertToHexString(AuthToken));
+            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(AuthToken));
             retBuilder.Append(",");
             retBuilder.Append("\"" + LoggedTokens + "\"");
             retBuilder.Append(",");
@@ -111,13 +116,13 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             retBuilder.Append(",");
             retBuilder.Append("\"" + Job2Id + "\"");
             retBuilder.Append(",");
-            retBuilder.Append(ConvertToHexString(Job1Results));
+            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(Job1Results));
             retBuilder.Append(",");
-            retBuilder.Append(ConvertToHexString(Job2Results));
+            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(Job2Results));
             retBuilder.Append(",");
             retBuilder.Append("\"" + Email + "\"");
             retBuilder.Append(",");
-            retBuilder.Append(ConvertToHexString(RequestHistory));
+            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(RequestHistory));
             retBuilder.Append(");");
             return retBuilder.ToString();
         }

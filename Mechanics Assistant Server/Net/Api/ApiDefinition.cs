@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Text;
 using System.Net;
 using MechanicsAssistantServer.Data;
 
@@ -26,6 +26,24 @@ namespace MechanicsAssistantServer.Net.Api
         public static void NotSupported (HttpListenerContext ctx) {
             ctx.Response.StatusCode = 405;
             ctx.Response.StatusDescription = "Method Not Supported";
+            ctx.Response.OutputStream.Close();
+        }
+
+        public static void WriteErrorResponse(HttpListenerContext ctx, int responseCode, string responseString, string responseBody)
+        {
+            ctx.Response.StatusCode = responseCode;
+            ctx.Response.StatusDescription = responseString;
+            ctx.Response.ContentType = "text/plain";
+            byte[] resp = Encoding.UTF32.GetBytes(responseBody);
+            ctx.Response.ContentLength64 = resp.LongLength;
+            ctx.Response.OutputStream.Write(resp, 0, resp.Length);
+            ctx.Response.OutputStream.Close();
+        }
+
+        public static void WriteBodylessResponse(HttpListenerContext ctx, int responseCode, string responseString)
+        {
+            ctx.Response.StatusCode = responseCode;
+            ctx.Response.StatusDescription = responseString;
             ctx.Response.OutputStream.Close();
         }
     }

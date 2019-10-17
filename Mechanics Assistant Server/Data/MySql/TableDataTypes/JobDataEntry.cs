@@ -2,22 +2,41 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using System.Runtime.Serialization;
 
 namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 {
+    [DataContract]
     class JobDataEntry : ISqlSerializable
     {
         public static TableDataManipulator<JobDataEntry> Manipulator = new TableDataManipulator<JobDataEntry>();
 
+        [DataMember]
         public string JobId { get; set; }
+        
+        [DataMember]
         public string Make { get; set; }
+
+        [DataMember]
         public string Model { get; set; }
+
+        [DataMember]
         public string Complaint { get; set; }
+
+        [DataMember]
         public string Problem { get; set; }
-        public string ComplaintGroups { get; set; }
-        public string ProblemGroups { get; set; }
-        public string Requirements { get; set; }
-        public int Year { get; set; }
+
+        [DataMember(IsRequired = false)]
+        public string ComplaintGroups { get; set; } = "";
+
+        [DataMember(IsRequired = false)]
+        public string ProblemGroups { get; set; } = "";
+
+        [DataMember(IsRequired = false)]
+        public string Requirements { get; set; } = "";
+
+        [DataMember(IsRequired = false, EmitDefaultValue = true)]
+        public int Year { get; set; } = -1;
 
         public JobDataEntry()
         {

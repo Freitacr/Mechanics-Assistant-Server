@@ -14,6 +14,7 @@ namespace MechanicsAssistantServer.Net.Api
             api.AddMapping(new QueryLevelApi(portIn, processorIn));
             api.AddMapping(new CertValidationApi());
             api.AddMapping(new TopLevelApi());
+            api.AddMapping(new RepairJobApi(portIn));
             ret.ListenForResponses(api);
             return ret;
         }
