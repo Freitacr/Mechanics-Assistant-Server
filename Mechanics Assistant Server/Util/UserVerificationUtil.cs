@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using System.Runtime.Serialization;
+using MechanicsAssistantServer.Util;
 
 namespace MechanicsAssistantServer.Util
 {
@@ -35,5 +36,14 @@ namespace MechanicsAssistantServer.Util
             return reqExpiration.CompareTo(dbExpiration) < 0;
         }
 
+        public static bool VerifyLogin(OverallUser databaseUser, string email, string password)
+        {
+            byte[] calcToken = SecurityLibWrapper.SecLib.ConstructDerivedSecurityToken(Encoding.UTF8.GetBytes(email), Encoding.UTF8.GetBytes(password));
+            byte[] dbToken = databaseUser.DerivedSecurityToken;
+            for (int i = 0; i < dbToken.Length; i++)
+                if (dbToken[i] != calcToken[i])
+                    return false;
+            return true;
+        }
     }
 }

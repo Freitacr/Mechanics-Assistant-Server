@@ -1,13 +1,8 @@
-﻿using System.Net;
-using System.IO;
-using System.Threading;
-using System.Security.Cryptography;
+﻿using System.Threading;
 using MechanicsAssistantServer.Net.Api;
 using MechanicsAssistantServer.Models;
 using CertesWrapper;
 using System;
-using MySql.Data;
-using MySql.Data.MySqlClient;
 using MechanicsAssistantServer.Data.MySql;
 
 namespace MechanicsAssistantServer

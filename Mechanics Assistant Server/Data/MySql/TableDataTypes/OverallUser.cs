@@ -11,16 +11,16 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
     class LoggedTokens
     {
         [DataMember]
-        public string BaseLoggedInToken;
+        public string BaseLoggedInToken { get; set; } = "";
 
         [DataMember]
-        public string BaseLoggedInTokenExpiration;
+        public string BaseLoggedInTokenExpiration { get; set; } = "";
 
         [DataMember]
-        public string AuthLoggedInToken;
+        public string AuthLoggedInToken { get; set; } = "";
 
         [DataMember]
-        public string AuthLoggedInTokenExpiration;
+        public string AuthLoggedInTokenExpiration { get; set; } = "";
     }
 
     class OverallUser : ISqlSerializable

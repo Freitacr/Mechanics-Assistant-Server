@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
 using MySql.Data.MySqlClient;
+using System.Runtime.Serialization.Json;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using OMISSecLib;
 
@@ -78,7 +80,7 @@ namespace MechanicsAssistantServer.Data.MySql
             return ret;
         }
 
-        public List<OverallUser> GetUserWhere(string where)
+        public List<OverallUser> GetUsersWhere(string where)
         {
             List<OverallUser> ret = OverallUser.Manipulator.RetrieveDataWhere(Connection, TableNameStorage.OverallUserTable, where);
             if(ret == null)
@@ -86,6 +88,28 @@ namespace MechanicsAssistantServer.Data.MySql
                 LastException = OverallUser.Manipulator.LastException;
             }
             return ret;
+        }
+
+        public bool UpdateUsersLoginToken(OverallUser toUpdate, LoggedTokens update)
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
+            MemoryStream writer = new MemoryStream();
+            serializer.WriteObject(writer, update);
+            byte[] tokensData = writer.ToArray();
+            string tokens = Encoding.UTF8.GetString(tokensData);
+            tokens = tokens.Replace("\"", "\\\"");
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set LoggedToken=\"" + tokens + "\" where Email = \"" + toUpdate.Email + "\";";
+            int res;
+            try
+            {
+                res =cmd.ExecuteNonQuery();
+            } catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return res == 1;
         }
 
         /**
@@ -103,17 +127,23 @@ namespace MechanicsAssistantServer.Data.MySql
             toAdd.Email = email;
             toAdd.SecurityQuestion = securityQuestion;
             SecuritySchemaLib secLib = new SecuritySchemaLib(SHA512.Create().ComputeHash);
-            toAdd.DerivedSecurityToken = secLib.ConstructDerivedSecurityToken(Encoding.UTF32.GetBytes(email), Encoding.UTF32.GetBytes(password));
+            toAdd.DerivedSecurityToken = secLib.ConstructDerivedSecurityToken(Encoding.UTF8.GetBytes(email), Encoding.UTF8.GetBytes(password));
             toAdd.AccessLevel = 1;
             toAdd.Company = -1;
             toAdd.Job1Id = "";
             toAdd.Job2Id = "";
-            toAdd.LoggedTokens = "";
+            LoggedTokens defaultTokens = new LoggedTokens();
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
+            var writer = new MemoryStream();
+            serializer.WriteObject(writer, defaultTokens);
+            writer.Close();
+            toAdd.LoggedTokens = Encoding.UTF8.GetString(writer.ToArray());
+            toAdd.LoggedTokens = toAdd.LoggedTokens.Replace("\"", "\\\"");
             toAdd.Settings = "";
             byte[] key, iv;
             key = new byte[32];
             iv = new byte[16];
-            var encKey = secLib.ConstructUserEncryptionKey(toAdd.DerivedSecurityToken, Encoding.UTF32.GetBytes(securityAnswer));
+            var encKey = secLib.ConstructUserEncryptionKey(toAdd.DerivedSecurityToken, Encoding.UTF8.GetBytes(securityAnswer));
             for (int i = 0, j = 32; j < toAdd.DerivedSecurityToken.Length; i++, j++)
             {
                 key[i] = encKey[i];
@@ -123,7 +153,7 @@ namespace MechanicsAssistantServer.Data.MySql
             Aes aes = Aes.Create();
             aes.Key = key;
             aes.IV = iv;
-            byte[] toEncode = Encoding.UTF32.GetBytes("pass");
+            byte[] toEncode = Encoding.UTF8.GetBytes("pass");
             toAdd.AuthToken = aes.CreateEncryptor().TransformFinalBlock(toEncode, 0, toEncode.Length);
             int rowsAffected = OverallUser.Manipulator.InsertDataInto(Connection, TableNameStorage.OverallUserTable, toAdd);
             if(rowsAffected == -1)
