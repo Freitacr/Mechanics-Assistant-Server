@@ -32,6 +32,20 @@ namespace MechanicsAssistantServer.Data.MySql
             
         }
 
+        private bool ExecuteNonQuery(MySqlCommand cmd)
+        {
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return true;
+        }
+
         /**
          * <summary>Connects the MySqlDataManipulator object to the database</summary>
          * <param name="connectionString">The MySql connection string to use for connection</param>
@@ -176,15 +190,17 @@ namespace MechanicsAssistantServer.Data.MySql
          */
         public bool AddUser(string email, string password, string securityQuestion, string securityAnswer)
         {
-            OverallUser toAdd = new OverallUser();
-            toAdd.Email = email;
-            toAdd.SecurityQuestion = securityQuestion;
             SecuritySchemaLib secLib = new SecuritySchemaLib(SHA512.Create().ComputeHash);
-            toAdd.DerivedSecurityToken = secLib.ConstructDerivedSecurityToken(Encoding.UTF8.GetBytes(email), Encoding.UTF8.GetBytes(password));
-            toAdd.AccessLevel = 1;
-            toAdd.Company = -1;
-            toAdd.Job1Id = "";
-            toAdd.Job2Id = "";
+            OverallUser toAdd = new OverallUser
+            {
+                Email = email,
+                SecurityQuestion = securityQuestion,
+                DerivedSecurityToken = secLib.ConstructDerivedSecurityToken(Encoding.UTF8.GetBytes(email), Encoding.UTF8.GetBytes(password)),
+                AccessLevel = 1,
+                Company = 1,
+                Job1Id = "",
+                Job2Id = ""
+            };
             LoggedTokens defaultTokens = new LoggedTokens();
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
             var writer = new MemoryStream();
@@ -228,12 +244,25 @@ namespace MechanicsAssistantServer.Data.MySql
          */
         public bool AddDataEntry(int companyId, JobDataEntry entryToAdd)
         {
+            entryToAdd.FillDefaultValues();
+            int res;
             try
             {
-                JobDataEntry.Manipulator.InsertDataInto(Connection, "company" + companyId + "_non_validated_data", entryToAdd);
+                res = JobDataEntry.Manipulator.InsertDataInto(
+                    Connection, 
+                    TableNameStorage.CompanyNonValidatedRepairJobTable.Replace(
+                        "(n)", 
+                        companyId.ToString()
+                        ), 
+                    entryToAdd);
             } catch (MySqlException e)
             {
                 LastException = e;
+                return false;
+            }
+            if (res < 1)
+            {
+                LastException = JobDataEntry.Manipulator.LastException;
                 return false;
             }
             return true;
@@ -266,6 +295,93 @@ namespace MechanicsAssistantServer.Data.MySql
         public bool AddPartCatalogueEntry(int companyId, string make, string model, string partId, string partName, int year=-1)
         {
             throw new NotImplementedException();
+        }
+
+        public bool AddCompany(string companyLegalName)
+        {
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName) values(\"" + companyLegalName + "\");";
+            if (!ExecuteNonQuery(cmd))
+                return false;
+            cmd.CommandText = "select max(id) from " + TableNameStorage.CompanyIdTable;
+            int companyId;
+            try
+            {
+                var reader = cmd.ExecuteReader();
+                //if we're here than there cannot have been an exception, so there is something in the table to get an id from
+                reader.Read();
+                companyId = (int)reader[0];
+                reader.Close();
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+
+            //As we as the developers are the only ones who will be adding companies, this method will not
+            //do due diligence in restoring the database to its state prior to this method call.
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyComplaintKeywordGroupsTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.GroupDefinitionTable;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyProblemKeywordGroupsTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.GroupDefinitionTable;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.CompanyJoinRequest;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.JobDataEntryTable;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.JobDataEntryTable;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.PartCatalogueTable;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.PartsListAdditionRequest;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.CompanyPartsRequest;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.SafetyAdditionRequest;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            cmd.CommandText = "create table " +
+                TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString()) +
+                TableCreationDataDeclarationStrings.CompanySettings;
+            if (!ExecuteNonQuery(cmd))
+                return false;
+
+            return true;
         }
 
         public bool CreateTable(string tableName, string tableData)
@@ -332,6 +448,12 @@ namespace MechanicsAssistantServer.Data.MySql
                 if (LastException.Number != 1050)
                     return false;
             }
+            if (!CreateTable(TableNameStorage.CompanyIdTable, TableCreationDataDeclarationStrings.CompanyIdTable))
+            {
+                if (LastException.Number != 1050)
+                    return false;
+            }
+
             return true;
         }
     }

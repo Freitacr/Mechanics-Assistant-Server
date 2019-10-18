@@ -40,7 +40,7 @@ namespace MechanicsAssistantServer.Net.Api
                 WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                 return;
             }
-            RepairJobApiFullRequest entry = ParseJobDataEntry(ctx);
+            RepairJobApiFullRequest entry = JsonDataObjectUtil<RepairJobApiFullRequest>.ParseObject(ctx);
             if(!ValidateFullRequest(entry))
             {
                 WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
@@ -69,25 +69,6 @@ namespace MechanicsAssistantServer.Net.Api
             }
             WriteBodylessResponse(ctx, 200, "OK");
             connection.Close();
-        }
-
-        private RepairJobApiFullRequest ParseJobDataEntry(HttpListenerContext ctx)
-        {
-            DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(RepairJobApiFullRequest));
-            try
-            {
-                try
-                {
-                    return (RepairJobApiFullRequest)deserializer.ReadObject(ctx.Request.InputStream);
-                } catch (InvalidCastException)
-                {
-                    return null;
-                }
-            }
-            catch (SerializationException)
-            {
-                return null;
-            }
         }
 
         private bool ValidateJobDataEntry(JobDataEntry entryIn)

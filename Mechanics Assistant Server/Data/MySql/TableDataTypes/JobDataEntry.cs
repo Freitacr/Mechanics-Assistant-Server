@@ -3,9 +3,32 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.IO;
 
 namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 {
+    [DataContract]
+    class RequirementsEntry
+    {
+        [DataMember]
+        public List<string> Safety { get; set; } = new List<string>();
+        
+        [DataMember]
+        public List<int> Parts { get; set; } = new List<int>();
+
+        public List<string> Auxillary { get; set; } = new List<string>();
+
+        public string GenerateJsonString()
+        {
+            MemoryStream outStream = new MemoryStream();
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RequirementsEntry));
+            serializer.WriteObject(outStream, this);
+            byte[] retBytes = outStream.ToArray();
+            return Encoding.UTF8.GetString(retBytes);
+        }
+    }
+
     [DataContract]
     class JobDataEntry : ISqlSerializable
     {
@@ -27,13 +50,13 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string Problem { get; set; }
 
         [DataMember(IsRequired = false)]
-        public string ComplaintGroups { get; set; } = "";
+        public string ComplaintGroups { get; set; } = "[]";
 
         [DataMember(IsRequired = false)]
-        public string ProblemGroups { get; set; } = "";
+        public string ProblemGroups { get; set; } = "[]";
 
         [DataMember(IsRequired = false)]
-        public string Requirements { get; set; } = "";
+        public string Requirements { get; set; } = new RequirementsEntry().GenerateJsonString();
 
         [DataMember(IsRequired = false, EmitDefaultValue = true)]
         public int Year { get; set; } = -1;
@@ -54,6 +77,18 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             ProblemGroups = problemGroups;
             Requirements = requirements;
             Year = year;
+        }
+
+        public void FillDefaultValues()
+        {
+            if(Requirements == null)
+                Requirements = new RequirementsEntry().GenerateJsonString();
+            if (ProblemGroups == null)
+                ProblemGroups = "[]";
+            if (ComplaintGroups == null)
+                ComplaintGroups = "[]";
+            if (Year == 0)
+                Year = -1;
         }
 
         public ISqlSerializable Copy()
@@ -78,7 +113,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         {
             return "insert into " + tableName + "(JobId, Make, Model, Complaint, Problem, ComplaintGroupings, ProblemGroupings, Requirements, Year) values (\"" +
                 JobId + "\",\"" + Make + "\",\"" + Model + "\",\"" + Complaint + "\",\"" + Problem +
-                "\",\"" + ComplaintGroups + "\",\"" + ProblemGroups + "\",\"" + Requirements + "\"," + Year + ")";
+                "\",\"" + ComplaintGroups.Replace("\"", "\\\"") + "\",\"" + ProblemGroups.Replace("\"", "\\\"") + "\",\"" + Requirements.Replace("\"", "\\\"") + "\"," + Year + ")";
         }
 
         public override bool Equals(object obj)
