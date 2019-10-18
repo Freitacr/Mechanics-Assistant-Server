@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using MySql.Data.MySqlClient;
 using System.Runtime.Serialization.Json;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using MechanicsAssistantServer.Util;
 using OMISSecLib;
 
 #if DEBUG
@@ -117,6 +118,40 @@ namespace MechanicsAssistantServer.Data.MySql
             var cmd = Connection.CreateCommand();
             cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set Settings=\"" + toUpdate.Settings.Replace("\"", "\\\"") + "\" where " +
                 "id = " + toUpdate.UserId + ";";
+            int res;
+            try
+            {
+                res = cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return res == 1;
+        }
+
+        public bool DeleteUserJobData(OverallUser toUpdate, int jobDataId)
+        {
+            if(jobDataId == 1)
+            {
+                toUpdate.Job1Id = toUpdate.Job2Id;
+                toUpdate.Job1Results = toUpdate.Job2Results;
+            }
+            toUpdate.Job2Id = "";
+            toUpdate.Job2Results = null;
+            var cmd = Connection.CreateCommand();
+            StringBuilder cmdBuilder = new StringBuilder("update " + TableNameStorage.OverallUserTable);
+            cmdBuilder.Append(" set Job1Id=\"");
+            cmdBuilder.Append(toUpdate.Job1Id);
+            cmdBuilder.Append("\", Job1Results=");
+            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job1Results));
+            cmdBuilder.Append(", Job2Id=\"");
+            cmdBuilder.Append(toUpdate.Job2Id);
+            cmdBuilder.Append("\", Job2Results=");
+            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job2Results));
+            cmdBuilder.Append(" where id=" + toUpdate.UserId + ";");
+            cmd.CommandText = cmdBuilder.ToString();
             int res;
             try
             {
