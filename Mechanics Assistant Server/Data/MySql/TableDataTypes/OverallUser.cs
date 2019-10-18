@@ -42,7 +42,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string Email { get; set; }
         public byte[] RequestHistory { get; set; }
 
-        
+        public int UserId { get; set; }
 
         public OverallUser()
         {
@@ -88,6 +88,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             Job2Id = (string)reader["Job2Id"];
             Job1Results = (byte[])reader["Job1Results"];
             Job2Results = (byte[])reader["Job2Results"];
+            UserId = (int)reader["id"];
         }
 
         public string Serialize(string tableName)

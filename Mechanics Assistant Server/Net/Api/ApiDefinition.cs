@@ -29,11 +29,11 @@ namespace MechanicsAssistantServer.Net.Api
             ctx.Response.OutputStream.Close();
         }
 
-        public static void WriteErrorResponse(HttpListenerContext ctx, int responseCode, string responseString, string responseBody)
+        public static void WriteBodyResponse(HttpListenerContext ctx, int responseCode, string responseString, string responseBody, string contentType = "text/plain")
         {
             ctx.Response.StatusCode = responseCode;
             ctx.Response.StatusDescription = responseString;
-            ctx.Response.ContentType = "text/plain";
+            ctx.Response.ContentType = contentType;
             byte[] resp = Encoding.UTF8.GetBytes(responseBody);
             ctx.Response.ContentLength64 = resp.LongLength;
             ctx.Response.OutputStream.Write(resp, 0, resp.Length);

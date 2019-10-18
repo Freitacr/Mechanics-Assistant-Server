@@ -37,13 +37,13 @@ namespace MechanicsAssistantServer.Net.Api
         {
             if (!ctx.Request.HasEntityBody)
             {
-                WriteErrorResponse(ctx, 400, "Bad Request", "No Body");
+                WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                 return;
             }
             RepairJobApiFullRequest entry = ParseJobDataEntry(ctx);
             if(!ValidateFullRequest(entry))
             {
-                WriteErrorResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                 return;
             }
             //Otherwise we have a valid entry, validate user
@@ -51,20 +51,20 @@ namespace MechanicsAssistantServer.Net.Api
             bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
             if(!res)
             {
-                WriteErrorResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                 return;
             }
             OverallUser mappedUser = connection.GetUserById(entry.UserId);
             if(!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
             {
-                WriteErrorResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                 return;
             }
             //Now that we know the user is good, actually do the addition.
             res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
             if(!res)
             {
-                WriteErrorResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
                 return;
             }
             WriteBodylessResponse(ctx, 200, "OK");

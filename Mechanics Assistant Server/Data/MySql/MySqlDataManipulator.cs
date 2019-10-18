@@ -155,6 +155,7 @@ namespace MechanicsAssistantServer.Data.MySql
             aes.IV = iv;
             byte[] toEncode = Encoding.UTF8.GetBytes("pass");
             toAdd.AuthToken = aes.CreateEncryptor().TransformFinalBlock(toEncode, 0, toEncode.Length);
+            aes.Dispose();
             int rowsAffected = OverallUser.Manipulator.InsertDataInto(Connection, TableNameStorage.OverallUserTable, toAdd);
             if(rowsAffected == -1)
             {

@@ -15,7 +15,7 @@ namespace MechanicsAssistantServer.Data.MySql
         public static readonly string PartCatalogueTable = "(id int primary key auto_increment, Make varchar(128), Model varchar(128), Year int, PartId varchar(128), PartName varchar(194));";
         public static readonly string OverallUserTable = "(id int primary key auto_increment, " +
             "AccessLevel int, DerivedSecurityToken varbinary(64), SecurityQuestion varchar(256), PersonalData varbinary(1024), Settings varchar(512), Company int, " +
-            "AuthToken varbinary(64), LoggedToken varchar(384), Job1Id varchar(128), Email varchar(128), RequestHistory varbinary(2048), Job2Id varchar(128), Job1Results varbinary(2048), Job2Results varbinary(2048));";
+            "AuthToken varbinary(64), LoggedToken varchar(512), Job1Id varchar(128), Email varchar(128), RequestHistory varbinary(2048), Job2Id varchar(128), Job1Results varbinary(2048), Job2Results varbinary(2048));";
         public static readonly string CompanySettings = "(id int primary key auto_increment, SettingKey varchar(64), SettingValue varchar(128));";
         public static readonly string PartsListAdditionRequest = "(id int primary key auto_increment, UserId int, ValidatedDataId int, RequestedAdditions varchar(256));";
         public static readonly string SafetyAdditionRequest = "(id int primary key auto_increment, UserId int, ValidatedDataId int, RequestedAdditions varchar(2048));";

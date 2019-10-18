@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using System.Security.Cryptography;
 using System.Runtime.Serialization;
 using MechanicsAssistantServer.Util;
 
@@ -13,27 +14,15 @@ namespace MechanicsAssistantServer.Util
     {
         public static bool LoginTokenValid(OverallUser databaseUser, string loggedTokenJSON)
         {
-            byte[] convertedText = Encoding.UTF32.GetBytes(databaseUser.LoggedTokens);
+            byte[] convertedText = Encoding.UTF8.GetBytes(databaseUser.LoggedTokens);
             DataContractJsonSerializer loggedTokenSerializer = new DataContractJsonSerializer(typeof(LoggedTokens));
             LoggedTokens dbTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoggedTokens;
             if (dbTokens == null)
                 throw new ArgumentException("database user had an invalid entry for logged tokens");
-            convertedText = Encoding.UTF32.GetBytes(loggedTokenJSON);
-            LoggedTokens reqTokens;
-            try
-            {
-                reqTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoggedTokens;
-            } catch (SerializationException)
-            {
-                return false;
-            }
-            if (reqTokens == null)
-                return false;
-            if (!reqTokens.BaseLoggedInToken.Equals(dbTokens.BaseLoggedInToken))
+            if (!loggedTokenJSON.Equals(dbTokens.BaseLoggedInToken))
                 return false;
             DateTime dbExpiration = DateTime.Parse(dbTokens.BaseLoggedInTokenExpiration);
-            DateTime reqExpiration = DateTime.Parse(reqTokens.BaseLoggedInTokenExpiration);
-            return reqExpiration.CompareTo(dbExpiration) < 0;
+            return DateTime.UtcNow.CompareTo(dbExpiration) < 0;
         }
 
         public static bool VerifyLogin(OverallUser databaseUser, string email, string password)
@@ -44,6 +33,27 @@ namespace MechanicsAssistantServer.Util
                 if (dbToken[i] != calcToken[i])
                     return false;
             return true;
+        }
+
+        public static bool VerifyAuthentication(OverallUser databaseUser, string securityQuestion, string securityAnswer)
+        {
+            if (!securityQuestion.Equals(databaseUser.SecurityQuestion))
+                return false;
+            byte[] calcKey = SecurityLibWrapper.SecLib.ConstructUserEncryptionKey(databaseUser.DerivedSecurityToken, Encoding.UTF8.GetBytes(securityAnswer));
+            byte[] key = new byte[32];
+            byte[] iv = new byte[16];
+            for (int i = 0, j = 32; j < databaseUser.DerivedSecurityToken.Length; i++, j++)
+            {
+                key[i] = calcKey[i];
+                if ((i & 1) == 0)
+                    iv[i >> 1] = calcKey[j];
+            }
+            Aes aes = Aes.Create();
+            var decrypt = aes.CreateDecryptor(key, iv);
+            byte[] pass = decrypt.TransformFinalBlock(databaseUser.AuthToken, 0, databaseUser.AuthToken.Length);
+            string toTest = Encoding.UTF8.GetString(pass);
+            aes.Dispose();
+            return toTest.Equals("pass");
         }
     }
 }
