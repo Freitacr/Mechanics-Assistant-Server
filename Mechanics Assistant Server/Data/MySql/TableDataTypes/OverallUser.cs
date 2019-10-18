@@ -6,6 +6,7 @@ using MechanicsAssistantServer.Util;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
+using ANSEncodingLib;
 
 namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 {
@@ -35,6 +36,15 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string Value { get; set; } = "";
     }
 
+    [DataContract]
+    class PreviousUserRequest
+    {
+        [DataMember]
+        public string Request { get; set; } = "";
+
+        [DataMember]
+        public string RequestStatus { get; set; } = "";
+    }
 
     class OverallUser : ISqlSerializable
     {
@@ -70,7 +80,6 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public byte[] Job2Results { get; set; }
         public string Email { get; set; }
         public byte[] RequestHistory { get; set; }
-
         public int UserId { get; set; }
 
         public OverallUser()
@@ -118,6 +127,31 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
                 }
             }
             return false;
+        }
+
+        public List<PreviousUserRequest> DecodeRequests()
+        {
+            MemoryStream streamOut = new MemoryStream();
+            AnsBlockDecoder decoder = new AnsBlockDecoder(streamOut);
+            MemoryStream streamIn = new MemoryStream(RequestHistory);
+            decoder.DecodeStream(streamIn);
+            streamIn = new MemoryStream(streamOut.ToArray());
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<PreviousUserRequest>));
+            return serializer.ReadObject(streamIn) as List<PreviousUserRequest>;
+        }
+
+        public void EncodeRequests(List<PreviousUserRequest> requestsIn)
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<PreviousUserRequest>));
+            MemoryStream streamOut = new MemoryStream();
+            serializer.WriteObject(streamOut, requestsIn);
+            MemoryStream streamIn = new MemoryStream(streamOut.ToArray());
+            streamOut = new MemoryStream();
+            EncodingUtilities.BitWriter writer = new EncodingUtilities.BitWriter(streamOut);
+            AnsBlockEncoder encoder = new AnsBlockEncoder(1024, writer);
+            encoder.EncodeStream(streamIn, 8);
+            writer.Flush();
+            RequestHistory = streamOut.ToArray();
         }
 
         public void Deserialize(MySqlDataReader reader)

@@ -209,6 +209,7 @@ namespace MechanicsAssistantServer.Data.MySql
             byte[] toEncode = Encoding.UTF8.GetBytes("pass");
             toAdd.AuthToken = aes.CreateEncryptor().TransformFinalBlock(toEncode, 0, toEncode.Length);
             aes.Dispose();
+            toAdd.EncodeRequests(new List<PreviousUserRequest>());
             int rowsAffected = OverallUser.Manipulator.InsertDataInto(Connection, TableNameStorage.OverallUserTable, toAdd);
             if(rowsAffected == -1)
             {
