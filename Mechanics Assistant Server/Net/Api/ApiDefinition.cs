@@ -17,6 +17,7 @@ namespace MechanicsAssistantServer.Net.Api
         public HttpMessageHandler GET { get; protected set; }
         public HttpMessageHandler DELETE { get; protected set; }
         public HttpMessageHandler OPTIONS { get; protected set; }
+        public HttpMessageHandler PATCH { get; protected set; }
         public ApiDefinition(string baseUri)
         {
             Uri = new HttpUri(baseUri);

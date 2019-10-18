@@ -112,6 +112,24 @@ namespace MechanicsAssistantServer.Data.MySql
             return res == 1;
         }
 
+        public bool UpdateUsersSettings(OverallUser toUpdate)
+        {
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set Settings=\"" + toUpdate.Settings.Replace("\"", "\\\"") + "\" where " +
+                "id = " + toUpdate.UserId + ";";
+            int res;
+            try
+            {
+                res = cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return res == 1;
+        }
+
         /**
          * <summary>Adds the user to the database using the data provided</summary>
          * <param name="email">The email of the user to create</param>
@@ -139,7 +157,7 @@ namespace MechanicsAssistantServer.Data.MySql
             writer.Close();
             toAdd.LoggedTokens = Encoding.UTF8.GetString(writer.ToArray());
             toAdd.LoggedTokens = toAdd.LoggedTokens.Replace("\"", "\\\"");
-            toAdd.Settings = "";
+            toAdd.Settings = OverallUser.GenerateDefaultSettings().Replace("\"", "\\\"");
             byte[] key, iv;
             key = new byte[32];
             iv = new byte[16];

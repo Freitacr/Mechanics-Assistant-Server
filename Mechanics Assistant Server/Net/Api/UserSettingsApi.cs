@@ -1,61 +1,68 @@
 ﻿using System;
-using System.Net;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
+using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
-using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Util;
+using System.IO;
 
 namespace MechanicsAssistantServer.Net.Api
 {
+
     [DataContract]
-    class SecurityQuestionRequest
+    class UserSettingsEditRequest
     {
         [DataMember]
-        public string LoginToken;
-        [DataMember]
         public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+
+        [DataMember]
+        public string Key;
+
+        [DataMember]
+        public string Value;
     }
 
     [DataContract]
-    class AuthenticationRequest
+    class UserSettingsGetRequest
     {
-        [DataMember]
-        public string LoginToken;
         [DataMember]
         public int UserId;
+
         [DataMember]
-        public string SecurityQuestion;
-        [DataMember]
-        public string SecurityAnswer;
+        public string LoginToken;
     }
 
-    class UserAuthApi : ApiDefinition
+    class UserSettingsApi : ApiDefinition
     {
-
-        public UserAuthApi(int portIn) : base("https://+:" + portIn + "/user/auth")
+        public UserSettingsApi(int portIn) : base("https://+:" + portIn + "/user/settings")
         {
-            POST += HandlePostRequest;
-            PUT += HandlePutRequest;
+            GET += HandleGetRequest;
+            PATCH += HandlePatchRequest;
         }
 
-        private void HandlePostRequest(HttpListenerContext ctx)
+        private void HandleGetRequest(HttpListenerContext ctx)
         {
             if (!ctx.Request.HasEntityBody)
             {
                 WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                 return;
             }
-            SecurityQuestionRequest req = JsonDataObjectUtil<SecurityQuestionRequest>.ParseObject(ctx);
+            UserSettingsGetRequest req = JsonDataObjectUtil<UserSettingsGetRequest>.ParseObject(ctx);
             if (req == null)
             {
                 WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
                 return;
             }
-            if (!ValidateSecurityQuestionRequest(req))
+            if (!ValidateGetRequest(req))
             {
                 WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                 return;
@@ -78,24 +85,24 @@ namespace MechanicsAssistantServer.Net.Api
                 WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
                 return;
             }
+            WriteBodyResponse(ctx, 200, "OK", user.Settings, "application/json");
             connection.Close();
-            WriteBodyResponse(ctx, 200, "OK", user.SecurityQuestion);
         }
 
-        private void HandlePutRequest(HttpListenerContext ctx)
+        private void HandlePatchRequest(HttpListenerContext ctx)
         {
             if (!ctx.Request.HasEntityBody)
             {
                 WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                 return;
             }
-            AuthenticationRequest req = JsonDataObjectUtil<AuthenticationRequest>.ParseObject(ctx);
+            UserSettingsEditRequest req = JsonDataObjectUtil<UserSettingsEditRequest>.ParseObject(ctx);
             if (req == null)
             {
                 WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
                 return;
             }
-            if (!ValidateAuthenticationRequest(req))
+            if (!ValidateEditRequest(req))
             {
                 WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                 return;
@@ -115,63 +122,40 @@ namespace MechanicsAssistantServer.Net.Api
             }
             if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
             {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
+                WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token was expired or incorrect");
                 return;
             }
-            if(!UserVerificationUtil.VerifyAuthentication(user, req.SecurityQuestion, req.SecurityAnswer))
+            if (!UserVerificationUtil.AuthTokenValid(user, req.AuthToken))
             {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Security Answer was incorrect");
+                WriteBodyResponse(ctx, 401, "Unauthorized", "Auth Token was expired or incorrect");
                 return;
             }
-            LoggedTokens tokens = ExtractLoggedTokens(user);
-            GenerateNewAuthToken(tokens);
-            if (!connection.UpdateUsersLoginToken(user, tokens))
+            if(!user.UpdateSettings(req.Key, req.Value))
             {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
+                WriteBodyResponse(ctx, 404, "NotFound", "Setting with key " + req.Key + " was not found.");
                 return;
             }
-            WriteBodyResponse(ctx, 200, "OK", tokens.AuthLoggedInToken);
+            if (!connection.UpdateUsersSettings(user))
+            {
+                WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Exception: " + connection.LastException.Message);
+                return;
+            }
+            WriteBodylessResponse(ctx, 200, "OK");
             connection.Close();
         }
 
-        private bool ValidateSecurityQuestionRequest(SecurityQuestionRequest req)
+        private bool ValidateGetRequest(UserSettingsGetRequest req)
         {
-            if (req == null)
-                return false;
             return !(req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
         }
 
-        private bool ValidateAuthenticationRequest(AuthenticationRequest req)
+        private bool ValidateEditRequest(UserSettingsEditRequest req)
         {
-            if (req == null)
+            if (req.Key.Equals(""))
                 return false;
-            if (req.SecurityQuestion.Equals(""))
-                return false;
-            if (req.SecurityAnswer.Equals(""))
+            if (req.Value.Equals(""))
                 return false;
             return !(req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
-        }
-
-        private LoggedTokens ExtractLoggedTokens(OverallUser userIn)
-        {
-            string loggedTokensJson = userIn.LoggedTokens;
-            loggedTokensJson = loggedTokensJson.Replace("\\\"", "\"");
-            byte[] tokens = Encoding.UTF8.GetBytes(loggedTokensJson);
-            MemoryStream stream = new MemoryStream(tokens);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
-            LoggedTokens ret = serializer.ReadObject(stream) as LoggedTokens;
-            return ret;
-        }
-
-        private void GenerateNewAuthToken(LoggedTokens tokens)
-        {
-            Random rand = new Random();
-            byte[] loginToken = new byte[64];
-            rand.NextBytes(loginToken);
-            tokens.AuthLoggedInToken = MysqlDataConvertingUtil.ConvertToHexString(loginToken);
-            DateTime now = DateTime.UtcNow;
-            now = now.AddHours(.5);
-            tokens.AuthLoggedInTokenExpiration = now.ToString();
         }
     }
 }

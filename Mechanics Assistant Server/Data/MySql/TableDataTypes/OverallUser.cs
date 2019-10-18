@@ -4,6 +4,8 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using MechanicsAssistantServer.Util;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.IO;
 
 namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 {
@@ -23,8 +25,35 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string AuthLoggedInTokenExpiration { get; set; } = "";
     }
 
+    [DataContract]
+    class SettingsEntry
+    {
+        [DataMember]
+        public string Key { get; set; } = "";
+
+        [DataMember]
+        public string Value { get; set; } = "";
+    }
+
+
     class OverallUser : ISqlSerializable
     {
+        public static string GenerateDefaultSettings()
+        {
+            List<SettingsEntry> entries = new List<SettingsEntry>();
+            entries.Add(new SettingsEntry() { Key = "displayName", Value = "defaultUser" });
+            entries.Add(new SettingsEntry() { Key = "numPredictResultGroups", Value = "4" });
+            entries.Add(new SettingsEntry() { Key = "numPredictResultEntries", Value = "20" });
+            entries.Add(new SettingsEntry() { Key = "numArchiveResultGroups", Value = "4" });
+            entries.Add(new SettingsEntry() { Key = "numArchiveResultEntries", Value = "20" });
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
+            MemoryStream stream = new MemoryStream();
+            serializer.WriteObject(stream, entries);
+            byte[] outBytes = stream.ToArray();
+            return Encoding.UTF8.GetString(outBytes);
+        }
+
+        
         public static readonly TableDataManipulator<OverallUser> Manipulator = new TableDataManipulator<OverallUser>();
 
         public int AccessLevel { get; set; }
@@ -70,6 +99,25 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
                 RequestHistory = RequestHistory
             };
             return ret;
+        }
+        public bool UpdateSettings(string key, string value)
+        {
+            byte[] settings = Encoding.UTF8.GetBytes(Settings);
+            MemoryStream stream = new MemoryStream(settings);
+            var serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
+            List<SettingsEntry> settingsEntries = (List<SettingsEntry>)serializer.ReadObject(stream);
+            foreach(SettingsEntry entry in settingsEntries) {
+                if(entry.Key.Equals(key))
+                {
+                    entry.Value = value;
+                    stream = new MemoryStream();
+                    serializer.WriteObject(stream, settingsEntries);
+                    settings = stream.ToArray();
+                    Settings = Encoding.UTF8.GetString(settings);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void Deserialize(MySqlDataReader reader)

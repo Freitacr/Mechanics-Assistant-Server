@@ -64,6 +64,9 @@ namespace MechanicsAssistantServer.Net
                             case "OPTIONS":
                                 handler = action.OPTIONS;
                                 break;
+                            case "PATCH":
+                                handler = action.PATCH;
+                                break;
                         }
                         if (handler == null)
                             ThreadPool.QueueUserWorkItem((context) => ApiDefinition.NotSupported(context as HttpListenerContext), ctx);

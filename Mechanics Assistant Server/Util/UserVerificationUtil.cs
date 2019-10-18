@@ -12,16 +12,29 @@ namespace MechanicsAssistantServer.Util
 {
     class UserVerificationUtil
     {
-        public static bool LoginTokenValid(OverallUser databaseUser, string loggedTokenJSON)
+        public static bool LoginTokenValid(OverallUser databaseUser, string loginToken)
         {
             byte[] convertedText = Encoding.UTF8.GetBytes(databaseUser.LoggedTokens);
             DataContractJsonSerializer loggedTokenSerializer = new DataContractJsonSerializer(typeof(LoggedTokens));
             LoggedTokens dbTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoggedTokens;
             if (dbTokens == null)
                 throw new ArgumentException("database user had an invalid entry for logged tokens");
-            if (!loggedTokenJSON.Equals(dbTokens.BaseLoggedInToken))
+            if (!loginToken.Equals(dbTokens.BaseLoggedInToken))
                 return false;
             DateTime dbExpiration = DateTime.Parse(dbTokens.BaseLoggedInTokenExpiration);
+            return DateTime.UtcNow.CompareTo(dbExpiration) < 0;
+        }
+
+        public static bool AuthTokenValid(OverallUser databaseUser, string authToken)
+        {
+            byte[] convertedText = Encoding.UTF8.GetBytes(databaseUser.LoggedTokens);
+            DataContractJsonSerializer loggedTokenSerializer = new DataContractJsonSerializer(typeof(LoggedTokens));
+            LoggedTokens dbTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoggedTokens;
+            if (dbTokens == null)
+                throw new ArgumentException("database user had an invalid entry for logged tokens");
+            if (!authToken.Equals(dbTokens.AuthLoggedInToken))
+                return false;
+            DateTime dbExpiration = DateTime.Parse(dbTokens.AuthLoggedInTokenExpiration);
             return DateTime.UtcNow.CompareTo(dbExpiration) < 0;
         }
 

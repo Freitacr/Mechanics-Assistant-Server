@@ -53,7 +53,7 @@ namespace MechanicsAssistantServer.Net.Api
                 WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                 return;
             }
-            UserCreationRequest req = ParseRequest(ctx);
+            UserCreationRequest req = JsonDataObjectUtil<UserCreationRequest>.ParseObject(ctx);
             if(req == null)
             {
                 WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
@@ -92,20 +92,6 @@ namespace MechanicsAssistantServer.Net.Api
             connection.Close();
         }
 
-        private UserCreationRequest ParseRequest(HttpListenerContext ctx)
-        {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(UserCreationRequest));
-            UserCreationRequest req;
-            try
-            {
-                req = (UserCreationRequest) serializer.ReadObject(ctx.Request.InputStream);
-            } catch(SerializationException)
-            {
-                return null;
-            }
-            return req;
-        }
-
         private bool ValidateCreationResponse(UserCreationRequest req)
         {
             if (req.Email.Equals(""))
@@ -124,7 +110,7 @@ namespace MechanicsAssistantServer.Net.Api
                 WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                 return;
             }
-            UserLoginRequest req = ParseLoginRequest(ctx);
+            UserLoginRequest req = JsonDataObjectUtil<UserLoginRequest>.ParseObject(ctx);
             if (req == null)
             {
                 WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
@@ -165,21 +151,6 @@ namespace MechanicsAssistantServer.Net.Api
                 "userId\":" + loggedInUser.UserId + "}";
             WriteBodyResponse(ctx, 200, "OK", retString, "application/json");
             connection.Close();
-        }
-
-        private UserLoginRequest ParseLoginRequest(HttpListenerContext ctx)
-        {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(UserLoginRequest));
-            UserLoginRequest req;
-            try
-            {
-                req = (UserLoginRequest)serializer.ReadObject(ctx.Request.InputStream);
-            }
-            catch (SerializationException)
-            {
-                return null;
-            }
-            return req;
         }
 
         private bool ValidateLoginRequest(UserLoginRequest req)
