@@ -96,49 +96,52 @@ namespace MechanicsAssistantServer.Net.Api
             }
             //Otherwise we have a valid entry, validate user
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                    return;
+                }
+                if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
+                    return;
+                }
+                JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
+                if (repairEntry == null && connection.LastException == null)
+                {
+                    WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
+                    return;
+                }
+                else if (repairEntry == null)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                //User is authenticated, and the job entry exists.... time to edit the requirements
+                RequirementsEntry requirementsEntry = RequirementsEntry.ParseJsonString(repairEntry.Requirements);
+                if (requirementsEntry == null)
+                {
+                    WriteBodylessResponse(ctx, 500, "Unexpected Server Error");
+                    return;
+                }
+                requirementsEntry.Auxillary.Add(new AuxillaryRequirement() { Downvotes = 0, Requirement = entry.RequirementString, UserId = entry.UserId });
+                repairEntry.Requirements = requirementsEntry.GenerateJsonString();
+                if (!connection.UpdateDataEntryRequirements(mappedUser.Company, repairEntry, false))
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                WriteBodylessResponse(ctx, 200, "OK");
             }
-            OverallUser mappedUser = connection.GetUserById(entry.UserId);
-            if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
-                return;
-            }
-            if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
-                return;
-            }
-            JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
-            if(repairEntry == null && connection.LastException == null)
-            {
-                WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
-                return;
-            } else if (repairEntry == null)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            //User is authenticated, and the job entry exists.... time to edit the requirements
-            RequirementsEntry requirementsEntry = RequirementsEntry.ParseJsonString(repairEntry.Requirements);
-            if(requirementsEntry == null)
-            {
-                WriteBodylessResponse(ctx, 500, "Unexpected Server Error");
-                return;
-            }
-            requirementsEntry.Auxillary.Add(new AuxillaryRequirement() { Downvotes = 0, Requirement = entry.RequirementString, UserId = entry.UserId });
-            repairEntry.Requirements = requirementsEntry.GenerateJsonString();
-            if(!connection.UpdateDataEntryRequirements(mappedUser.Company, repairEntry, false))
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            WriteBodylessResponse(ctx, 200, "OK");
-            connection.Close();
         }
 
         private void HandleDeleteRequest(HttpListenerContext ctx)
@@ -157,63 +160,66 @@ namespace MechanicsAssistantServer.Net.Api
             }
             //Otherwise we have a valid entry, validate user
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                    return;
+                }
+                if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
+                    return;
+                }
+                JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
+                if (repairEntry == null && connection.LastException == null)
+                {
+                    WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
+                    return;
+                }
+                else if (repairEntry == null)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                //User is authenticated, and the job entry exists.... time to edit the requirements
+                RequirementsEntry requirementsEntry = RequirementsEntry.ParseJsonString(repairEntry.Requirements);
+                if (requirementsEntry == null)
+                {
+                    WriteBodylessResponse(ctx, 500, "Unexpected Server Error");
+                    return;
+                }
+                if (entry.RequirementId >= requirementsEntry.Auxillary.Count)
+                {
+                    WriteBodylessResponse(ctx, 404, "Could not find a requirement with id " + entry.RequirementId);
+                }
+                if (requirementsEntry.Auxillary[entry.RequirementId].UserId == mappedUser.UserId
+                        || (mappedUser.AccessLevel & AccessLevelMasks.AdminMask) != 0)
+                {
+                    requirementsEntry.Auxillary.RemoveAt(entry.RequirementId);
+                }
+                else
+                {
+                    requirementsEntry.Auxillary[entry.RequirementId].Downvotes++;
+                    //TODO: Once company settings are completed, search in the company's settings to see if the
+                    //downvotes are high enough to warrent removal
+                }
+                repairEntry.Requirements = requirementsEntry.GenerateJsonString();
+                if (!connection.UpdateDataEntryRequirements(mappedUser.Company, repairEntry, false))
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                WriteBodylessResponse(ctx, 200, "OK");
             }
-            OverallUser mappedUser = connection.GetUserById(entry.UserId);
-            if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
-                return;
-            }
-            if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
-                return;
-            }
-            JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
-            if (repairEntry == null && connection.LastException == null)
-            {
-                WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
-                return;
-            }
-            else if (repairEntry == null)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            //User is authenticated, and the job entry exists.... time to edit the requirements
-            RequirementsEntry requirementsEntry = RequirementsEntry.ParseJsonString(repairEntry.Requirements);
-            if (requirementsEntry == null)
-            {
-                WriteBodylessResponse(ctx, 500, "Unexpected Server Error");
-                return;
-            }
-            if (entry.RequirementId >= requirementsEntry.Auxillary.Count)
-            {
-                WriteBodylessResponse(ctx, 404, "Could not find a requirement with id " + entry.RequirementId);
-            }
-            if (requirementsEntry.Auxillary[entry.RequirementId].UserId == mappedUser.UserId
-                    || (mappedUser.AccessLevel & AccessLevelMasks.AdminMask) != 0)
-            {
-                requirementsEntry.Auxillary.RemoveAt(entry.RequirementId);
-            }
-            else {
-                requirementsEntry.Auxillary[entry.RequirementId].Downvotes++;
-                //TODO: Once company settings are completed, search in the company's settings to see if the
-                //downvotes are high enough to warrent removal
-            }
-            repairEntry.Requirements = requirementsEntry.GenerateJsonString();
-            if (!connection.UpdateDataEntryRequirements(mappedUser.Company, repairEntry, false))
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            WriteBodylessResponse(ctx, 200, "OK");
-            connection.Close();
         }
 
         private void HandlePatchRequest(HttpListenerContext ctx)
@@ -232,55 +238,57 @@ namespace MechanicsAssistantServer.Net.Api
             }
             //Otherwise we have a valid entry, validate user
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                    return;
+                }
+                if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
+                    return;
+                }
+                JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
+                if (repairEntry == null && connection.LastException == null)
+                {
+                    WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
+                    return;
+                }
+                else if (repairEntry == null)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                //User is authenticated, and the job entry exists.... time to edit the requirements
+                RequirementsEntry requirementsEntry = RequirementsEntry.ParseJsonString(repairEntry.Requirements);
+                if (requirementsEntry == null)
+                {
+                    WriteBodylessResponse(ctx, 500, "Unexpected Server Error");
+                    return;
+                }
+                if (entry.RequirementId >= requirementsEntry.Auxillary.Count)
+                {
+                    WriteBodylessResponse(ctx, 404, "Could not find a requirement with id " + entry.RequirementId);
+                    return;
+                }
+                requirementsEntry.Auxillary[entry.RequirementId].Requirement = entry.NewRequirementValue;
+                repairEntry.Requirements = requirementsEntry.GenerateJsonString();
+                if (!connection.UpdateDataEntryRequirements(mappedUser.Company, repairEntry, false))
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                WriteBodylessResponse(ctx, 200, "OK");
             }
-            OverallUser mappedUser = connection.GetUserById(entry.UserId);
-            if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
-                return;
-            }
-            if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
-                return;
-            }
-            JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
-            if (repairEntry == null && connection.LastException == null)
-            {
-                WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
-                return;
-            }
-            else if (repairEntry == null)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            //User is authenticated, and the job entry exists.... time to edit the requirements
-            RequirementsEntry requirementsEntry = RequirementsEntry.ParseJsonString(repairEntry.Requirements);
-            if (requirementsEntry == null)
-            {
-                WriteBodylessResponse(ctx, 500, "Unexpected Server Error");
-                return;
-            }
-            if(entry.RequirementId >= requirementsEntry.Auxillary.Count)
-            {
-                WriteBodylessResponse(ctx, 404, "Could not find a requirement with id " + entry.RequirementId);
-                return;
-            }
-            requirementsEntry.Auxillary[entry.RequirementId].Requirement = entry.NewRequirementValue;
-            repairEntry.Requirements = requirementsEntry.GenerateJsonString();
-            if (!connection.UpdateDataEntryRequirements(mappedUser.Company, repairEntry, false))
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            WriteBodylessResponse(ctx, 200, "OK");
-            connection.Close();
         }
 
         private bool ValidatePostRequest(RequirementsPostRequest req)

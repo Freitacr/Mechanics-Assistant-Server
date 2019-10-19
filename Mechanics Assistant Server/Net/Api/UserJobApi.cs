@@ -51,35 +51,37 @@ namespace MechanicsAssistantServer.Net.Api
                 return;
             }
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                var user = connection.GetUserById(req.UserId);
+                if (user == null)
+                {
+                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                    return;
+                }
+                if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token was expired or incorrect");
+                    return;
+                }
+                if (!UserVerificationUtil.AuthTokenValid(user, req.AuthToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Unauthorized", "Auth Token was expired or incorrect");
+                    return;
+                }
+                if (!connection.DeleteUserJobData(user, req.JobId))
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                WriteBodylessResponse(ctx, 200, "OK");
             }
-            var user = connection.GetUserById(req.UserId);
-            if (user == null)
-            {
-                WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
-                return;
-            }
-            if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
-            {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token was expired or incorrect");
-                return;
-            }
-            if (!UserVerificationUtil.AuthTokenValid(user, req.AuthToken))
-            {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Auth Token was expired or incorrect");
-                return;
-            }
-            if(!connection.DeleteUserJobData(user, req.JobId))
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            WriteBodylessResponse(ctx, 200, "OK");
-            connection.Close();
         }
 
         private bool ValidateDeletionRequest(UserJobDeleteRequest req)

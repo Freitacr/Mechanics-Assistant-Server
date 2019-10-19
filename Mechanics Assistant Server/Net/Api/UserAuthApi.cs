@@ -61,25 +61,27 @@ namespace MechanicsAssistantServer.Net.Api
                 return;
             }
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                var user = connection.GetUserById(req.UserId);
+                if (user == null)
+                {
+                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                    return;
+                }
+                if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
+                    return;
+                }
+                WriteBodyResponse(ctx, 200, "OK", user.SecurityQuestion);
             }
-            var user = connection.GetUserById(req.UserId);
-            if(user == null)
-            {
-                WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
-                return;
-            }
-            if(!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
-            {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
-                return;
-            }
-            connection.Close();
-            WriteBodyResponse(ctx, 200, "OK", user.SecurityQuestion);
         }
 
         private void HandlePutRequest(HttpListenerContext ctx)
@@ -101,37 +103,39 @@ namespace MechanicsAssistantServer.Net.Api
                 return;
             }
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                var user = connection.GetUserById(req.UserId);
+                if (user == null)
+                {
+                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                    return;
+                }
+                if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
+                    return;
+                }
+                if (!UserVerificationUtil.VerifyAuthentication(user, req.SecurityQuestion, req.SecurityAnswer))
+                {
+                    WriteBodyResponse(ctx, 401, "Unauthorized", "Security Answer was incorrect");
+                    return;
+                }
+                LoggedTokens tokens = ExtractLoggedTokens(user);
+                GenerateNewAuthToken(tokens);
+                if (!connection.UpdateUsersLoginToken(user, tokens))
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
+                    return;
+                }
+                WriteBodyResponse(ctx, 200, "OK", tokens.AuthLoggedInToken);
             }
-            var user = connection.GetUserById(req.UserId);
-            if (user == null)
-            {
-                WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
-                return;
-            }
-            if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
-            {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
-                return;
-            }
-            if(!UserVerificationUtil.VerifyAuthentication(user, req.SecurityQuestion, req.SecurityAnswer))
-            {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Security Answer was incorrect");
-                return;
-            }
-            LoggedTokens tokens = ExtractLoggedTokens(user);
-            GenerateNewAuthToken(tokens);
-            if (!connection.UpdateUsersLoginToken(user, tokens))
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
-                return;
-            }
-            WriteBodyResponse(ctx, 200, "OK", tokens.AuthLoggedInToken);
-            connection.Close();
         }
 
         private bool ValidateSecurityQuestionRequest(SecurityQuestionRequest req)

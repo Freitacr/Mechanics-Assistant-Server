@@ -20,7 +20,7 @@ namespace MechanicsAssistantServer.Data.MySql
      * <summary>Class that holds the responsibility of manipulating the data
      * in the MySQL database in a standardized and easy to use way</summary>
      */
-    class MySqlDataManipulator
+    class MySqlDataManipulator : IDisposable
     {
         /**<summary>Stores the last MySqlException encountered</summary>*/
         public MySqlException LastException { get; private set; }
@@ -485,6 +485,15 @@ namespace MechanicsAssistantServer.Data.MySql
             }
 
             return true;
+        }
+
+        public void Dispose()
+        {
+            if(Connection != null)
+            {
+                if (Connection.State == System.Data.ConnectionState.Open)
+                    Connection.Close();
+            }
         }
     }
 }

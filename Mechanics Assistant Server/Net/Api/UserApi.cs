@@ -65,31 +65,33 @@ namespace MechanicsAssistantServer.Net.Api
                 return;
             }
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
+                if (users == null)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                if (users.Count > 0)
+                {
+                    WriteBodyResponse(ctx, 409, "User Conflict", "User with email already exists");
+                    return;
+                }
+                res = connection.AddUser(req.Email, req.Password, req.SecurityQuestion, req.SecurityAnswer);
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", connection.LastException.Message);
+                    return;
+                }
+                WriteBodylessResponse(ctx, 200, "OK");
             }
-            var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
-            if(users == null)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            if(users.Count > 0)
-            {
-                WriteBodyResponse(ctx, 409, "User Conflict", "User with email already exists");
-                return;
-            }
-            res = connection.AddUser(req.Email, req.Password, req.SecurityQuestion, req.SecurityAnswer);
-            if(!res)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", connection.LastException.Message);
-                return;
-            }
-            WriteBodylessResponse(ctx, 200, "OK");
-            connection.Close();
         }
 
         private bool ValidateCreationResponse(UserCreationRequest req)
@@ -122,35 +124,37 @@ namespace MechanicsAssistantServer.Net.Api
                 return;
             }
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
+                if (users.Count == 0)
+                {
+                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                    return;
+                }
+                if (!UserVerificationUtil.VerifyLogin(users[0], req.Email, req.Password))
+                {
+                    WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
+                    return;
+                }
+                OverallUser loggedInUser = users[0];
+                LoggedTokens tokens = ExtractLoggedTokens(loggedInUser);
+                GenerateNewLoginToken(tokens);
+                if (!connection.UpdateUsersLoginToken(loggedInUser, tokens))
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
+                    return;
+                }
+                string retString = "{ \"token\":\"" + tokens.BaseLoggedInToken + "\",\"" +
+                    "userId\":" + loggedInUser.UserId + "}";
+                WriteBodyResponse(ctx, 200, "OK", retString, "application/json");
             }
-            var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
-            if(users.Count == 0)
-            {
-                WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
-                return;
-            }
-            if(!UserVerificationUtil.VerifyLogin(users[0], req.Email, req.Password))
-            {
-                WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
-                return;
-            }
-            OverallUser loggedInUser = users[0];
-            LoggedTokens tokens = ExtractLoggedTokens(loggedInUser);
-            GenerateNewLoginToken(tokens);
-            if(!connection.UpdateUsersLoginToken(loggedInUser, tokens))
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
-                return;
-            }
-            string retString = "{ \"token\":\"" + tokens.BaseLoggedInToken + "\",\"" +
-                "userId\":" + loggedInUser.UserId + "}";
-            WriteBodyResponse(ctx, 200, "OK", retString, "application/json");
-            connection.Close();
         }
 
         private bool ValidateLoginRequest(UserLoginRequest req)

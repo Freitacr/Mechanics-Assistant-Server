@@ -51,33 +51,35 @@ namespace MechanicsAssistantServer.Net.Api
             }
             //Otherwise we have a valid entry, validate user
             MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if(!res)
+            using (connection)
             {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
-            }
-            OverallUser mappedUser = connection.GetUserById(entry.UserId);
-            if(!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
-                return;
-            }
-            if(!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
-            {
-                WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
-                return;
-            }
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                    return;
+                }
+                if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
+                    return;
+                }
 
-            //Now that we know the user is good, actually do the addition.
-            res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
-            if(!res)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
+                //Now that we know the user is good, actually do the addition.
+                res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                WriteBodylessResponse(ctx, 200, "OK");
             }
-            WriteBodylessResponse(ctx, 200, "OK");
-            connection.Close();
         }
 
         private bool ValidateJobDataEntry(JobDataEntry entryIn)
