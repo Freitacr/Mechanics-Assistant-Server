@@ -235,6 +235,36 @@ namespace MechanicsAssistantServer.Data.MySql
             return true;
         }
 
+        public JobDataEntry GetDataEntryById(int companyId, int repairEntryId, bool validated=true)
+        {
+            string tableName;
+            if(validated)
+                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            else
+                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            JobDataEntry entry = JobDataEntry.Manipulator.RetrieveDataWithId(
+                Connection, tableName, repairEntryId.ToString());
+            if(entry == null)
+            {
+                LastException = JobDataEntry.Manipulator.LastException;
+                return null;
+            }
+            return entry;
+        }
+
+        public bool UpdateDataEntryRequirements(int companyId, JobDataEntry entryToUpdate, bool validated=true)
+        {
+            string toWrite = entryToUpdate.Requirements.Replace("\"", "\\\"");
+            string tableName;
+            if (validated)
+                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            else
+                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "update " + tableName + " set Requirements=\"" + toWrite + "\" where id=" + entryToUpdate.Id + ";";
+            return ExecuteNonQuery(cmd);
+        }
+
         /**
          * <summary>Adds the repair data to the database</summary>
          * <param name="companyId">The id of the company to add the part data to</param>

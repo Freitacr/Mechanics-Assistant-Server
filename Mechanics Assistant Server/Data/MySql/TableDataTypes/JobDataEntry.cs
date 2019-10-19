@@ -9,6 +9,19 @@ using System.IO;
 namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 {
     [DataContract]
+    class AuxillaryRequirement
+    {
+        [DataMember]
+        public string Requirement;
+
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public int Downvotes;
+    }
+
+    [DataContract]
     class RequirementsEntry
     {
         [DataMember]
@@ -17,7 +30,8 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         [DataMember]
         public List<int> Parts { get; set; } = new List<int>();
 
-        public List<string> Auxillary { get; set; } = new List<string>();
+        [DataMember]
+        public List<AuxillaryRequirement> Auxillary { get; set; } = new List<AuxillaryRequirement>();
 
         public string GenerateJsonString()
         {
@@ -26,6 +40,13 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             serializer.WriteObject(outStream, this);
             byte[] retBytes = outStream.ToArray();
             return Encoding.UTF8.GetString(retBytes);
+        }
+
+        public static RequirementsEntry ParseJsonString(string stringIn)
+        {
+            byte[] reqBytes = Encoding.UTF8.GetBytes(stringIn);
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RequirementsEntry));
+            return serializer.ReadObject(new MemoryStream(reqBytes)) as RequirementsEntry;
         }
     }
 
@@ -60,6 +81,8 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 
         [DataMember(IsRequired = false, EmitDefaultValue = true)]
         public int Year { get; set; } = -1;
+
+        public int Id { get; private set; }
 
         public JobDataEntry()
         {
@@ -107,6 +130,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             ProblemGroups = (string)reader["ProblemGroupings"];
             Requirements = (string)reader["Requirements"];
             Year = (int)reader["Year"];
+            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)

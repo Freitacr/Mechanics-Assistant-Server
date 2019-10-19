@@ -23,6 +23,9 @@ namespace MechanicsAssistantServer.Net.Api
          */
         [DataMember]
         public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
     }
 
     class RepairJobApi : ApiDefinition
@@ -60,6 +63,12 @@ namespace MechanicsAssistantServer.Net.Api
                 WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                 return;
             }
+            if(!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+            {
+                WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
+                return;
+            }
+
             //Now that we know the user is good, actually do the addition.
             res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
             if(!res)
