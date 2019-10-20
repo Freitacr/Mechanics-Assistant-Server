@@ -235,6 +235,35 @@ namespace MechanicsAssistantServer.Data.MySql
             return true;
         }
 
+        public bool UpdateValidationStatus(int companyId, JobDataEntry toSwitch, bool wasValidated)
+        {
+            string previousTableName;
+            string newTableName;
+            if(wasValidated)
+            {
+                previousTableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+                newTableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            } else
+            {
+                previousTableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+                newTableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            }
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "delete from " + previousTableName + " where id=" + toSwitch.Id + ";";
+            if (!ExecuteNonQuery(cmd))
+            {
+                return false; //Deletion was unsuccessful, just stop
+            }
+            int res = JobDataEntry.Manipulator.InsertDataInto(Connection, newTableName, toSwitch);
+            if(res != 1)
+            {
+                //Something went horribly wrong, so attempt insertion back into original table
+                JobDataEntry.Manipulator.InsertDataInto(Connection, previousTableName, toSwitch);
+                return false;
+            }
+            return res == 1;
+        }
+
         public JobDataEntry GetDataEntryById(int companyId, int repairEntryId, bool validated=true)
         {
             string tableName;
