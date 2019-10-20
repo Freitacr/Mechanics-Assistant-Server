@@ -29,8 +29,11 @@ namespace MechanicsAssistantServer.Net.Api
 
     class ReportUserApi : ApiDefinition
     {
-
+#if DEBUG
+        public ReportUserApi(int portIn) : base("http://+:"+portIn+"/user/report")
+#elif RELEASE
         public ReportUserApi(int portIn) : base("https://+:" + portIn+"/user/report")
+#endif
         {
             POST += HandlePostRequest;
         }

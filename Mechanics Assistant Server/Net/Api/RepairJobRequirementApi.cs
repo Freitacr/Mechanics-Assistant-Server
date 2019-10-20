@@ -73,7 +73,11 @@ namespace MechanicsAssistantServer.Net.Api
     class RepairJobRequirementApi : ApiDefinition
     {
 
+#if DEBUG
+        public RepairJobRequirementApi(int portIn) : base("http://+:"+portIn+"/repairjob/requirements")
+#elif RELEASE
         public RepairJobRequirementApi(int portIn) : base ("https://+:" + portIn+"/repairjob/requirements")
+#endif
         {
             POST += HandlePostRequest;
             PATCH += HandlePatchRequest;

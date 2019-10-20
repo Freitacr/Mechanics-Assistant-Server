@@ -23,7 +23,11 @@ namespace MechanicsAssistantServer.Net.Api
 
     class UserRequestsApi : ApiDefinition
     {
+#if RELEASE
         public UserRequestsApi(int portIn) : base("https://+:" + portIn + "/user/requests")
+#elif DEBUG
+        public UserRequestsApi(int portIn) : base("http://+:" + portIn + "/user/requests")
+#endif
         {
             GET += HandleGetRequest;
         }

@@ -35,8 +35,11 @@ namespace MechanicsAssistantServer.Net.Api
 
     class UserAuthApi : ApiDefinition
     {
-
+#if RELEASE
         public UserAuthApi(int portIn) : base("https://+:" + portIn + "/user/auth")
+#elif DEBUG
+        public UserAuthApi(int portIn) : base("http://+:"+portIn+"/user/auth")
+#endif
         {
             POST += HandlePostRequest;
             PUT += HandlePutRequest;

@@ -7,6 +7,7 @@ using System.Net;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Util;
+
 namespace MechanicsAssistantServer.Net.Api
 {
     [DataContract]
@@ -30,7 +31,11 @@ namespace MechanicsAssistantServer.Net.Api
 
     class RepairJobApi : ApiDefinition
     {
+#if RELEASE
         public RepairJobApi(int port) : base("https://+:" + port + "/repairjob")
+#elif DEBUG
+        public RepairJobApi(int port) : base("http://+:" + port + "/repairjob")
+#endif
         {
             POST += HandlePostRequest;
         }

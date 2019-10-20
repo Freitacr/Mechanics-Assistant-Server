@@ -43,7 +43,11 @@ namespace MechanicsAssistantServer.Net.Api
 
     class UserSettingsApi : ApiDefinition
     {
+#if RELEASE
         public UserSettingsApi(int portIn) : base("https://+:" + portIn + "/user/settings")
+#elif DEBUG
+        public UserSettingsApi(int portIn) : base("http://+:" + portIn + "/user/settings")
+#endif        
         {
             GET += HandleGetRequest;
             PATCH += HandlePatchRequest;
