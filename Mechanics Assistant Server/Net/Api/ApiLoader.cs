@@ -7,10 +7,11 @@ namespace MechanicsAssistantServer.Net.Api
     public static class ApiLoader
     {
 
-        public static QueryResponseServer LoadApiAndListen(int portIn)
+        public static QueryResponseServer LoadApiAndListen(int portIn, QueryProcessor processorIn)
         {
-            UriMappingCollection api = new UriMappingCollection();
             QueryResponseServer ret = new QueryResponseServer();
+            UriMappingCollection api = new UriMappingCollection();
+            api.AddMapping(new QueryLevelApi(portIn, processorIn));
             api.AddMapping(new CertValidationApi());
             api.AddMapping(new TopLevelApi());
             api.AddMapping(new RepairJobRequirementApi(portIn));
