@@ -99,13 +99,13 @@ namespace MechanicsAssistantServer.Net.Api
 
         private bool ValidateCreationResponse(UserCreationRequest req)
         {
-            if (req.Email.Equals(""))
+            if (req.Email == null || req.Email.Equals(""))
                 return false;
-            if (req.Password.Equals(""))
+            if (req.Password == null || req.Password.Equals(""))
                 return false;
-            if (req.SecurityAnswer.Equals(""))
+            if (req.SecurityAnswer == null || req.SecurityAnswer.Equals(""))
                 return false;
-            return !req.SecurityQuestion.Equals("");
+            return !(req.SecurityQuestion == null || req.SecurityQuestion.Equals(""));
         }
 
         public void HandlePutRequest(HttpListenerContext ctx)

@@ -29,7 +29,7 @@ namespace MechanicsAssistantServer.Net.Api
 #if RELEASE
         public UserJobApi(int portIn) : base("https://+:"+portIn+"/user/job")
 #elif DEBUG
-        public UserJobApi(int portIn) : base("https://:" + portIn + "/user/job")
+        public UserJobApi(int portIn) : base("http://+:" + portIn + "/user/job")
 #endif
         {
             DELETE += HandleDeleteRequest;
