@@ -95,9 +95,9 @@ namespace MechanicsAssistantServer.Net.Api
 
         private bool ValidateDeletionRequest(UserJobDeleteRequest req)
         {
-            if (req.AuthToken.Equals("") || req.AuthToken.Equals("0x"))
+            if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("0x"))
                 return false;
-            if (req.LoginToken.Equals("") || req.LoginToken.Equals("0x"))
+            if (req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"))
                 return false;
             return !(req.JobId <= 0 || req.JobId >= 3);
         }

@@ -85,6 +85,37 @@ namespace MechanicsAssistantServer.Data.MySql
             return Connection.ConnectionString;
         }
 
+        public bool AddJobDataToUser(OverallUser toUpdate, string jobId, byte[] encodedJobResults)
+        {
+            toUpdate.Job2Results = toUpdate.Job1Results;
+            toUpdate.Job2Id = toUpdate.Job1Id;
+            toUpdate.Job1Id = jobId;
+            toUpdate.Job1Results = encodedJobResults;
+            var cmd = Connection.CreateCommand();
+            StringBuilder cmdBuilder = new StringBuilder("update " + TableNameStorage.OverallUserTable);
+            cmdBuilder.Append(" set Job1Id=\"");
+            cmdBuilder.Append(toUpdate.Job1Id);
+            cmdBuilder.Append("\", Job1Results=");
+            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job1Results));
+            cmdBuilder.Append(", Job2Id=\"");
+            cmdBuilder.Append(toUpdate.Job2Id);
+            cmdBuilder.Append("\", Job2Results=");
+            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job2Results));
+            cmdBuilder.Append(" where id=" + toUpdate.UserId + ";");
+            cmd.CommandText = cmdBuilder.ToString();
+            int res;
+            try
+            {
+                res = cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return res == 1;
+        }
+
         public OverallUser GetUserById(int id)
         {
             OverallUser ret = OverallUser.Manipulator.RetrieveDataWithId(Connection, TableNameStorage.OverallUserTable, id.ToString());
