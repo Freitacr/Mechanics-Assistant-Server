@@ -89,7 +89,7 @@ namespace MechanicsAssistantServer.Net.Api
     
         public bool ValidateRequest(UserRequestsGetRequest req)
         {
-            return !(req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
         }
     }
 
