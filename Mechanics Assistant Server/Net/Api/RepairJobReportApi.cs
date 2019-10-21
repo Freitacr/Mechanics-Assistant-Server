@@ -43,62 +43,69 @@ namespace MechanicsAssistantServer.Net.Api
         }
 
         private void HandlePutRequest(HttpListenerContext ctx) {
-            if (!ctx.Request.HasEntityBody)
+            try
             {
-                WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                return;
-            }
-            RepairJobVoteRequest entry = JsonDataObjectUtil<RepairJobVoteRequest>.ParseObject(ctx);
-            if (entry == null)
-            {
-                WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                return;
-            }
-            //Otherwise we have a valid entry, validate user
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            using (connection)
-            {
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
+                if (!ctx.Request.HasEntityBody)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                OverallUser mappedUser = connection.GetUserById(entry.UserId);
-                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                RepairJobVoteRequest entry = JsonDataObjectUtil<RepairJobVoteRequest>.ParseObject(ctx);
+                if (entry == null)
                 {
-                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
-                if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                //Otherwise we have a valid entry, validate user
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
                 {
-                    WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
-                    return;
-                }
-                JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, true);
-                if (repairEntry == null && connection.LastException == null)
-                {
-                    WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
-                    return;
-                }
-                else if (repairEntry == null)
-                {
-                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                    return;
-                }
-                if (entry.Upvote == false)
-                {
-                    if (!connection.UpdateValidationStatus(mappedUser.Company, repairEntry, true))
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
+                        return;
+                    }
+                    JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, true);
+                    if (repairEntry == null && connection.LastException == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
+                        return;
+                    }
+                    else if (repairEntry == null)
                     {
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
                         return;
                     }
-                } else
-                {
-                    NotSupported(ctx);
-                    return;
+                    if (entry.Upvote == false)
+                    {
+                        if (!connection.UpdateValidationStatus(mappedUser.Company, repairEntry, true))
+                        {
+                            WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        NotSupported(ctx);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
                 }
-                WriteBodylessResponse(ctx, 200, "OK");
+            } catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
         }
     }

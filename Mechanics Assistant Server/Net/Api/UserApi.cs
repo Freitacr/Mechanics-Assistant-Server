@@ -51,49 +51,55 @@ namespace MechanicsAssistantServer.Net.Api
 
         public void HandlePostRequest(HttpListenerContext ctx)
         {
-            if(!ctx.Request.HasEntityBody)
+            try
             {
-                WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
-                return;
-            }
-            UserCreationRequest req = JsonDataObjectUtil<UserCreationRequest>.ParseObject(ctx);
-            if(req == null)
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
-                return;
-            }
-            if(!ValidateCreationResponse(req))
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
-                return;
-            }
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            using (connection)
-            {
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
+                if (!ctx.Request.HasEntityBody)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                     return;
                 }
-                var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
-                if (users == null)
+                UserCreationRequest req = JsonDataObjectUtil<UserCreationRequest>.ParseObject(ctx);
+                if (req == null)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
                     return;
                 }
-                if (users.Count > 0)
+                if (!ValidateCreationResponse(req))
                 {
-                    WriteBodyResponse(ctx, 409, "User Conflict", "User with email already exists");
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
-                res = connection.AddUser(req.Email, req.Password, req.SecurityQuestion, req.SecurityAnswer);
-                if (!res)
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", connection.LastException.Message);
-                    return;
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
+                    if (users == null)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                        return;
+                    }
+                    if (users.Count > 0)
+                    {
+                        WriteBodyResponse(ctx, 409, "User Conflict", "User with email already exists");
+                        return;
+                    }
+                    res = connection.AddUser(req.Email, req.Password, req.SecurityQuestion, req.SecurityAnswer);
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", connection.LastException.Message);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
                 }
-                WriteBodylessResponse(ctx, 200, "OK");
+            } catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
         }
 
@@ -110,53 +116,59 @@ namespace MechanicsAssistantServer.Net.Api
 
         public void HandlePutRequest(HttpListenerContext ctx)
         {
-            if (!ctx.Request.HasEntityBody)
+            try
             {
-                WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
-                return;
-            }
-            UserLoginRequest req = JsonDataObjectUtil<UserLoginRequest>.ParseObject(ctx);
-            if (req == null)
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
-                return;
-            }
-            if (!ValidateLoginRequest(req))
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
-                return;
-            }
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            using (connection)
-            {
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
+                if (!ctx.Request.HasEntityBody)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                     return;
                 }
-                var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
-                if (users.Count == 0)
+                UserLoginRequest req = JsonDataObjectUtil<UserLoginRequest>.ParseObject(ctx);
+                if (req == null)
                 {
-                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
                     return;
                 }
-                if (!UserVerificationUtil.VerifyLogin(users[0], req.Email, req.Password))
+                if (!ValidateLoginRequest(req))
                 {
-                    WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
-                OverallUser loggedInUser = users[0];
-                LoggedTokens tokens = ExtractLoggedTokens(loggedInUser);
-                GenerateNewLoginToken(tokens);
-                if (!connection.UpdateUsersLoginToken(loggedInUser, tokens))
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
-                    return;
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
+                    if (users.Count == 0)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.VerifyLogin(users[0], req.Email, req.Password))
+                    {
+                        WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
+                        return;
+                    }
+                    OverallUser loggedInUser = users[0];
+                    LoggedTokens tokens = ExtractLoggedTokens(loggedInUser);
+                    GenerateNewLoginToken(tokens);
+                    if (!connection.UpdateUsersLoginToken(loggedInUser, tokens))
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
+                        return;
+                    }
+                    string retString = "{ \"token\":\"" + tokens.BaseLoggedInToken + "\",\"" +
+                        "userId\":" + loggedInUser.UserId + "}";
+                    WriteBodyResponse(ctx, 200, "OK", retString, "application/json");
                 }
-                string retString = "{ \"token\":\"" + tokens.BaseLoggedInToken + "\",\"" +
-                    "userId\":" + loggedInUser.UserId + "}";
-                WriteBodyResponse(ctx, 200, "OK", retString, "application/json");
+            } catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
         }
 

@@ -40,60 +40,66 @@ namespace MechanicsAssistantServer.Net.Api
 
         private void HandlePostRequest(HttpListenerContext ctx)
         {
-            if (!ctx.Request.HasEntityBody)
+            try
             {
-                WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
-                return;
-            }
-            UserReportRequest req = JsonDataObjectUtil<UserReportRequest>.ParseObject(ctx);
-            if(req == null)
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
-                return;
-            }
-            if (!ValidateRequest(req))
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
-                return;
-            }
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            using (connection)
-            {
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
+                if (!ctx.Request.HasEntityBody)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                     return;
                 }
-                var user = connection.GetUserById(req.ReportingUserId);
-                if (user == null)
+                UserReportRequest req = JsonDataObjectUtil<UserReportRequest>.ParseObject(ctx);
+                if (req == null)
                 {
-                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
                     return;
                 }
-                if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                if (!ValidateRequest(req))
                 {
-                    WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token was expired or incorrect");
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
-                if (!UserVerificationUtil.AuthTokenValid(user, req.AuthToken))
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
                 {
-                    WriteBodyResponse(ctx, 401, "Unauthorized", "Auth Token was expired or incorrect");
-                    return;
-                }
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    var user = connection.GetUserById(req.ReportingUserId);
+                    if (user == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token was expired or incorrect");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(user, req.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Unauthorized", "Auth Token was expired or incorrect");
+                        return;
+                    }
 
-                var users = connection.GetUsersWhere("Settings like \"%Value\\\":\\\"" + req.ReportedDisplayName + "%\"");
-                if (users == null)
-                {
-                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                    return;
+                    var users = connection.GetUsersWhere("Settings like \"%Value\\\":\\\"" + req.ReportedDisplayName + "%\"");
+                    if (users == null)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                        return;
+                    }
+                    foreach (OverallUser reportedUser in users)
+                    {
+                        reportedUser.UpdateSettings("displayName", "Default User " + reportedUser.UserId);
+                        connection.UpdateUsersSettings(reportedUser);
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
                 }
-                foreach (OverallUser reportedUser in users)
-                {
-                    reportedUser.UpdateSettings("displayName", "Default User " + reportedUser.UserId);
-                    connection.UpdateUsersSettings(reportedUser);
-                }
-                WriteBodylessResponse(ctx, 200, "OK");
+            } catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
         }
 

@@ -43,47 +43,53 @@ namespace MechanicsAssistantServer.Net.Api
 
         private void HandlePostRequest(HttpListenerContext ctx)
         {
-            if (!ctx.Request.HasEntityBody)
+            try
             {
-                WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                return;
-            }
-            RepairJobApiFullRequest entry = JsonDataObjectUtil<RepairJobApiFullRequest>.ParseObject(ctx);
-            if(!ValidateFullRequest(entry))
-            {
-                WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                return;
-            }
-            //Otherwise we have a valid entry, validate user
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            using (connection)
-            {
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
+                if (!ctx.Request.HasEntityBody)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                OverallUser mappedUser = connection.GetUserById(entry.UserId);
-                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                RepairJobApiFullRequest entry = JsonDataObjectUtil<RepairJobApiFullRequest>.ParseObject(ctx);
+                if (!ValidateFullRequest(entry))
                 {
-                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
-                if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                //Otherwise we have a valid entry, validate user
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
                 {
-                    WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
-                    return;
-                }
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
+                        return;
+                    }
 
-                //Now that we know the user is good, actually do the addition.
-                res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
-                if (!res)
-                {
-                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                    return;
+                    //Now that we know the user is good, actually do the addition.
+                    res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
                 }
-                WriteBodylessResponse(ctx, 200, "OK");
+            } catch(Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
         }
 
