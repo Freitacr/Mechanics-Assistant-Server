@@ -62,10 +62,20 @@ namespace MechanicsAssistantServer.Util
                     iv[i >> 1] = calcKey[j];
             }
             Aes aes = Aes.Create();
-            var decrypt = aes.CreateDecryptor(key, iv);
-            byte[] pass = decrypt.TransformFinalBlock(databaseUser.AuthToken, 0, databaseUser.AuthToken.Length);
-            string toTest = Encoding.UTF8.GetString(pass);
-            aes.Dispose();
+            string toTest;
+            using (aes)
+            {
+                var decrypt = aes.CreateDecryptor(key, iv);
+                try
+                {
+                    byte[] pass = decrypt.TransformFinalBlock(databaseUser.AuthToken, 0, databaseUser.AuthToken.Length);
+                    toTest = Encoding.UTF8.GetString(pass);
+                }
+                catch (CryptographicException)
+                {
+                    return false;
+                }
+            }
             return toTest.Equals("pass");
         }
     }

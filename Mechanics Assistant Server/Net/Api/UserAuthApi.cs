@@ -47,97 +47,109 @@ namespace MechanicsAssistantServer.Net.Api
 
         private void HandlePostRequest(HttpListenerContext ctx)
         {
-            if (!ctx.Request.HasEntityBody)
+            try
             {
-                WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
-                return;
-            }
-            SecurityQuestionRequest req = JsonDataObjectUtil<SecurityQuestionRequest>.ParseObject(ctx);
-            if (req == null)
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
-                return;
-            }
-            if (!ValidateSecurityQuestionRequest(req))
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
-                return;
-            }
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            using (connection)
-            {
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
+                if (!ctx.Request.HasEntityBody)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                     return;
                 }
-                var user = connection.GetUserById(req.UserId);
-                if (user == null)
+                SecurityQuestionRequest req = JsonDataObjectUtil<SecurityQuestionRequest>.ParseObject(ctx);
+                if (req == null)
                 {
-                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
                     return;
                 }
-                if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                if (!ValidateSecurityQuestionRequest(req))
                 {
-                    WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
-                WriteBodyResponse(ctx, 200, "OK", user.SecurityQuestion);
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    var user = connection.GetUserById(req.UserId);
+                    if (user == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token was incorrect or expired");
+                        return;
+                    }
+                    WriteBodyResponse(ctx, 200, "OK", user.SecurityQuestion);
+                }
+            } catch(Exception)
+            {
+                WriteBodylessResponse(ctx, 500, "Internal Server Error");
             }
         }
 
         private void HandlePutRequest(HttpListenerContext ctx)
         {
-            if (!ctx.Request.HasEntityBody)
+            try
             {
-                WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
-                return;
-            }
-            AuthenticationRequest req = JsonDataObjectUtil<AuthenticationRequest>.ParseObject(ctx);
-            if (req == null)
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
+                    return;
+                }
+                AuthenticationRequest req = JsonDataObjectUtil<AuthenticationRequest>.ParseObject(ctx);
+                if (req == null)
+                {
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
+                    return;
+                }
+                if (!ValidateAuthenticationRequest(req))
+                {
+                    WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    var user = connection.GetUserById(req.UserId);
+                    if (user == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token is incorrect or expired");
+                        return;
+                    }
+                    if (!UserVerificationUtil.VerifyAuthentication(user, req.SecurityQuestion, req.SecurityAnswer))
+                    {
+                        WriteBodyResponse(ctx, 401, "Unauthorized", "Security Answer was incorrect");
+                        return;
+                    }
+                    LoggedTokens tokens = ExtractLoggedTokens(user);
+                    GenerateNewAuthToken(tokens);
+                    if (!connection.UpdateUsersLoginToken(user, tokens))
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
+                        return;
+                    }
+                    WriteBodyResponse(ctx, 200, "OK", tokens.AuthLoggedInToken);
+                }
+            } catch(Exception e)
             {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
-                return;
-            }
-            if (!ValidateAuthenticationRequest(req))
-            {
-                WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
-                return;
-            }
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            using (connection)
-            {
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
-                {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                    return;
-                }
-                var user = connection.GetUserById(req.UserId);
-                if (user == null)
-                {
-                    WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
-                    return;
-                }
-                if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
-                {
-                    WriteBodyResponse(ctx, 401, "Unauthorized", "Email or password was incorrect");
-                    return;
-                }
-                if (!UserVerificationUtil.VerifyAuthentication(user, req.SecurityQuestion, req.SecurityAnswer))
-                {
-                    WriteBodyResponse(ctx, 401, "Unauthorized", "Security Answer was incorrect");
-                    return;
-                }
-                LoggedTokens tokens = ExtractLoggedTokens(user);
-                GenerateNewAuthToken(tokens);
-                if (!connection.UpdateUsersLoginToken(user, tokens))
-                {
-                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
-                    return;
-                }
-                WriteBodyResponse(ctx, 200, "OK", tokens.AuthLoggedInToken);
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
         }
 
@@ -145,18 +157,18 @@ namespace MechanicsAssistantServer.Net.Api
         {
             if (req == null)
                 return false;
-            return !(req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
         }
 
         private bool ValidateAuthenticationRequest(AuthenticationRequest req)
         {
             if (req == null)
                 return false;
-            if (req.SecurityQuestion.Equals(""))
+            if (req.SecurityQuestion == null || req.SecurityQuestion.Equals(""))
                 return false;
-            if (req.SecurityAnswer.Equals(""))
+            if (req.SecurityAnswer == null || req.SecurityAnswer.Equals(""))
                 return false;
-            return !(req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
         }
 
         private LoggedTokens ExtractLoggedTokens(OverallUser userIn)
