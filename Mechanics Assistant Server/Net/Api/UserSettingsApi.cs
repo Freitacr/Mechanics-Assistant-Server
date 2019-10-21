@@ -166,16 +166,18 @@ namespace MechanicsAssistantServer.Net.Api
 
         private bool ValidateGetRequest(UserSettingsGetRequest req)
         {
-            return !(req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
         }
 
         private bool ValidateEditRequest(UserSettingsEditRequest req)
         {
-            if (req.Key.Equals(""))
+            if (req.Key == null || req.Key.Equals(""))
                 return false;
-            if (req.Value.Equals(""))
+            if (req.Value == null || req.Value.Equals(""))
                 return false;
-            return !(req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("0x"))
+                return false;
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
         }
     }
 }
