@@ -70,7 +70,7 @@ namespace MechanicsAssistantServer
             MySqlDataManipulator.GlobalConfiguration.Close();
             Thread t = new Thread(RenewCertificate);
             t.Start();
-            var server = ApiLoader.LoadApiAndListen(16384, new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings()));
+            var server = ApiLoader.LoadApiAndListen(16384);
             while (server.IsAlive)
             {
                 Thread.Sleep(100);
