@@ -9,6 +9,7 @@ using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using MechanicsAssistantServer.Net;
 using MechanicsAssistantServer.Net.Api;
+using MechanicsAssistantServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
 {
@@ -22,6 +23,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static string LoginToken;
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
+        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -83,6 +85,13 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             AuthToken = response.Content.ReadAsStringAsync().Result;
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            StringConstructor.SetMapping("UserId", 1);
+            StringConstructor.SetMapping("LoginToken", LoginToken);
+        }
+
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
@@ -102,7 +111,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSettingsIncorrectFormat()
         {
-            string testString = "{\"Key\":\"displayName\", \"UserId\":1, \"Token\":\"" + LoginToken + "\", \"Value\":\"patches01\"}";
+            StringConstructor.RemoveMapping("LoginToken");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(
                 new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
@@ -112,7 +122,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSettingsEmptyLoginToken()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"\"}";
+            StringConstructor.SetMapping("LoginToken", "");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(
                 new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
@@ -122,7 +133,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSettingsUnknownUser()
         {
-            string testString = "{\"UserId\":4, \"LoginToken\":\"" + LoginToken + "\"}";
+            StringConstructor.SetMapping("UserId", 2);
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(
                 new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
@@ -132,7 +144,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSettingsInvalidLoginToken()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"0xbaaaad\"}"; 
+            StringConstructor.SetMapping("LoginToken", "0xbaaaad");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(
                 new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
@@ -142,7 +155,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSettingsValidRequest()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"" + LoginToken + "\"}";
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(
                 new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;

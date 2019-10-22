@@ -9,6 +9,7 @@ using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using MechanicsAssistantServer.Net;
 using MechanicsAssistantServer.Net.Api;
+using MechanicsAssistantServer.Util;
 using System.IO;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
@@ -24,6 +25,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static string LoginToken;
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
+        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -85,6 +87,16 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             AuthToken = response.Content.ReadAsStringAsync().Result;
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            StringConstructor.SetMapping("Key", "displayName");
+            StringConstructor.SetMapping("UserId", 1);
+            StringConstructor.SetMapping("LoginToken", LoginToken);
+            StringConstructor.SetMapping("AuthToken", AuthToken);
+            StringConstructor.SetMapping("Value", "patches01");
+        }
+
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
@@ -104,7 +116,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestModifySettingsIncorrectFormat()
         {
-            string testString = "{\"Key\":\"displayName\", \"UserId\":1, \"Token\":\"" + LoginToken + "\", \"Value\":\"patches01\"}";
+            StringConstructor.RemoveMapping("Value");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
@@ -113,7 +126,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestModifySettingsEmptyModificationString()
         {
-            string testString = "{\"Key\":\"displayName\", \"UserId\":1, \"LoginToken\":\"" + LoginToken + "\", \"Value\":\"\", \"AuthToken\":\""+AuthToken+"\"}";
+            StringConstructor.SetMapping("Value", "");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
@@ -122,7 +136,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestModifySettingsSettingKeyNotFound()
         {
-            string testString = "{\"Key\":\"DisplayName\", \"UserId\":1, \"LoginToken\":\"" + LoginToken + "\", \"Value\":\"patches01\", \"AuthToken\":\"" + AuthToken + "\"}";
+            StringConstructor.SetMapping("Key", "DisplayName");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
@@ -131,7 +146,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestModifySettingsUnknownUser()
         {
-            string testString = "{\"Key\":\"displayName\", \"UserId\":3, \"LoginToken\":\"" + LoginToken + "\", \"Value\":\"patches01\", \"AuthToken\":\"" + AuthToken + "\"}";
+            StringConstructor.SetMapping("UserId", 3);
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
@@ -140,7 +156,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestModifySettingsInvalidLoginToken()
         {
-            string testString = "{\"Key\":\"displayName\", \"UserId\":1, \"LoginToken\":\"0xbaaaad\", \"Value\":\"patches01\", \"AuthToken\":\"" + AuthToken + "\"}";
+            StringConstructor.SetMapping("LoginToken", "0xbaaaad");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
@@ -149,7 +166,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestModifySettingsValidModification()
         {
-            string testString = "{\"Key\":\"displayName\", \"UserId\":1, \"LoginToken\":\"" + LoginToken + "\", \"Value\":\"patches01\", \"AuthToken\":\"" + AuthToken + "\"}";
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);

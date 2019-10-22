@@ -21,6 +21,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
         private static string LoginToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
+        private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -73,6 +74,15 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             LoginToken = responseContent.Token;
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            JsonStringConstructor.SetMapping("UserId", 1);
+            JsonStringConstructor.SetMapping("LoginToken", LoginToken);
+            JsonStringConstructor.SetMapping("SecurityQuestion", SecurityQuestion);
+            JsonStringConstructor.SetMapping("SecurityAnswer", "red");
+        }
+
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
@@ -92,7 +102,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetAuthTokenEmptyLoginToken()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"\", \"SecurityQuestion\":\""+SecurityQuestion+"\",\"SecurityAnswer\":\"red\"}";
+            JsonStringConstructor.SetMapping("LoginToken", "");
+            string testString = JsonStringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
             var actualResponse = response.Result;
@@ -103,7 +114,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetAuthTokenIncorrectFormat()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"\", \"Password\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}"; 
+            JsonStringConstructor.RemoveMapping("SecurityQuestion");
+            string testString = JsonStringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
             var actualResponse = response.Result;
@@ -114,7 +126,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetAuthTokenNonExistantUser()
         {
-            string testString = "{\"UserId\":3, \"LoginToken\":\"0xbaaaad\", \"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}"; 
+            JsonStringConstructor.SetMapping("UserId", 3);
+            string testString = JsonStringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
             var actualResponse = response.Result;
@@ -124,7 +137,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetAuthTokenBadLoginToken()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"0xbaaaad\", \"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}"; 
+            JsonStringConstructor.SetMapping("LoginToken", "0xbaaaad");
+            string testString = JsonStringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
             var actualResponse = response.Result;
@@ -134,7 +148,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetAuthTokenBadAnswer()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\""+LoginToken+"\", \"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"blue\"}";
+            JsonStringConstructor.SetMapping("SecurityAnswer", "blue");
+            string testString = JsonStringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
             var actualResponse = response.Result;
@@ -144,7 +159,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetAuthTokenProperFormat()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\""+LoginToken+"\", \"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}"; 
+            string testString = JsonStringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
             var actualResponse = response.Result;

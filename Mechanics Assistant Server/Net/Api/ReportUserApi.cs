@@ -109,7 +109,7 @@ namespace MechanicsAssistantServer.Net.Api
                 return false;
             if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("0x"))
                 return false;
-            return !req.ReportedDisplayName.Equals("");
+            return !(req.ReportedDisplayName == null || req.ReportedDisplayName.Equals(""));
         }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Net;
 using MechanicsAssistantServer.Net.Api;
+using MechanicsAssistantServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
 {
@@ -18,6 +19,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
+        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -45,6 +47,15 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Server = ApiLoader.LoadApiAndListen(16384);
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            StringConstructor.SetMapping("Email", "abcd@msn");
+            StringConstructor.SetMapping("Password", 12345);
+            StringConstructor.SetMapping("SecurityQuestion", "What is your favourite colour?");
+            StringConstructor.SetMapping("SecurityAnswer", "Red");
+        }
+
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
@@ -64,7 +75,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestAddUserEmptyEmail()
         {
-            string testString = "{\"Email\":\"\", \"Password\":12345, \"SecurityQuestion\":\"What is your favourite colour?\", \"SecurityAnswer\":\"Red\"}";
+            StringConstructor.SetMapping("Email", "");
+            string testString = StringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PostAsync("http://localhost:16384/user", postData);
             var actualResponse = response.Result;
@@ -75,7 +87,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestAddUserIncorrectFormat()
         {
-            string testString = "{\"Email\":\"abcd@msn\", \"Password\":12345, \"SecurityQuestion\":\"What is your favourite colour?\", \"SecruityAnswer\":\"Red\"}";
+            StringConstructor.RemoveMapping("Email");
+            string testString = StringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PostAsync("http://localhost:16384/user", postData);
             var actualResponse = response.Result;
@@ -100,7 +113,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
                 using (reader)
                     prevId = reader.IsDBNull(0) ? 0 : (int)reader[0];
 
-                string testString = "{\"Email\":\"abcd@msn\", \"Password\":12345, \"SecurityQuestion\":\"What is your favourite colour?\", \"SecurityAnswer\":\"Red\"}";
+                string testString = StringConstructor.ToString();
                 StringContent postData = new StringContent(testString);
                 var response = Client.PostAsync("http://localhost:16384/user", postData);
                 var actualResponse = response.Result;

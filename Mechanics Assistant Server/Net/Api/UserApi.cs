@@ -174,7 +174,7 @@ namespace MechanicsAssistantServer.Net.Api
 
         private bool ValidateLoginRequest(UserLoginRequest req)
         {
-            return !(req.Email.Equals("") || req.Password.Equals(""));
+            return !(req.Email == null || req.Email.Equals("") || req.Password == null || req.Password.Equals(""));
         }
 
         private LoggedTokens ExtractLoggedTokens(OverallUser userIn)

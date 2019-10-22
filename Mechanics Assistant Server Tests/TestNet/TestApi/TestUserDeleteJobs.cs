@@ -10,6 +10,7 @@ using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using MechanicsAssistantServer.Net;
 using MechanicsAssistantServer.Net.Api;
 using System.IO;
+using MechanicsAssistantServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
 {
@@ -24,6 +25,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
         private static readonly string Uri = "http://localhost:16384/user/job";
+        private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -86,6 +88,15 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Assert.IsTrue(Manipulator.AddJobDataToUser(Manipulator.GetUserById(1), "abc", new byte[] { 0, 2, 5 }));
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            JsonStringConstructor.SetMapping("JobId", 1);
+            JsonStringConstructor.SetMapping("UserId", 1);
+            JsonStringConstructor.SetMapping("AuthToken", AuthToken);
+            JsonStringConstructor.SetMapping("LoginToken", LoginToken);
+        }
+
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
@@ -105,7 +116,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestDeleteJobIncorrectFormat()
         {
-            string testString = "{\"Id\":1, \"UserId\":1, \"AuthToken\":\"" + AuthToken + "\", \"LoginToken\":\"" + LoginToken + "\"}";
+            JsonStringConstructor.RemoveMapping("LoginToken");
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
 
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, Uri) { Content = content }).Result;
@@ -113,9 +125,10 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestDeleteJobEmptyJobIdOutOfRange()
+        public void TestDeleteJobJobIdOutOfRange()
         {
-            string testString = "{\"JobId\":3, \"UserId\":1, \"AuthToken\":\"" + AuthToken + "\", \"LoginToken\":\"" + LoginToken + "\"}";
+            JsonStringConstructor.SetMapping("JobId", 3);
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
@@ -124,7 +137,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestDeleteJobUnknownUser()
         {
-            string testString = "{\"JobId\":1, \"UserId\":4, \"AuthToken\":\"" + AuthToken + "\", \"LoginToken\":\"" + LoginToken + "\"}";
+            JsonStringConstructor.SetMapping("UserId", 4);
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
@@ -133,7 +147,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestDeleteJobInvalidLoginToken()
         {
-            string testString = "{\"JobId\":1, \"UserId\":1, \"AuthToken\":\"" + AuthToken + "\", \"LoginToken\":\"0xbaaaad\"}";
+            JsonStringConstructor.SetMapping("LoginToken", "baaaad");
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
@@ -142,7 +157,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestDeleteJobInvalidAuthToken()
         {
-            string testString = "{\"JobId\":1, \"UserId\":1, \"AuthToken\":\"0xbaaaad\", \"LoginToken\":\"" + LoginToken + "\"}";
+            JsonStringConstructor.SetMapping("AuthToken", "0xbaaaad");
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
@@ -151,7 +167,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestDeleteJobValidRequest()
         {
-            string testString = "{\"JobId\":1, \"UserId\":1, \"AuthToken\":\"" + AuthToken + "\", \"LoginToken\":\"" + LoginToken + "\"}";
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);

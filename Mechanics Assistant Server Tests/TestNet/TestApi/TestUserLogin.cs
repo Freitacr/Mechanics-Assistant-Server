@@ -29,6 +29,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
+        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -56,6 +57,13 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Server = ApiLoader.LoadApiAndListen(16384);
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            StringConstructor.SetMapping("Email", "abcd@msn");
+            StringConstructor.SetMapping("Password", "12345");
+        }
+
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
@@ -75,7 +83,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestLoginEmptyEmail()
         {
-            string testString = "{\"Email\":\"\", \"Password\":12345}";
+            StringConstructor.SetMapping("Email", "");
+            string testString = StringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user", putData);
             var actualResponse = response.Result;
@@ -86,7 +95,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestLoginIncorrectFormat()
         {
-            string testString = "{\"Email\":\"\", \"Pass\":12345}";
+            StringConstructor.RemoveMapping("Password");
+            string testString = StringConstructor.ToString();
             StringContent putData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user", putData);
             var actualResponse = response.Result;
@@ -99,7 +109,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         {
             Assert.IsTrue(Manipulator.AddUser("abcd@msn", "12345", "what is your favourite colour?", "red"));
 
-            string testString = "{\"Email\":\"abcd@msn\", \"Password\":12345}";
+            string testString = StringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PutAsync("http://localhost:16384/user", postData);
             var actualResponse = response.Result;

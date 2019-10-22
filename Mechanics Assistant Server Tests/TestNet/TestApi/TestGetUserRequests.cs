@@ -9,6 +9,7 @@ using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using MechanicsAssistantServer.Net;
 using MechanicsAssistantServer.Net.Api;
+using MechanicsAssistantServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
 {
@@ -23,6 +24,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
         private static readonly string Uri = "http://localhost:16384/user/requests";
+        private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -100,10 +102,18 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Manipulator.Close();
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            JsonStringConstructor.SetMapping("UserId", 1);
+            JsonStringConstructor.SetMapping("LoginToken", LoginToken);
+        }
+
         [TestMethod]
         public void TestGetUserRequestsIncorrectFormat()
         {
-            string testString = "{\"ReportingUser\":\"displayName\", \"UserId\":1, \"AuthToken\":\"" + AuthToken + "\", \"Token\":\"" + LoginToken + "\"}";
+            JsonStringConstructor.RemoveMapping("LoginToken");
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
@@ -112,7 +122,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetUserRequestsUnknownUser()
         {
-            string testString = "{\"UserId\":2, \"LoginToken\":\"" + LoginToken + "\"}";
+            JsonStringConstructor.SetMapping("UserId", 2);
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
@@ -121,7 +132,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetUserRequestsInvalidLoginToken()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"0xbaaaad\"}";
+            JsonStringConstructor.SetMapping("LoginToken", "0xbaaaad");
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
@@ -130,7 +142,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetUserRequestsValidRequest()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"" + LoginToken + "\"}";
+            string testString = JsonStringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);

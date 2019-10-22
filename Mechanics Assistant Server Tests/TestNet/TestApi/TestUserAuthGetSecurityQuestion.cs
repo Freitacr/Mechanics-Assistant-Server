@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MechanicsAssistantServer.Data.MySql;
 using MechanicsAssistantServer.Net;
 using MechanicsAssistantServer.Net.Api;
+using MechanicsAssistantServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
 {
@@ -21,6 +22,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
         private static string LoginToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
+        private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -75,10 +77,18 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Manipulator.Close();
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            JsonStringConstructor.SetMapping("UserId", 1);
+            JsonStringConstructor.SetMapping("LoginToken", LoginToken);
+        }
+
         [TestMethod]
         public void TestGetSecurityQuestionEmptyLoginToken()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"\"}";
+            JsonStringConstructor.SetMapping("LoginToken", "");
+            string testString = JsonStringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PostAsync("http://localhost:16384/user/auth", postData);
             var actualResponse = response.Result;
@@ -89,7 +99,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSecurityQuestionIncorrectFormat()
         {
-            string testString = "{\"Email\":\"abcd@msn\", \"Password\":12345, \"SecurityQuestion\":\"What is your favourite colour?\", \"SecruityAnswer\":\"Red\"}";
+            JsonStringConstructor.RemoveMapping("LoginToken");
+            string testString = JsonStringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PostAsync("http://localhost:16384/user/auth", postData);
             var actualResponse = response.Result;
@@ -100,7 +111,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSecurityQuestionNonExistantUser()
         {
-            string testString = "{\"UserId\":3, \"LoginToken\":\"" + LoginToken + "\"}";
+            JsonStringConstructor.SetMapping("UserId", 3);
+            string testString = JsonStringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PostAsync("http://localhost:16384/user/auth", postData);
             var actualResponse = response.Result;
@@ -110,7 +122,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSecurityQuestionBadLoginToken()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"0xacbaaaad\"}";
+            JsonStringConstructor.SetMapping("LoginToken", "0xbaaaad");
+            string testString = JsonStringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PostAsync("http://localhost:16384/user/auth", postData);
             var actualResponse = response.Result;
@@ -120,7 +133,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestMethod]
         public void TestGetSecurityQuestionProperFormat()
         {
-            string testString = "{\"UserId\":1, \"LoginToken\":\"" + LoginToken + "\"}";
+            string testString = JsonStringConstructor.ToString();
             StringContent postData = new StringContent(testString);
             var response = Client.PostAsync("http://localhost:16384/user/auth", postData);
             var actualResponse = response.Result;
