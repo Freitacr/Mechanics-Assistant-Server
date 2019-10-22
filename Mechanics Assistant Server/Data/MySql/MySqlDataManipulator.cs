@@ -85,6 +85,212 @@ namespace MechanicsAssistantServer.Data.MySql
             return Connection.ConnectionString;
         }
 
+
+        public List<CompanySettingsEntry> GetCompanySettings(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CompanySettingsEntry GetCompanySettingsById(int companyId, int settingsId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<CompanySettingsEntry> GetCompanySettingsWhere(int companyId, string where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool UpdateCompanySettings(int companyId, CompanySettingsEntry toUpdate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public double GetCompanyAccuracy(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AddJoinRequest(int companyId, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<JoinRequest> GetJoinRequests(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public JoinRequest GetJoinRequestById(int companyId, int requestId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<JoinRequest> GetJoinRequestsWhere(int companyId, string where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<JoinRequest> GetJoinRequestsByIdRange(int companyId, int idStart, int idEnd)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RemoveJoinRequest(int companyId, int requestId, bool accept=false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AddForumPost(int companyId, int repairJobId, UserToTextEntry userForumPost)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<UserToTextEntry> GetForumPosts(int companyId, int repairJobId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserToTextEntry GetForumPost(int companyId, int repairJobId, int forumPostId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<UserToTextEntry> GetForumPostsWhere(int companyId, int repairJobId, string where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RemoveForumPostById(int companyId, int repairJobId, int forumPostId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool UpdatePartEntry(int companyId, PartCatalogueEntry toUpdate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AddPartEntry(int companyId, PartCatalogueEntry toUpdate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PartCatalogueEntry> GetPartCatalogueEntries(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PartCatalogueEntry GetPartCatalogueEntryById(int companyId, int entryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PartCatalogueEntry> GetPartCatalogueEntriesWhere(int companyId, string where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PartCatalogueEntry> GetPartCatalogueEntriesByIdRange(int companyId, int startId, int endId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RemovePartCatalogueEntry(int companyId, int entryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AddPartsListAdditionRequest(int companyId, RequirementAdditionRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RemovePartsListAdditionRequest(int companyId, int requestId, bool accept=false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<RequirementAdditionRequest> GetPartsListAdditionRequests(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public RequirementAdditionRequest GetPartsListAdditionRequestById(int companyId, int requirementId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<RequirementAdditionRequest> GetPartsListAdditionRequestsWhere(int companyId, string where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<RequirementAdditionRequest> GetPartsListAdditionRequestsByIdRange(int companyId, int startId, int endId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AddSafetyAdditionRequest(int companyId, RequirementAdditionRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RemoveSafetyAdditionRequest(int companyId, int requestId, bool accept = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<RequirementAdditionRequest> GetSafetyAdditionRequests(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public RequirementAdditionRequest GetSafetyAdditionRequestById(int companyId, int requirementId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<RequirementAdditionRequest> GetSafetyAdditionRequestsWhere(int companyId, string where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<RequirementAdditionRequest> GetSafetyAdditionRequestsByIdRange(int companyId, int startId, int endId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AddPartsRequest(int companyId, PartsRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RemovePartsRequest(int companyId, int requestId, bool accept=false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PartsRequest> GetPartsRequests(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PartsRequest GetPartsRequestById(int companyId, int requestId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PartsRequest> GetPartsRequestsWhere(int companyId, string where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PartsRequest> GetPartsRequestsByIdRange(int companyId, int startId, int endId)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool AddJobDataToUser(OverallUser toUpdate, string jobId, byte[] encodedJobResults)
         {
             toUpdate.Job2Results = toUpdate.Job1Results;
@@ -367,35 +573,6 @@ namespace MechanicsAssistantServer.Data.MySql
                 return false;
             }
             return true;
-        }
-
-        /**
-         * <summary>Adds the forum posting to the database</summary>
-         * <param name="companyId">The id of the company to add the part data to</param>
-         * <param name="userId">The userId of the user who made the post</param>
-         * <param name="containedText">The actual posting that the user supplied. Should already be input scrubbed to prevent XSS</param>
-         * <returns>true if connection was successful, false if an exception was encountered</returns>
-         * <seealso cref="LastException"/>
-         */
-        public bool AddForumPosting(int companyId, int userId, string containedText)
-        {
-            throw new NotImplementedException();
-        }
-
-        /**
-         * <summary>Adds the part data to the database</summary>
-         * <param name="companyId">The id of the company to add the part data to</param>
-         * <param name="make">The make of the machinery in question.</param>
-         * <param name="model">The model of the machinery. May be equal to the make if not applicable</param>
-         * <param name="partId">The part's id</param>
-         * <param name="partName">The common name for the part</param>
-         * <param name="year">The year of the machinery the data is for. If unknown, the value should be -1</param>
-         * <returns>true if connection was successful, false if an exception was encountered</returns>
-         * <seealso cref="LastException"/>
-         */
-        public bool AddPartCatalogueEntry(int companyId, string make, string model, string partId, string partName, int year=-1)
-        {
-            throw new NotImplementedException();
         }
 
         public bool AddCompany(string companyLegalName)
