@@ -12,6 +12,8 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string SettingKey { get; set; }
         public string SettingValue { get; set; }
 
+        public int Id { get; set; }
+
         public CompanySettingsEntry()
         {
 
@@ -32,6 +34,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         {
             SettingKey = (string)reader["SettingKey"];
             SettingValue = (string)reader["SettingValue"];
+            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)

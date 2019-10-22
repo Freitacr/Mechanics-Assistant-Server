@@ -88,52 +88,91 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public List<CompanySettingsEntry> GetCompanySettings(int companyId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
+            var setting = CompanySettingsEntry.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (setting == null)
+                LastException = CompanySettingsEntry.Manipulator.LastException;
+            return setting;
         }
 
         public CompanySettingsEntry GetCompanySettingsById(int companyId, int settingsId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
+            var setting = CompanySettingsEntry.Manipulator.RetrieveDataWithId(Connection, tableName, settingsId.ToString());
+            if (setting == null)
+                LastException = CompanySettingsEntry.Manipulator.LastException;
+            return setting;
         }
 
         public List<CompanySettingsEntry> GetCompanySettingsWhere(int companyId, string where)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
+            var settings = CompanySettingsEntry.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if(settings == null)
+                LastException = CompanySettingsEntry.Manipulator.LastException;
+            return settings;
         }
 
         public bool UpdateCompanySettings(int companyId, CompanySettingsEntry toUpdate)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
+            string cmdText = "update " + tableName + "set SettingKey=" + toUpdate.SettingKey + ", SettingValue=" + toUpdate.SettingValue + " where id=" + toUpdate.Id+";";
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = cmdText;
+            return ExecuteNonQuery(cmd);
         }
 
         public double GetCompanyAccuracy(int companyId)
         {
-            throw new NotImplementedException();
+            var company = CompanyId.Manipulator.RetrieveDataWithId(Connection, TableNameStorage.CompanyIdTable, companyId.ToString());
+            if (company == null)
+                return -1;
+            return company.ModelAccuracy;
         }
 
         public bool AddJoinRequest(int companyId, int userId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var res = JoinRequest.Manipulator.InsertDataInto(Connection, tableName, new JoinRequest(userId));
+            if (res == -1)
+                LastException = JoinRequest.Manipulator.LastException;
+            return res == 1;
         }
 
         public List<JoinRequest> GetJoinRequests(int companyId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var requests = JoinRequest.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (requests == null)
+                LastException = JoinRequest.Manipulator.LastException;
+            return requests;
         }
 
         public JoinRequest GetJoinRequestById(int companyId, int requestId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var request = JoinRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
+            if (request == null)
+                LastException = JoinRequest.Manipulator.LastException;
+            return request;
         }
 
         public List<JoinRequest> GetJoinRequestsWhere(int companyId, string where)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var requests = JoinRequest.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if (requests == null)
+                LastException = JoinRequest.Manipulator.LastException;
+            return requests;
         }
 
         public List<JoinRequest> GetJoinRequestsByIdRange(int companyId, int idStart, int idEnd)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var requests = JoinRequest.Manipulator.RetrieveDataWhere(Connection, tableName, " id >= " + idStart + " and id <" + idEnd + ";");
+            if (requests == null)
+                LastException = JoinRequest.Manipulator.LastException;
+            return requests;
         }
 
         public bool RemoveJoinRequest(int companyId, int requestId, bool accept=false)
@@ -143,27 +182,52 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public bool AddForumPost(int companyId, int repairJobId, UserToTextEntry userForumPost)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString());
+            tableName = tableName.Replace("(m)", repairJobId.ToString());
+            var res = UserToTextEntry.Manipulator.InsertDataInto(Connection, tableName, userForumPost);
+            if (res == -1)
+                LastException = UserToTextEntry.Manipulator.LastException;
+            return res == 1;
         }
 
         public List<UserToTextEntry> GetForumPosts(int companyId, int repairJobId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString());
+            tableName = tableName.Replace("(m)", repairJobId.ToString());
+            var res = UserToTextEntry.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (res == null)
+                LastException = UserToTextEntry.Manipulator.LastException;
+            return res;
         }
 
         public UserToTextEntry GetForumPost(int companyId, int repairJobId, int forumPostId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString());
+            tableName = tableName.Replace("(m)", repairJobId.ToString());
+            var res = UserToTextEntry.Manipulator.RetrieveDataWithId(Connection, tableName, forumPostId.ToString());
+            if (res == null)
+                LastException = UserToTextEntry.Manipulator.LastException;
+            return res;
         }
 
         public List<UserToTextEntry> GetForumPostsWhere(int companyId, int repairJobId, string where)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString());
+            tableName = tableName.Replace("(m)", repairJobId.ToString());
+            var res = UserToTextEntry.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if (res == null)
+                LastException = UserToTextEntry.Manipulator.LastException;
+            return res;
         }
 
-        public bool RemoveForumPostById(int companyId, int repairJobId, int forumPostId)
+        public bool RemoveForumPost(int companyId, int repairJobId, UserToTextEntry entry)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString());
+            tableName = tableName.Replace("(m)", repairJobId.ToString());
+            var res = UserToTextEntry.Manipulator.RemoveDataWithId(Connection, tableName, entry.Id);
+            if (res == -1)
+                LastException = UserToTextEntry.Manipulator.LastException;
+            return res == 1;    
         }
 
         public bool UpdatePartEntry(int companyId, PartCatalogueEntry toUpdate)
@@ -171,39 +235,67 @@ namespace MechanicsAssistantServer.Data.MySql
             throw new NotImplementedException();
         }
 
-        public bool AddPartEntry(int companyId, PartCatalogueEntry toUpdate)
+        public bool AddPartEntry(int companyId, PartCatalogueEntry toAdd)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = PartCatalogueEntry.Manipulator.InsertDataInto(Connection, tableName, toAdd);
+            if (res == -1)
+                LastException = PartCatalogueEntry.Manipulator.LastException;
+            return res == 1;
         }
 
         public List<PartCatalogueEntry> GetPartCatalogueEntries(int companyId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = PartCatalogueEntry.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (res == null)
+                LastException = PartCatalogueEntry.Manipulator.LastException;
+            return res;
         }
 
         public PartCatalogueEntry GetPartCatalogueEntryById(int companyId, int entryId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = PartCatalogueEntry.Manipulator.RetrieveDataWithId(Connection, tableName, entryId.ToString());
+            if (res == null)
+                LastException = PartCatalogueEntry.Manipulator.LastException;
+            return res;
         }
 
         public List<PartCatalogueEntry> GetPartCatalogueEntriesWhere(int companyId, string where)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = PartCatalogueEntry.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if (res == null)
+                LastException = PartCatalogueEntry.Manipulator.LastException;
+            return res;
         }
 
         public List<PartCatalogueEntry> GetPartCatalogueEntriesByIdRange(int companyId, int startId, int endId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = PartCatalogueEntry.Manipulator.RetrieveDataWhere(Connection, tableName, " id >= " + startId + " and id <" + endId + ";");
+            if (res == null)
+                LastException = PartCatalogueEntry.Manipulator.LastException;
+            return res;
         }
 
         public bool RemovePartCatalogueEntry(int companyId, int entryId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = PartCatalogueEntry.Manipulator.RemoveDataWithId(Connection, tableName, entryId);
+            if (res == -1)
+                LastException = PartCatalogueEntry.Manipulator.LastException;
+            return res == 1;
         }
 
         public bool AddPartsListAdditionRequest(int companyId, RequirementAdditionRequest request)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.InsertDataInto(Connection, tableName, request);
+            if (res == -1)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res == 1;
         }
 
         public bool RemovePartsListAdditionRequest(int companyId, int requestId, bool accept=false)
@@ -213,27 +305,47 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public List<RequirementAdditionRequest> GetPartsListAdditionRequests(int companyId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public RequirementAdditionRequest GetPartsListAdditionRequestById(int companyId, int requirementId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requirementId.ToString());
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public List<RequirementAdditionRequest> GetPartsListAdditionRequestsWhere(int companyId, string where)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public List<RequirementAdditionRequest> GetPartsListAdditionRequestsByIdRange(int companyId, int startId, int endId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataWhere(Connection, tableName, " id >= " + startId + " and id <" + endId + ";");
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public bool AddSafetyAdditionRequest(int companyId, RequirementAdditionRequest request)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.InsertDataInto(Connection, tableName, request);
+            if (res == -1)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res == 1;
         }
 
         public bool RemoveSafetyAdditionRequest(int companyId, int requestId, bool accept = false)
@@ -243,27 +355,47 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public List<RequirementAdditionRequest> GetSafetyAdditionRequests(int companyId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public RequirementAdditionRequest GetSafetyAdditionRequestById(int companyId, int requirementId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requirementId.ToString());
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public List<RequirementAdditionRequest> GetSafetyAdditionRequestsWhere(int companyId, string where)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public List<RequirementAdditionRequest> GetSafetyAdditionRequestsByIdRange(int companyId, int startId, int endId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
+            var res = RequirementAdditionRequest.Manipulator.RetrieveDataWhere(Connection, tableName, " id >= " + startId + " and id <" + endId + ";");
+            if (res == null)
+                LastException = RequirementAdditionRequest.Manipulator.LastException;
+            return res;
         }
 
         public bool AddPartsRequest(int companyId, PartsRequest request)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString());
+            var res = PartsRequest.Manipulator.InsertDataInto(Connection, tableName, request);
+            if (res == -1)
+                LastException = PartsRequest.Manipulator.LastException;
+            return res == 1;
         }
 
         public bool RemovePartsRequest(int companyId, int requestId, bool accept=false)
@@ -273,21 +405,38 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public List<PartsRequest> GetPartsRequests(int companyId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString());
+            var res = PartsRequest.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (res == null)
+                LastException = PartsRequest.Manipulator.LastException;
+            return res;
         }
 
         public PartsRequest GetPartsRequestById(int companyId, int requestId)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString());
+            var res = PartsRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
+            if (res == null)
+                LastException = PartsRequest.Manipulator.LastException;
+            return res;
         }
 
         public List<PartsRequest> GetPartsRequestsWhere(int companyId, string where)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString());
+            var res = PartsRequest.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if (res == null)
+                LastException = PartsRequest.Manipulator.LastException;
+            return res;
         }
 
         public List<PartsRequest> GetPartsRequestsByIdRange(int companyId, int startId, int endId)
         {
+            string tableName = TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString());
+            var res = PartsRequest.Manipulator.RetrieveDataWhere(Connection, tableName, " id >= " + startId + " and id <" + endId + ";");
+            if (res == null)
+                LastException = PartsRequest.Manipulator.LastException;
+            return res;
             throw new NotImplementedException();
         }
 

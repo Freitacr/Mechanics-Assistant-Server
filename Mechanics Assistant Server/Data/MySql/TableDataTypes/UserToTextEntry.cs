@@ -12,6 +12,8 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string Text { get; set; }
         public int UserId { get; set; }
 
+        public int Id { get; set; }
+
         public UserToTextEntry()
         {
 
@@ -32,6 +34,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         {
             Text = (string)reader["MappedText"];
             UserId = (int)reader["UserId"];
+            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)
