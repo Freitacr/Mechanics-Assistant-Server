@@ -18,7 +18,7 @@ namespace MechanicsAssistantServer.Net.Api
         public int UserId;
 
         [DataMember]
-        public bool Upvote;
+        public int Upvote;
 
         [DataMember]
         public int RepairJobId;
@@ -67,6 +67,16 @@ namespace MechanicsAssistantServer.Net.Api
                         return;
                     }
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if(mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User Not Found");
+                        return;
+                    }
+                    if (!ValidateVoteRequest(entry))
+                    {
+                        WriteBodyResponse(ctx, 400, "Invalid Format", "Request was in incorrect format");
+                        return;
+                    }
                     if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
                     {
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
@@ -88,7 +98,7 @@ namespace MechanicsAssistantServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
                         return;
                     }
-                    if (entry.Upvote == false)
+                    if (entry.Upvote == 0)
                     {
                         if (!connection.UpdateValidationStatus(mappedUser.Company, repairEntry, true))
                         {
@@ -107,6 +117,21 @@ namespace MechanicsAssistantServer.Net.Api
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
+        }
+
+        private bool ValidateVoteRequest(RepairJobVoteRequest req)
+        {
+            if (req.AuthToken == null || req.AuthToken.Equals("0x") || req.AuthToken.Equals(""))
+                return false;
+            if (req.LoginToken == null || req.LoginToken.Equals("0x") || req.LoginToken.Equals(""))
+                return false;
+            if (req.Upvote < 0 || req.Upvote > 1)
+                return false;
+            if (req.UserId < 1)
+                return false;
+            if (req.RepairJobId < 1)
+                return false;
+            return true;
         }
     }
 }

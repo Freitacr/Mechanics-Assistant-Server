@@ -332,18 +332,29 @@ namespace MechanicsAssistantServer.Data.MySql
          * <returns>true if insertion was successful, false if an exception was encountered</returns>
          * <seealso cref="LastException"/>
          */
-        public bool AddDataEntry(int companyId, JobDataEntry entryToAdd)
+        public bool AddDataEntry(int companyId, JobDataEntry entryToAdd, bool validated=false)
         {
+            string tableName;
+            if (validated)
+            {
+                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace(
+                    "(n)",
+                    companyId.ToString()
+                    );
+            }else
+            {
+                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace(
+                    "(n)",
+                    companyId.ToString()
+                    );
+            }
             entryToAdd.FillDefaultValues();
             int res;
             try
             {
                 res = JobDataEntry.Manipulator.InsertDataInto(
                     Connection, 
-                    TableNameStorage.CompanyNonValidatedRepairJobTable.Replace(
-                        "(n)", 
-                        companyId.ToString()
-                        ), 
+                    tableName, 
                     entryToAdd);
             } catch (MySqlException e)
             {
