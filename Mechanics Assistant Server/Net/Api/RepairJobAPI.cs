@@ -67,6 +67,11 @@ namespace MechanicsAssistantServer.Net.Api
                         return;
                     }
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if(mappedUser==null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                        return;
+                    }
                     if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
                     {
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
