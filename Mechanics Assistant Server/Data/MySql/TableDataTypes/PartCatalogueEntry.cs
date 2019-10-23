@@ -14,6 +14,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
         public string PartId { get; set; }
         public string PartName { get; set; }
 
+        public int Id { get; set; }
         public PartCatalogueEntry()
         {
 
@@ -40,6 +41,7 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
             Year = (int)reader["Year"];
             PartId = (string)reader["PartId"];
             PartName = (string)reader["PartName"];
+            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)

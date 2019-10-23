@@ -8,6 +8,7 @@ using MySql.Data.MySqlClient;
 using System.Runtime.Serialization.Json;
 using MechanicsAssistantServer.Data.MySql.TableDataTypes;
 using MechanicsAssistantServer.Util;
+using ANSEncodingLib;
 using OMISSecLib;
 
 #if DEBUG
@@ -85,7 +86,6 @@ namespace MechanicsAssistantServer.Data.MySql
             return Connection.ConnectionString;
         }
 
-
         public List<CompanySettingsEntry> GetCompanySettings(int companyId)
         {
             string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
@@ -116,7 +116,7 @@ namespace MechanicsAssistantServer.Data.MySql
         public bool UpdateCompanySettings(int companyId, CompanySettingsEntry toUpdate)
         {
             string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
-            string cmdText = "update " + tableName + "set SettingKey=" + toUpdate.SettingKey + ", SettingValue=" + toUpdate.SettingValue + " where id=" + toUpdate.Id+";";
+            string cmdText = "update " + tableName + "set SettingKey=\"" + toUpdate.SettingKey + "\", SettingValue=\"" + toUpdate.SettingValue + "\" where id=" + toUpdate.Id+";";
             var cmd = Connection.CreateCommand();
             cmd.CommandText = cmdText;
             return ExecuteNonQuery(cmd);
@@ -132,11 +132,95 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public bool AddJoinRequest(int companyId, int userId)
         {
+            var user = GetUserById(userId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "Join" };
+            req.Request.CalculateMD5();
+            requests.Add(req);
+            user.EncodeRequests(requests);
+            while(user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
             string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
             var res = JoinRequest.Manipulator.InsertDataInto(Connection, tableName, new JoinRequest(userId));
             if (res == -1)
+            {
                 LastException = JoinRequest.Manipulator.LastException;
+                user.EncodeRequests(requests);
+                if (requests == null)
+                    return false;
+                requests.Remove(req);
+                user.EncodeRequests(requests);
+                UpdateUserPreviousRequests(user);
+            }
             return res == 1;
+        }
+        
+        public bool RemoveJoinRequest(int companyId, int requestId, bool accept=false)
+        {
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var request = JoinRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
+            var user = GetUserById(request.UserId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            string status = accept ? "Accepted" : "Denied";
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "Join" };
+            req.Request.CalculateMD5();
+            foreach(PreviousUserRequest prevRequest in requests)
+            {
+                if(prevRequest.Request.MD5.Equals(req.Request.MD5))
+                {
+                    prevRequest.RequestStatus = status;
+                    break;
+                }
+            }
+            user.EncodeRequests(requests);
+            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
+            if(JoinRequest.Manipulator.RemoveDataWithId(Connection, tableName, requestId) != 1)
+            {
+                foreach (PreviousUserRequest prevRequest in requests)
+                {
+                    if (prevRequest.Request.MD5.Equals(req.Request.MD5))
+                    {
+                        prevRequest.RequestStatus = "";
+                        break;
+                    }
+                }
+                user.EncodeRequests(requests);
+                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                {
+                    requests.RemoveAt(0);
+                    user.EncodeRequests(requests);
+                }
+                UpdateUserPreviousRequests(user);
+                return false;
+            }
+            return true;
         }
 
         public List<JoinRequest> GetJoinRequests(int companyId)
@@ -173,11 +257,6 @@ namespace MechanicsAssistantServer.Data.MySql
             if (requests == null)
                 LastException = JoinRequest.Manipulator.LastException;
             return requests;
-        }
-
-        public bool RemoveJoinRequest(int companyId, int requestId, bool accept=false)
-        {
-            throw new NotImplementedException();
         }
 
         public bool AddForumPost(int companyId, int repairJobId, UserToTextEntry userForumPost)
@@ -232,7 +311,25 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public bool UpdatePartEntry(int companyId, PartCatalogueEntry toUpdate)
         {
-            throw new NotImplementedException();
+            StringBuilder commandTextBuilder = new StringBuilder();
+            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            commandTextBuilder.Append("update ");
+            commandTextBuilder.Append(tableName);
+            commandTextBuilder.Append(" set Make=\"");
+            commandTextBuilder.Append(toUpdate.Make);
+            commandTextBuilder.Append("\", Model=\"");
+            commandTextBuilder.Append(toUpdate.Model);
+            commandTextBuilder.Append("\", PartId=\"");
+            commandTextBuilder.Append(toUpdate.PartId);
+            commandTextBuilder.Append("\", PartName=\"");
+            commandTextBuilder.Append(toUpdate.PartName);
+            commandTextBuilder.Append("\", Year=");
+            commandTextBuilder.Append(toUpdate.Year);
+            commandTextBuilder.Append(" where id=" + toUpdate.Id);
+            commandTextBuilder.Append(";");
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = commandTextBuilder.ToString();
+            return ExecuteNonQuery(cmd);
         }
 
         public bool AddPartEntry(int companyId, PartCatalogueEntry toAdd)
@@ -291,16 +388,95 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public bool AddPartsListAdditionRequest(int companyId, RequirementAdditionRequest request)
         {
+            var user = GetUserById(request.UserId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "PartsList" };
+            req.Request.CalculateMD5(request.RequestedAdditions+request.ValidatedDataId);
+            requests.Add(req);
+            user.EncodeRequests(requests);
+            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
             string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
             var res = RequirementAdditionRequest.Manipulator.InsertDataInto(Connection, tableName, request);
             if (res == -1)
+            {
                 LastException = RequirementAdditionRequest.Manipulator.LastException;
+                user.EncodeRequests(requests);
+                if (requests == null)
+                    return false;
+                requests.Remove(req);
+                user.EncodeRequests(requests);
+                UpdateUserPreviousRequests(user);
+            }
             return res == 1;
         }
 
         public bool RemovePartsListAdditionRequest(int companyId, int requestId, bool accept=false)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var request = RequirementAdditionRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
+            var user = GetUserById(request.UserId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            string status = accept ? "Accepted" : "Denied";
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "PartsList" };
+            req.Request.CalculateMD5(request.RequestedAdditions + request.ValidatedDataId);
+            foreach (PreviousUserRequest prevRequest in requests)
+            {
+                if (prevRequest.Request.MD5.Equals(req.Request.MD5))
+                {
+                    prevRequest.RequestStatus = status;
+                    break;
+                }
+            }
+            user.EncodeRequests(requests);
+            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
+            if (JoinRequest.Manipulator.RemoveDataWithId(Connection, tableName, requestId) != 1)
+            {
+                foreach (PreviousUserRequest prevRequest in requests)
+                {
+                    if (prevRequest.Request.MD5.Equals(req.Request.MD5))
+                    {
+                        prevRequest.RequestStatus = "";
+                        break;
+                    }
+                }
+                user.EncodeRequests(requests);
+                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                {
+                    requests.RemoveAt(0);
+                    user.EncodeRequests(requests);
+                }
+                UpdateUserPreviousRequests(user);
+                return false;
+            }
+            return true;
         }
 
         public List<RequirementAdditionRequest> GetPartsListAdditionRequests(int companyId)
@@ -341,16 +517,95 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public bool AddSafetyAdditionRequest(int companyId, RequirementAdditionRequest request)
         {
+            var user = GetUserById(request.UserId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "Safety" };
+            req.Request.CalculateMD5(request.RequestedAdditions+request.ValidatedDataId);
+            requests.Add(req);
+            user.EncodeRequests(requests);
+            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
             string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
             var res = RequirementAdditionRequest.Manipulator.InsertDataInto(Connection, tableName, request);
             if (res == -1)
+            {
                 LastException = RequirementAdditionRequest.Manipulator.LastException;
+                user.EncodeRequests(requests);
+                if (requests == null)
+                    return false;
+                requests.Remove(req);
+                user.EncodeRequests(requests);
+                UpdateUserPreviousRequests(user);
+            }
             return res == 1;
         }
 
         public bool RemoveSafetyAdditionRequest(int companyId, int requestId, bool accept = false)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var request = RequirementAdditionRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
+            var user = GetUserById(request.UserId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            string status = accept ? "Accepted" : "Denied";
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "Safety" };
+            req.Request.CalculateMD5(request.RequestedAdditions + request.ValidatedDataId);
+            foreach (PreviousUserRequest prevRequest in requests)
+            {
+                if (prevRequest.Request.MD5.Equals(req.Request.MD5))
+                {
+                    prevRequest.RequestStatus = status;
+                    break;
+                }
+            }
+            user.EncodeRequests(requests);
+            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
+            if (JoinRequest.Manipulator.RemoveDataWithId(Connection, tableName, requestId) != 1)
+            {
+                foreach (PreviousUserRequest prevRequest in requests)
+                {
+                    if (prevRequest.Request.MD5.Equals(req.Request.MD5))
+                    {
+                        prevRequest.RequestStatus = "";
+                        break;
+                    }
+                }
+                user.EncodeRequests(requests);
+                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                {
+                    requests.RemoveAt(0);
+                    user.EncodeRequests(requests);
+                }
+                UpdateUserPreviousRequests(user);
+                return false;
+            }
+            return true;
         }
 
         public List<RequirementAdditionRequest> GetSafetyAdditionRequests(int companyId)
@@ -391,6 +646,27 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public bool AddPartsRequest(int companyId, PartsRequest request)
         {
+            var user = GetUserById(request.UserId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "Parts" };
+            req.Request.CalculateMD5(request.ReferencedParts + request.JobId);
+            requests.Add(req);
+            user.EncodeRequests(requests);
+            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
             string tableName = TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString());
             var res = PartsRequest.Manipulator.InsertDataInto(Connection, tableName, request);
             if (res == -1)
@@ -400,7 +676,57 @@ namespace MechanicsAssistantServer.Data.MySql
 
         public bool RemovePartsRequest(int companyId, int requestId, bool accept=false)
         {
-            throw new NotImplementedException();
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            var request = PartsRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
+            var user = GetUserById(request.UserId);
+            if (user == null)
+                return false;
+            var requests = user.DecodeRequests();
+            if (requests == null)
+            {
+                LastException = null;
+                return false;
+            }
+            string status = accept ? "Accepted" : "Denied";
+            PreviousUserRequest req = new PreviousUserRequest();
+            req.Request = new RequestString() { Company = companyId, Type = "Parts" };
+            req.Request.CalculateMD5(request.ReferencedParts + request.JobId);
+            foreach (PreviousUserRequest prevRequest in requests)
+            {
+                if (prevRequest.Request.MD5.Equals(req.Request.MD5))
+                {
+                    prevRequest.RequestStatus = status;
+                    break;
+                }
+            }
+            user.EncodeRequests(requests);
+            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            {
+                requests.RemoveAt(0);
+                user.EncodeRequests(requests);
+            }
+            if (!UpdateUserPreviousRequests(user))
+                return false;
+            if (JoinRequest.Manipulator.RemoveDataWithId(Connection, tableName, requestId) != 1)
+            {
+                foreach (PreviousUserRequest prevRequest in requests)
+                {
+                    if (prevRequest.Request.MD5.Equals(req.Request.MD5))
+                    {
+                        prevRequest.RequestStatus = "";
+                        break;
+                    }
+                }
+                user.EncodeRequests(requests);
+                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                {
+                    requests.RemoveAt(0);
+                    user.EncodeRequests(requests);
+                }
+                UpdateUserPreviousRequests(user);
+                return false;
+            }
+            return true;
         }
 
         public List<PartsRequest> GetPartsRequests(int companyId)
@@ -438,6 +764,13 @@ namespace MechanicsAssistantServer.Data.MySql
                 LastException = PartsRequest.Manipulator.LastException;
             return res;
             throw new NotImplementedException();
+        }
+
+        public bool UpdateUserPreviousRequests(OverallUser toUpdate)
+        {
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set RequestHistory=\"" + MysqlDataConvertingUtil.ConvertToHexString(toUpdate.RequestHistory) + "\" where id=" + toUpdate.UserId + ";";
+            return ExecuteNonQuery(cmd);
         }
 
         public bool AddJobDataToUser(OverallUser toUpdate, string jobId, byte[] encodedJobResults)

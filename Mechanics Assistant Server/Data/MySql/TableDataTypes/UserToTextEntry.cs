@@ -19,10 +19,10 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
 
         }
 
-        public UserToTextEntry(int userId, string email)
+        public UserToTextEntry(int userId, string text)
         {
             UserId = userId;
-            Text = email;
+            Text = text;
         }
 
         public ISqlSerializable Copy()

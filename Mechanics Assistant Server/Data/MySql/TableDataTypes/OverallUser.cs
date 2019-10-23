@@ -6,6 +6,7 @@ using MechanicsAssistantServer.Util;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
+using System.Security.Cryptography;
 using ANSEncodingLib;
 
 namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
@@ -37,10 +38,33 @@ namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
     }
 
     [DataContract]
+    class RequestString
+    {
+        [DataMember]
+        public int Company { get; set; }
+        
+        [DataMember]
+        public string Type { get; set; }
+
+        [DataMember]
+        public string MD5 { get; set; }
+
+        public void CalculateMD5(string extraData = "")
+        {
+            MD5 md5 = System.Security.Cryptography.MD5.Create();
+            using (md5)
+            {
+                byte[] data = Encoding.UTF8.GetBytes(Type + Company + extraData);
+                MD5 = MysqlDataConvertingUtil.ConvertToHexString(md5.ComputeHash(data));
+            }
+        }
+    }
+
+    [DataContract]
     class PreviousUserRequest
     {
         [DataMember]
-        public string Request { get; set; } = "";
+        public RequestString Request { get; set; }
 
         [DataMember]
         public string RequestStatus { get; set; } = "";
