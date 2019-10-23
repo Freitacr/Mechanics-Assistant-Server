@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mechanic's Assistant Server", "Mechanics Assistant Server\Mechanic's Assistant Server.csproj", "{6E30B34F-1FD1-4307-861A-3B430931F037}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Old Man In The Shop Server", "Mechanics Assistant Server\Old Man In The Shop Server.csproj", "{6E30B34F-1FD1-4307-861A-3B430931F037}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mechanic's Assistant Server Tests", "Mechanics Assistant Server Tests\Mechanic's Assistant Server Tests.csproj", "{21C31458-E7E8-4975-A162-DDCBB54587E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Old Man In The Shop Server Tests", "Mechanics Assistant Server Tests\Old Man In The Shop Server Tests.csproj", "{21C31458-E7E8-4975-A162-DDCBB54587E4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ANSEncodingLib", "ANSEncodingLib\ANSEncodingLib.csproj", "{B425E1AC-D20E-449C-B51E-E31E6B074717}"
 EndProject
@@ -16,6 +16,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMISSecLib", "OMISSecLib\OMISSecLib.csproj", "{548833C1-BB70-46A2-B495-69936E7DD918}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMISSecLibTest", "OMISSecLibTest\OMISSecLibTest.csproj", "{958796F5-F8FD-4885-BB38-07D225F80F3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMISSortingLib", "OMISSortingLib\OMISSortingLib.csproj", "{1B23249D-D712-470C-B979-3F25B72CB6EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMISSortingLibTest", "NUnitTestProject1\OMISSortingLibTest.csproj", "{1FC7EC42-B368-4C75-AB80-8F4B27601422}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +85,22 @@ Global
 		{958796F5-F8FD-4885-BB38-07D225F80F3D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{958796F5-F8FD-4885-BB38-07D225F80F3D}.Release|x64.ActiveCfg = Release|x64
 		{958796F5-F8FD-4885-BB38-07D225F80F3D}.Release|x64.Build.0 = Release|x64
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{1B23249D-D712-470C-B979-3F25B72CB6EE}.Release|x64.Build.0 = Release|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Debug|x64.Build.0 = Debug|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Release|x64.ActiveCfg = Release|Any CPU
+		{1FC7EC42-B368-4C75-AB80-8F4B27601422}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

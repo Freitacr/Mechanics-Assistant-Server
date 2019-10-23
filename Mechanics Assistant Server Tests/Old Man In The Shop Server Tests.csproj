@@ -20,12 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mechanics Assistant Server\Mechanic's Assistant Server.csproj" />
+    <Folder Include="TestModels\TestKeywordPrediction\" />
+    <Folder Include="TestUtil\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TestModels\TestKeywordPrediction\" />
-    <Folder Include="TestUtil\" />
+    <ProjectReference Include="..\Mechanics Assistant Server\Old Man In The Shop Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Certes\CertesWrapper.csproj" />
     <ProjectReference Include="..\EncodingUtilities\EncodingUtilities.csproj" />
     <ProjectReference Include="..\OMISSecLib\OMISSecLib.csproj" />
+    <ProjectReference Include="..\OMISSortingLib\OMISSortingLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
