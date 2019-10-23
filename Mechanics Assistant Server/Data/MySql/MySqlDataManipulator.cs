@@ -86,6 +86,74 @@ namespace OldManinTheShopServer.Data.MySql
             return Connection.ConnectionString;
         }
 
+        public List<KeywordGroupEntry> GetCompanyProblemGroups(int companyId)
+        {
+            string tableName = TableNameStorage.CompanyProblemKeywordGroupsTable.Replace
+                ("(n)", companyId.ToString());
+            var res = KeywordGroupEntry.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if (res == null)
+                LastException = KeywordGroupEntry.Manipulator.LastException;
+            return res;
+        }
+
+        public bool AddCompanyProblemGroups(int companyId, List<KeywordGroupEntry> entries)
+        {
+            string tableName = TableNameStorage.CompanyProblemKeywordGroupsTable.Replace
+                ("(n)", companyId.ToString());
+            foreach(KeywordGroupEntry entry in entries)
+            {
+                if(KeywordGroupEntry.Manipulator.InsertDataInto(Connection, tableName, entry) != 1)
+                {
+                    LastException = KeywordGroupEntry.Manipulator.LastException;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool DeleteCompanyProblemGroups(int companyId)
+        {
+            string tableName = TableNameStorage.CompanyProblemKeywordGroupsTable.Replace
+                ("(n)", companyId.ToString());
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "delete from " + tableName + " where id>0;";
+            return ExecuteNonQuery(cmd);
+        }
+
+        public List<KeywordGroupEntry> GetCompanyComplaintGroups(int companyId)
+        {
+            string tableName = TableNameStorage.CompanyComplaintKeywordGroupsTable.Replace
+                ("(n)", companyId.ToString());
+            var res = KeywordGroupEntry.Manipulator.RetrieveDataFrom(Connection, tableName);
+            if(res == null)
+                LastException = KeywordGroupEntry.Manipulator.LastException;
+            return res;
+        }
+
+        public bool AddCompanyComplaintGroups(int companyId, List<KeywordGroupEntry> entries)
+        {
+            string tableName = TableNameStorage.CompanyComplaintKeywordGroupsTable.Replace
+                ("(n)", companyId.ToString());
+            foreach (KeywordGroupEntry entry in entries)
+            {
+                if (KeywordGroupEntry.Manipulator.InsertDataInto(Connection, tableName, entry) != 1)
+                {
+                    LastException = KeywordGroupEntry.Manipulator.LastException;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool DeleteCompanyComplaintGroups(int companyId)
+        {
+            string tableName = TableNameStorage.CompanyComplaintKeywordGroupsTable.Replace
+                ("(n)", companyId.ToString());
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "delete from " + tableName + " where id>0;";
+            return ExecuteNonQuery(cmd);
+        }
+
         public List<CompanySettingsEntry> GetCompanySettings(int companyId)
         {
             string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
