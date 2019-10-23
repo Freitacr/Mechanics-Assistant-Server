@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MechanicsAssistantServer.Util
+namespace OldManinTheShopServer.Util
 {
     public class JsonStringConstructor
     {

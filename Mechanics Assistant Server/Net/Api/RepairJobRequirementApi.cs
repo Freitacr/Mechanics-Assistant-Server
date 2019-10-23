@@ -4,11 +4,11 @@ using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Net;
-using MechanicsAssistantServer.Data.MySql.TableDataTypes;
-using MechanicsAssistantServer.Data.MySql;
-using MechanicsAssistantServer.Util;
+using OldManinTheShopServer.Data.MySql.TableDataTypes;
+using OldManinTheShopServer.Data.MySql;
+using OldManinTheShopServer.Util;
 
-namespace MechanicsAssistantServer.Net.Api
+namespace OldManinTheShopServer.Net.Api
 {
     [DataContract]
     class RequirementsPostRequest

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace MechanicsAssistantServer.Models.QueryProblemPrediction
+namespace OldManinTheShopServer.Models.QueryProblemPrediction
 {
     /**KNN implementation of the IQueryProblemPredictor Interface*/
     public class KNNProblemPredictor : IQueryProblemPredictor

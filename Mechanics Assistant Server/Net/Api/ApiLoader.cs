@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using System.Linq;
-using MechanicsAssistantServer.Models;
+using OldManinTheShopServer.Models;
 
-namespace MechanicsAssistantServer.Net.Api
+namespace OldManinTheShopServer.Net.Api
 {
     public static class ApiLoader
     {

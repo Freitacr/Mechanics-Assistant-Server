@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.Net;
-using MechanicsAssistantServer.Data;
+using OldManinTheShopServer.Data;
 
-namespace MechanicsAssistantServer.Net.Api
+namespace OldManinTheShopServer.Net.Api
 {
     /**<summary>Definition of an HttpMessageHandler Method</summary>*/
     public delegate void HttpMessageHandler(HttpListenerContext ctxIn);

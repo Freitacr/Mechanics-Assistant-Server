@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 
-namespace MechanicsAssistantServer.Data.MySql.TableDataTypes
+namespace OldManinTheShopServer.Data.MySql.TableDataTypes
 {
     class JoinRequest : ISqlSerializable
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MechanicsAssistantServer.Models.KeywordClustering;
+using OldManinTheShopServer.Models.KeywordClustering;
 
 namespace MechanicsAssistantServerTests.TestModels.TestKeywordClustering
 {

@@ -4,12 +4,12 @@ using System.Text;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
-using MechanicsAssistantServer.Data.MySql.TableDataTypes;
-using MechanicsAssistantServer.Data.MySql;
-using MechanicsAssistantServer.Util;
+using OldManinTheShopServer.Data.MySql.TableDataTypes;
+using OldManinTheShopServer.Data.MySql;
+using OldManinTheShopServer.Util;
 using System.IO;
 
-namespace MechanicsAssistantServer.Net.Api
+namespace OldManinTheShopServer.Net.Api
 {
     [DataContract]
     class UserJobDeleteRequest

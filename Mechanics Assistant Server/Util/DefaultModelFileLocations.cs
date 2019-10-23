@@ -1,4 +1,4 @@
-﻿namespace MechanicsAssistantServer.Util
+﻿namespace OldManinTheShopServer.Util
 {
     public static class DefaultModelFileLocations
     {

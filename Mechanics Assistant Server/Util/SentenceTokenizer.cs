@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MechanicsAssistantServer.Util
+namespace OldManinTheShopServer.Util
 {
     /**<summary>Splits an input sentence into tokens</summary>*/
     public static class SentenceTokenizer

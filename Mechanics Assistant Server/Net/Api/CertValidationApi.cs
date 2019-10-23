@@ -3,7 +3,7 @@ using System.Text;
 using System.Net;
 using System.IO;
 
-namespace MechanicsAssistantServer.Net.Api
+namespace OldManinTheShopServer.Net.Api
 {
     /**<summary>Api defintion for responding to the HTTP challenge made by the Lets Encrypt ACME Api</summary>*/
     class CertValidationApi : ApiDefinition

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MySql.Data.MySqlClient;
-using MechanicsAssistantServer.Data.MySql.TableDataTypes;
-using MechanicsAssistantServer.Data.MySql;
+using OldManinTheShopServer.Data.MySql.TableDataTypes;
+using OldManinTheShopServer.Data.MySql;
 
 namespace MechanicsAssistantServerTests.TestData.TestMySql
 {

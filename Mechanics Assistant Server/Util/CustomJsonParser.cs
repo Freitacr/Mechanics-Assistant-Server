@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace MechanicsAssistantServer.Util
+namespace OldManinTheShopServer.Util
 {
     /**<summary>Custom parser for arbitrary JSON objects, designed because the part of speech tagger came in arbitrary json format and needed to be read.</summary>*/
     public static class CustomJsonParser

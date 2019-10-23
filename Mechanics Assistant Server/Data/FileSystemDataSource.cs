@@ -16,7 +16,7 @@ using System.Runtime.CompilerServices;
 #endif
 
 
-namespace MechanicsAssistantServer.Data
+namespace OldManinTheShopServer.Data
 {
     /**
      * <summary>Data Source that gets its backing data from Asymmetric Numeric System encoded files on the hard drive.</summary>

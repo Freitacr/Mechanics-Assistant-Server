@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.IO;
 
-namespace MechanicsAssistantServer.Models
+namespace OldManinTheShopServer.Models
 {
     [DataContract]
     public class KNNDataPoint

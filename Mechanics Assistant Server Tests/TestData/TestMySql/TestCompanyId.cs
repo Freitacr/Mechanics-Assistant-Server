@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using MechanicsAssistantServer.Data.MySql;
-using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using OldManinTheShopServer.Data.MySql;
+using OldManinTheShopServer.Data.MySql.TableDataTypes;
 using MySql.Data.MySqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

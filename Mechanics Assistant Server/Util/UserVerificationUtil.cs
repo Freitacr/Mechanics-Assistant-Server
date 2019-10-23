@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Runtime.Serialization.Json;
-using MechanicsAssistantServer.Data.MySql.TableDataTypes;
+using OldManinTheShopServer.Data.MySql.TableDataTypes;
 using System.Security.Cryptography;
 using System.Runtime.Serialization;
-using MechanicsAssistantServer.Util;
+using OldManinTheShopServer.Util;
 
-namespace MechanicsAssistantServer.Util
+namespace OldManinTheShopServer.Util
 {
     class UserVerificationUtil
     {

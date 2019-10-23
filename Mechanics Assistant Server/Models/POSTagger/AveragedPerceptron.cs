@@ -9,7 +9,7 @@
  * This module is provided under the terms of the MIT License.
 */
 
-namespace MechanicsAssistantServer.Models.POSTagger
+namespace OldManinTheShopServer.Models.POSTagger
 {
     class AveragedPerceptron
     {

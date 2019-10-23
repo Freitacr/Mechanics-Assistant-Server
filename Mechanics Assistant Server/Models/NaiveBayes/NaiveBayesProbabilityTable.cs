@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace MechanicsAssistantServer.Models
+namespace OldManinTheShopServer.Models
 {
     [DataContract]
     public class NaiveBayesProbabilityTable

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MechanicsAssistantServer.Data
+namespace OldManinTheShopServer.Data
 {
     /**
      * <summary>Representation of a keyword training example for the Keyword Prediction Models</summary>

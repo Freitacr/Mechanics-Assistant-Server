@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MechanicsAssistantServer.Data.MySql
+namespace OldManinTheShopServer.Data.MySql
 {
     public static class TableCreationDataDeclarationStrings
     {

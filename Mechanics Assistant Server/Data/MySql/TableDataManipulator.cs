@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 
-namespace MechanicsAssistantServer.Data.MySql
+namespace OldManinTheShopServer.Data.MySql
 {
     class TableDataManipulator<T> where T : ISqlSerializable, new()
     {

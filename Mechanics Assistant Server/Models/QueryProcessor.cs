@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using MechanicsAssistantServer.Models.POSTagger;
-using MechanicsAssistantServer.Models.KeywordPrediction;
-using MechanicsAssistantServer.Models.KeywordClustering;
-using MechanicsAssistantServer.Models.QueryProblemPrediction;
-using MechanicsAssistantServer.Data;
-using MechanicsAssistantServer.Util;
+using OldManinTheShopServer.Models.POSTagger;
+using OldManinTheShopServer.Models.KeywordPrediction;
+using OldManinTheShopServer.Models.KeywordClustering;
+using OldManinTheShopServer.Models.QueryProblemPrediction;
+using OldManinTheShopServer.Data;
+using OldManinTheShopServer.Util;
 using ANSEncodingLib;
 
-namespace MechanicsAssistantServer.Models
+namespace OldManinTheShopServer.Models
 {
     public class QueryProcessorSettings
     {

@@ -6,10 +6,10 @@ using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using MySql.Data.MySqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MechanicsAssistantServer.Data.MySql;
-using MechanicsAssistantServer.Net;
-using MechanicsAssistantServer.Net.Api;
-using MechanicsAssistantServer.Util;
+using OldManinTheShopServer.Data.MySql;
+using OldManinTheShopServer.Net;
+using OldManinTheShopServer.Net.Api;
+using OldManinTheShopServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
 {

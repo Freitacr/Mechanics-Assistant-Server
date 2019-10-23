@@ -1,12 +1,12 @@
 ﻿using System.Threading;
-using MechanicsAssistantServer.Net.Api;
-using MechanicsAssistantServer.Models;
+using OldManinTheShopServer.Net.Api;
+using OldManinTheShopServer.Models;
 using CertesWrapper;
 using System;
-using MechanicsAssistantServer.Data.MySql;
-using MechanicsAssistantServer.Util;
+using OldManinTheShopServer.Data.MySql;
+using OldManinTheShopServer.Util;
 
-namespace MechanicsAssistantServer
+namespace OldManinTheShopServer
 {
     class ProgramMain
     {

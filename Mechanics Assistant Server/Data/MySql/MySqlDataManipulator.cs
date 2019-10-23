@@ -6,8 +6,8 @@ using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
 using MySql.Data.MySqlClient;
 using System.Runtime.Serialization.Json;
-using MechanicsAssistantServer.Data.MySql.TableDataTypes;
-using MechanicsAssistantServer.Util;
+using OldManinTheShopServer.Data.MySql.TableDataTypes;
+using OldManinTheShopServer.Util;
 using ANSEncodingLib;
 using OMISSecLib;
 
@@ -15,7 +15,7 @@ using OMISSecLib;
 [assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
 #endif
 
-namespace MechanicsAssistantServer.Data.MySql
+namespace OldManinTheShopServer.Data.MySql
 {
     /**
      * <summary>Class that holds the responsibility of manipulating the data

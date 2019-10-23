@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 [assembly:InternalsVisibleTo("Mechanics Assistant Server Tests")]
 #endif
 
-namespace MechanicsAssistantServer.Models.KeywordClustering
+namespace OldManinTheShopServer.Models.KeywordClustering
 {
     /**<summary>Represents one keyword example. This example is made up of individual key words, and cannot contain duplicate keywords</summary>*/
     public class KeywordExample

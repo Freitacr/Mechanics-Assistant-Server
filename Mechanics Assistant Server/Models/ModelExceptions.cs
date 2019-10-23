@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MechanicsAssistantServer.Models
+namespace OldManinTheShopServer.Models
 {
     public class InvalidDataFormatException : Exception
     {

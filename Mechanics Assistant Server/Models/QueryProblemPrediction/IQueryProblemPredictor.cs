@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace MechanicsAssistantServer.Models.QueryProblemPrediction
+namespace OldManinTheShopServer.Models.QueryProblemPrediction
 {
     /**<summary>Interface to allow arbitrary use of a query problem predictor</summary>*/
     public interface IQueryProblemPredictor

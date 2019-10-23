@@ -2,9 +2,9 @@
 using System.Net;
 using System.Threading;
 using System.Collections.Generic;
-using MechanicsAssistantServer.Net.Api;
+using OldManinTheShopServer.Net.Api;
 
-namespace MechanicsAssistantServer.Net
+namespace OldManinTheShopServer.Net
 {
     public class QueryResponseServer
     {

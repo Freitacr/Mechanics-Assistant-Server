@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MechanicsAssistantServer.Data
+namespace OldManinTheShopServer.Data
 {
     /**
      * <summary>Interface-like class that has the responsibility of loading Mechanic Queries and KeywordTrainingExamples

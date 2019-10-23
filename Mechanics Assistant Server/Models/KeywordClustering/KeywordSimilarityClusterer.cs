@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace MechanicsAssistantServer.Models.KeywordClustering
+namespace OldManinTheShopServer.Models.KeywordClustering
 {
     /**<summary>Keyword Clusterer designed to cluster keywords together into groups based on the frequency the keywords are used with one another</summary>*/
     public class KeywordSimilarityClusterer : IKeywordClusterer

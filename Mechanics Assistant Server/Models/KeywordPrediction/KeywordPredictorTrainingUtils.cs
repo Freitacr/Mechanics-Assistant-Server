@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using MechanicsAssistantServer.Data;
+using OldManinTheShopServer.Data;
 
-namespace MechanicsAssistantServer.Models.KeywordPrediction
+namespace OldManinTheShopServer.Models.KeywordPrediction
 {
     /**<summary>Utilities to make generating the training and target data from a list of keyword training examples easier</summary>*/
     public class KeywordPredictorTrainingUtils

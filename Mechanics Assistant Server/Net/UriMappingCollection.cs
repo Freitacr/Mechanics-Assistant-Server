@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using MechanicsAssistantServer.Data;
-using MechanicsAssistantServer.Net.Api;
+using OldManinTheShopServer.Data;
+using OldManinTheShopServer.Net.Api;
 
-namespace MechanicsAssistantServer.Net
+namespace OldManinTheShopServer.Net
 {
     public class UriMappingCollection
     {

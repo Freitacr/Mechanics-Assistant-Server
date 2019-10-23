@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace MechanicsAssistantServer.Models.KeywordClustering
+namespace OldManinTheShopServer.Models.KeywordClustering
 {
     /**Interface representing an arbitrary keyword clustering model*/
     public interface IKeywordClusterer

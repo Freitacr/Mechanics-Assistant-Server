@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using EncodingUtilities;
 using ANSEncodingLib;
 using System.IO;
-using MechanicsAssistantServer.Data;
+using OldManinTheShopServer.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MechanicsAssistantServerTests.TestData

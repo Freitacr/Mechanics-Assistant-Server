@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
 
-namespace MechanicsAssistantServer.Models
+namespace OldManinTheShopServer.Models
 {
     [DataContract]
     class ProbabilityStorage

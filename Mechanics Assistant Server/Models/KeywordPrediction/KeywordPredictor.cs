@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace MechanicsAssistantServer.Models.KeywordPrediction
+namespace OldManinTheShopServer.Models.KeywordPrediction
 {
     /**<summary>Interface to provide use to an arbitrary keyword predictor</summary>*/
     public interface IKeywordPredictor
