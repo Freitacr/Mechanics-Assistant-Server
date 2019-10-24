@@ -4,10 +4,10 @@ using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Net;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
-using OldManinTheShopServer.Data.MySql;
-using OldManinTheShopServer.Util;
-namespace OldManinTheShopServer.Net.Api
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Util;
+namespace OldManInTheShopServer.Net.Api
 {
     [DataContract]
     class CompanyForumApiFullPostRequest
@@ -67,7 +67,7 @@ namespace OldManinTheShopServer.Net.Api
                 return;
             }
             //user is good, add post text
-            res = connection.AddForumPosting(entry.CompanyID,entry.UserID,entry.PostText);
+            res = connection.AddForumPost(entry.CompanyID,entry.UserID,new UserToTextEntry() {Text = entry.PostText,UserId=entry.UserID});
             if (!res)
             {
                 WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
