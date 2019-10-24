@@ -837,7 +837,7 @@ namespace OldManInTheShopServer.Data.MySql
         public bool UpdateUserPreviousRequests(OverallUser toUpdate)
         {
             var cmd = Connection.CreateCommand();
-            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set RequestHistory=\"" + MysqlDataConvertingUtil.ConvertToHexString(toUpdate.RequestHistory) + "\" where id=" + toUpdate.UserId + ";";
+            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set RequestHistory=" + MysqlDataConvertingUtil.ConvertToHexString(toUpdate.RequestHistory) + " where id=" + toUpdate.UserId + ";";
             return ExecuteNonQuery(cmd);
         }
 
@@ -975,7 +975,7 @@ namespace OldManInTheShopServer.Data.MySql
          * <returns>true if connection was successful, false if an exception was encountered</returns>
          * <seealso cref="LastException"/>
          */
-        public bool AddUser(string email, string password, string securityQuestion, string securityAnswer)
+        public bool AddUser(string email, string password, string securityQuestion, string securityAnswer, int accessLevel = 1)
         {
             SecuritySchemaLib secLib = new SecuritySchemaLib(SHA512.Create().ComputeHash);
             OverallUser toAdd = new OverallUser
@@ -983,7 +983,7 @@ namespace OldManInTheShopServer.Data.MySql
                 Email = email,
                 SecurityQuestion = securityQuestion,
                 DerivedSecurityToken = secLib.ConstructDerivedSecurityToken(Encoding.UTF8.GetBytes(email), Encoding.UTF8.GetBytes(password)),
-                AccessLevel = 1,
+                AccessLevel = accessLevel,
                 Company = 1,
                 Job1Id = "",
                 Job2Id = ""

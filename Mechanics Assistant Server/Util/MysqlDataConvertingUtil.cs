@@ -9,8 +9,8 @@ namespace OldManInTheShopServer.Util
         public static string ConvertToHexString(byte[] a)
         {
             if (a == null)
-                return "0x00";
-            StringBuilder ret = new StringBuilder("0x");
+                return "x'00'";
+            StringBuilder ret = new StringBuilder("x'");
             foreach (byte b in a)
             {
                 if (b < 16)
@@ -18,6 +18,7 @@ namespace OldManInTheShopServer.Util
                 else
                     ret.Append(Convert.ToString(b, 16));
             }
+            ret.Append("'");
             return ret.ToString();
         }
     }
