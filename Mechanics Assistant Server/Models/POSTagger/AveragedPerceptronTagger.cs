@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OldManInTheShopServer.Util;
+using ANSEncodingLib;
 
 /** 
  * An averaged perceptron, as implemented by Matthew Honnibal.
@@ -21,6 +22,28 @@ namespace OldManInTheShopServer.Models.POSTagger
         private Dictionary<string, string> KnownTags;
         public List<string> Classes { get; private set; }
         private AveragedPerceptron Model;
+
+        private static AveragedPerceptronTagger Global;
+
+        public static AveragedPerceptronTagger GetTagger()
+        {
+            if(Global == null)
+            {
+                AnsDecoderStream stream;
+                try
+                {
+                    stream = new AnsDecoderStream(new FileStream(DefaultModelFileLocations.POS_TAGGER_ENG_FILE, FileMode.Open, FileAccess.Read));
+                }
+                catch (IOException)
+                {
+                    return null;
+                }
+                using (stream)
+                    Global = Load(stream);
+            }
+            return Global;
+        }
+
         public static AveragedPerceptronTagger Load(Stream fileStreamIn)
         {
             StreamReader textReader = new StreamReader(fileStreamIn);

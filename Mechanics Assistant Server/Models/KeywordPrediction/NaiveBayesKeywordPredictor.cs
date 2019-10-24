@@ -1,13 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Models.KeywordPrediction
 {
     /**<summary>NaiveBayes implementation of a keyword predictor. Uses the part of speech of the word in question and the part of speech of the words immediately before and after
      * it to make its predictions</summary>*/
+    [KeywordPredictor("InitialData\\nbKeywordPredictor.ans")]
     public class NaiveBayesKeywordPredictor : IKeywordPredictor
     {
+        private static NaiveBayesKeywordPredictor Global;
+
+        public static IKeywordPredictor GetGlobalModel()
+        {
+            if (Global == null)
+                Global = new NaiveBayesKeywordPredictor();
+            return Global;
+        }
+
         private NaiveBayes Model;
 
         private List<List<string>> SplitInputIntoExamples(List<List<string>> sentencePosTokensIn)

@@ -4,7 +4,7 @@ using MySql.Data.MySqlClient;
 
 namespace OldManInTheShopServer.Data.MySql
 {
-    interface ISqlSerializable
+    public interface ISqlSerializable
     {
         string Serialize(string tableName);
         void Deserialize(MySqlDataReader reader);

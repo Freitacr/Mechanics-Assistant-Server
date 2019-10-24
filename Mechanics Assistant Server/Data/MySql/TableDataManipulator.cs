@@ -4,7 +4,7 @@ using MySql.Data.MySqlClient;
 
 namespace OldManInTheShopServer.Data.MySql
 {
-    class TableDataManipulator<T> where T : ISqlSerializable, new()
+    public class TableDataManipulator<T> where T : ISqlSerializable, new()
     {
         public MySqlException LastException { get; private set; }
 

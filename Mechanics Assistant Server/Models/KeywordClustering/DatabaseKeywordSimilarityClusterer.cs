@@ -6,7 +6,7 @@ using OldManInTheShopServer.Data.MySql.TableDataTypes;
 
 namespace OldManInTheShopServer.Models.KeywordClustering
 {
-    class DatabaseKeywordSimilarityClusterer
+    class DatabaseKeywordSimilarityClusterer : IDatabaseKeywordClusterer
     {
         internal class KeyValuePairSorter : IComparer<KeyValuePair<string, int>>
         {

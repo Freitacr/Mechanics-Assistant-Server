@@ -12,7 +12,7 @@ using ANSEncodingLib;
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
     [DataContract]
-    class LoggedTokens
+    public class LoggedTokens
     {
         [DataMember]
         public string BaseLoggedInToken { get; set; } = "";
@@ -38,7 +38,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     }
 
     [DataContract]
-    class RequestString
+    public class RequestString
     {
         [DataMember]
         public int Company { get; set; }
@@ -61,7 +61,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     }
 
     [DataContract]
-    class PreviousUserRequest
+    public class PreviousUserRequest
     {
         [DataMember]
         public RequestString Request { get; set; }
@@ -70,7 +70,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public string RequestStatus { get; set; } = "";
     }
 
-    class OverallUser : ISqlSerializable
+    public class OverallUser : ISqlSerializable
     {
         public static string GenerateDefaultSettings()
         {

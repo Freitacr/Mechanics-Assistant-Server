@@ -1,12 +1,11 @@
 ﻿using System.Threading;
 using OldManInTheShopServer.Net.Api;
-using OldManInTheShopServer.Models;
 using CertesWrapper;
 using System;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
-using OldManInTheShopServer.Models.QueryProblemPrediction;
-using OldManInTheShopServer.Models;
+using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Models.POSTagger;
 
 namespace OldManInTheShopServer
 {
@@ -30,18 +29,11 @@ namespace OldManInTheShopServer
             }
         }
 
-        static void test()
-        {
-            DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
-        }
-
         static void Main(string[] args)
         {
-
-            test();
-            return;
             bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString(""));
-            if(!res && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 1049)
+            
+            if(!res && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 1049 && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 0)
             {
                 Console.WriteLine("Encountered an error opening the global configuration connection");
                 Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
@@ -78,6 +70,10 @@ namespace OldManInTheShopServer
                 }
             }
             MySqlDataManipulator.GlobalConfiguration.Close();
+            if (!GlobalModelHelper.LoadOrTrainGlobalModels(ReflectionHelper.GetAllKeywordPredictors()))
+                throw new NullReferenceException("One or more global models failed to load. Server cannot start.");
+            else if(AveragedPerceptronTagger.GetTagger() == null)
+                throw new NullReferenceException("Failed to load the Averaged Perceptron Tagger");
             Thread t = new Thread(RenewCertificate);
             t.Start();
             var server = ApiLoader.LoadApiAndListen(16384);

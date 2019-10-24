@@ -21,7 +21,7 @@ namespace OldManInTheShopServer.Data.MySql
      * <summary>Class that holds the responsibility of manipulating the data
      * in the MySQL database in a standardized and easy to use way</summary>
      */
-    class MySqlDataManipulator : IDisposable
+    public class MySqlDataManipulator : IDisposable
     {
         /**<summary>Stores the last MySqlException encountered</summary>*/
         public MySqlException LastException { get; private set; }

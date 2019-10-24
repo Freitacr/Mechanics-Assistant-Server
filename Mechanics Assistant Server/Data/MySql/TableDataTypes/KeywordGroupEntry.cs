@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    class KeywordGroupEntry : ISqlSerializable
+    public class KeywordGroupEntry : ISqlSerializable
     {
         public static readonly TableDataManipulator<KeywordGroupEntry> Manipulator = new TableDataManipulator<KeywordGroupEntry>();
         public string GroupDefinition { get; set; }

@@ -51,7 +51,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     }
 
     [DataContract]
-    class JobDataEntry : ISqlSerializable
+    public class JobDataEntry : ISqlSerializable
     {
         public static TableDataManipulator<JobDataEntry> Manipulator = new TableDataManipulator<JobDataEntry>();
 

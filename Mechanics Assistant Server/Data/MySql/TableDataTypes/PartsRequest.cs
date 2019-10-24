@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    class PartsRequest : ISqlSerializable
+    public class PartsRequest : ISqlSerializable
     {
         public static readonly TableDataManipulator<PartsRequest> Manipulator = new TableDataManipulator<PartsRequest>();
 
