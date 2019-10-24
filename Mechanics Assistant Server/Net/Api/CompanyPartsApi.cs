@@ -20,15 +20,17 @@ namespace OldManInTheShopServer.Net.Api
         [DataMember]
         public string AuthToken;
         [DataMember]
-        public int Make;
+        public string Make;
         [DataMember]
-        public int Model;
+        public string Model;
         [DataMember]
         public int Year;
         [DataMember]
-        public int PartId;
+        public string PartId;
         [DataMember]
-        public int PartName;
+        public string PartName;
+        [DataMember]
+        public int companyId;
     }
     class CompanyPartsApi : ApiDefinition
     {
@@ -45,9 +47,85 @@ namespace OldManInTheShopServer.Net.Api
         }
         private void HandlePostRequest(HttpListenerContext ctx)
         {
-
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyPartsApiFullPostRequest entry = JsonDataObjectUtil<CompanyPartsApiFullPostRequest>.ParseObject(ctx);
+                if (ValidateFullPostRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx,500,"Unexpected Server Error","Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx,401,"Not Authorized","Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.PartMask) == 0)
+                    {
+                        WriteBodyResponse(ctx,401,"Not Autherized","Not marked as a Parts User");
+                        return;
+                    }
+                    PartCatalogueEntry ent = new PartCatalogueEntry(entry.Make,entry.Model,entry.Year,entry.PartId,entry.PartName);
+                    res = connection.AddPartEntry(entry.companyId, ent);
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx,500,"Unexpected Server Error",connection.LastException.Message);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
+                }
+            } catch(Exception e)
+            {
+                WriteBodyResponse(ctx,500,"Internal Server Error",e.Message);
+            }
         }
-
+        private bool ValidateFullPostRequest(CompanyPartsApiFullPostRequest req)
+        {
+            if (req.UserId == -1)
+                return false;
+            if (req.LoginToken == "")
+                return false;
+            if (req.AuthToken == "")
+                return false;
+            if (req.Make == "")
+                return false;
+            if (req.Year == -1)
+                return false;
+            if (req.Model == "")
+                return false;
+            if (req.PartId == "")
+                return false;
+            if (req.PartName == "")
+                return false;
+            if (req.companyId == -1)
+                return false;
+            return true;
+        }
         private void HandleGetRequest(HttpListenerContext ctx)
         {
 

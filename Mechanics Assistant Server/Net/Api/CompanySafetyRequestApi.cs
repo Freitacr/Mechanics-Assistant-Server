@@ -29,9 +29,9 @@ namespace OldManInTheShopServer.Net.Api
     class CompanySafetyRequestApi : ApiDefinition
     {
 #if RELEASE
-        public CompanySafetyRequestApi(int port) : base("https://+:" + port + "/company/parts")
+        public CompanySafetyRequestApi(int port) : base("https://+:" + port + "/company/safety/request")
 #elif DEBUG
-        public CompanySafetyRequestApi(int port) : base("http://+:" + port + "/company/parts")
+        public CompanySafetyRequestApi(int port) : base("http://+:" + port + "/company/safety/request")
 #endif
         {
             POST += HandlePostRequest;

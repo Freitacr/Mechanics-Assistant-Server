@@ -11,7 +11,7 @@ using OldManInTheShopServer.Util;
 namespace OldManInTheShopServer.Net.Api
 {
     [DataContract]
-    class CompanyAccuracyApiFullPostRequest
+    class CompanyAccuracyApiFullGetRequest
     {
         [DataMember]
         public int UserId;
@@ -19,11 +19,11 @@ namespace OldManInTheShopServer.Net.Api
         public string LoginToken;
     }
     class CompanyAccuracyApi : ApiDefinition
-    {
+    { 
 #if RELEASE
-        public CompanyAccuracyApi(int port) : base("https://+:" + port + "/company/parts")
+        public CompanyAccuracyApi(int port) : base("https://+:" + port + "/company/accuracy")
 #elif DEBUG
-        public CompanyAccuracyApi(int port) : base("http://+:" + port + "/company/parts")
+        public CompanyAccuracyApi(int port) : base("http://+:" + port + "/company/accuracy")
 #endif
         {
             GET += HandleGetRequest;

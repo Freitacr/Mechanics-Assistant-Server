@@ -27,9 +27,9 @@ namespace OldManInTheShopServer.Net.Api
     class CompanySettingsApi : ApiDefinition
     {
 #if RELEASE
-        public CompanySettingsApi(int port) : base("https://+:" + port + "/company/parts")
+        public CompanySettingsApi(int port) : base("https://+:" + port + "/company/settings")
 #elif DEBUG
-        public CompanySettingsApi(int port) : base("http://+:" + port + "/company/parts")
+        public CompanySettingsApi(int port) : base("http://+:" + port + "/company/settings")
 #endif
         {
             GET += HandleGetRequest;
