@@ -50,7 +50,7 @@ namespace OldManInTheShopServer.Net.Api
                     return;
                 }
                 CompanyPartsRequestApiFullPostRequest entry = JsonDataObjectUtil<CompanyPartsRequestApiFullPostRequest>.ParseObject(ctx);
-                if (ValidateFullPostRequest(entry))
+                if (!ValidateFullPostRequest(entry))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
