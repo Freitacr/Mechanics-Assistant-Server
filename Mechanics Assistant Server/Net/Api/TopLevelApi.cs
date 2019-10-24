@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Net;
 
-namespace OldManinTheShopServer.Net.Api
+namespace OldManInTheShopServer.Net.Api
 {
     /**<summary>Handles redirecting clients that are requesting web pages not already covered by another http api</summary>*/
     public class TopLevelApi : ApiDefinition

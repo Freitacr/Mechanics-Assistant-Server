@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.CompilerServices;
 
-namespace OldManinTheShopServer.Data
+namespace OldManInTheShopServer.Data
 {
     /**
      * <summary>Class that represents an Http protocol URI with support for the prefixes required by an HttpListener</summary>

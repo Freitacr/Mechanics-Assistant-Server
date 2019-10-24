@@ -1,12 +1,14 @@
 ﻿using System.Threading;
-using OldManinTheShopServer.Net.Api;
-using OldManinTheShopServer.Models;
+using OldManInTheShopServer.Net.Api;
+using OldManInTheShopServer.Models;
 using CertesWrapper;
 using System;
-using OldManinTheShopServer.Data.MySql;
-using OldManinTheShopServer.Util;
+using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Util;
+using OldManInTheShopServer.Models.QueryProblemPrediction;
+using OldManInTheShopServer.Models;
 
-namespace OldManinTheShopServer
+namespace OldManInTheShopServer
 {
     class ProgramMain
     {
@@ -28,8 +30,16 @@ namespace OldManinTheShopServer
             }
         }
 
+        static void test()
+        {
+            DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
+        }
+
         static void Main(string[] args)
         {
+
+            test();
+            return;
             bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString(""));
             if(!res && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 1049)
             {

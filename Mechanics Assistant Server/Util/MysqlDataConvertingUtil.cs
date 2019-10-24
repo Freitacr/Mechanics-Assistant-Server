@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OldManinTheShopServer.Util
+namespace OldManInTheShopServer.Util
 {
     class MysqlDataConvertingUtil
     {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.IO;
-using OldManinTheShopServer.Models;
-using OldManinTheShopServer.Data;
+using OldManInTheShopServer.Models;
+using OldManInTheShopServer.Data;
 
-namespace OldManinTheShopServer.Net.Api
+namespace OldManInTheShopServer.Net.Api
 {
     /**<summary>Api definition for all query requests</summary>*/
     class QueryLevelApi : ApiDefinition

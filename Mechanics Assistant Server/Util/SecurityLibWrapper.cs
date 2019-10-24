@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using OMISSecLib;
 
-namespace OldManinTheShopServer.Util
+namespace OldManInTheShopServer.Util
 {
     class SecurityLibWrapper
     {

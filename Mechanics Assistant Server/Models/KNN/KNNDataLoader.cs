@@ -3,7 +3,7 @@ using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.IO;
 
-namespace OldManinTheShopServer.Models
+namespace OldManInTheShopServer.Models
 {
     [DataContract]
     class KNNData

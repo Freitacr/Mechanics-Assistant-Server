@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace OldManinTheShopServer.Models.KeywordPrediction
+namespace OldManInTheShopServer.Models.KeywordPrediction
 {
     /**<summary>Interface to provide use to an arbitrary keyword predictor</summary>*/
     public interface IKeywordPredictor

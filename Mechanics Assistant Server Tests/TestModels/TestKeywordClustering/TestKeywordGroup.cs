@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using OldManinTheShopServer.Models.KeywordClustering;
+using OldManInTheShopServer.Models.KeywordClustering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MechanicsAssistantServerTests.TestModels.TestKeywordClustering

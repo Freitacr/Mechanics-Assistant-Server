@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
 
-namespace OldManinTheShopServer.Data.MySql.TableDataTypes
+namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
     [DataContract]
     class AuxillaryRequirement

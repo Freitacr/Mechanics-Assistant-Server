@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OldManinTheShopServer.Models;
+using OldManInTheShopServer.Models;
 
 namespace MechanicsAssistantServerTests.TestModels
 {

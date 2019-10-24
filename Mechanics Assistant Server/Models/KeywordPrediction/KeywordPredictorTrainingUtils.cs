@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using OldManinTheShopServer.Data;
+using OldManInTheShopServer.Data;
 
-namespace OldManinTheShopServer.Models.KeywordPrediction
+namespace OldManInTheShopServer.Models.KeywordPrediction
 {
     /**<summary>Utilities to make generating the training and target data from a list of keyword training examples easier</summary>*/
     public class KeywordPredictorTrainingUtils

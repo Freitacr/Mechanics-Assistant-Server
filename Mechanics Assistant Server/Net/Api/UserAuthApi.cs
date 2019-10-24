@@ -5,11 +5,11 @@ using System.IO;
 using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
-using OldManinTheShopServer.Data.MySql;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
-using OldManinTheShopServer.Util;
+using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Util;
 
-namespace OldManinTheShopServer.Net.Api
+namespace OldManInTheShopServer.Net.Api
 {
     [DataContract]
     class SecurityQuestionRequest

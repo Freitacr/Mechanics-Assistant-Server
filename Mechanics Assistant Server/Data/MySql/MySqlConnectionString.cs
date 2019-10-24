@@ -1,4 +1,4 @@
-﻿namespace OldManinTheShopServer.Data.MySql
+﻿namespace OldManInTheShopServer.Data.MySql
 {
     class MySqlConnectionString
     {

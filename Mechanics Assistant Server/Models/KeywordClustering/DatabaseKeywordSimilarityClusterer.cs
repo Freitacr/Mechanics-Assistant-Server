@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using OldManinTheShopServer.Data.MySql;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
 
-namespace OldManinTheShopServer.Models.KeywordClustering
+namespace OldManInTheShopServer.Models.KeywordClustering
 {
     class DatabaseKeywordSimilarityClusterer
     {

@@ -5,11 +5,11 @@ using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using MySql.Data.MySqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OldManinTheShopServer.Data.MySql;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
-using OldManinTheShopServer.Net;
-using OldManinTheShopServer.Net.Api;
-using OldManinTheShopServer.Util;
+using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Net;
+using OldManInTheShopServer.Net.Api;
+using OldManInTheShopServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi
 {

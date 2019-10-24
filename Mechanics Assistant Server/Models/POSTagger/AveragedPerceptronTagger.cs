@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OldManinTheShopServer.Util;
+using OldManInTheShopServer.Util;
 
 /** 
  * An averaged perceptron, as implemented by Matthew Honnibal.
@@ -11,7 +11,7 @@ using OldManinTheShopServer.Util;
  * This module is provided under the terms of the MIT License.
 */
 
-namespace OldManinTheShopServer.Models.POSTagger
+namespace OldManInTheShopServer.Models.POSTagger
 {
     public class AveragedPerceptronTagger
     {

@@ -1,4 +1,4 @@
-﻿namespace OldManinTheShopServer.Util
+﻿namespace OldManInTheShopServer.Util
 {
     public static class DefaultModelFileLocations
     {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace OldManinTheShopServer.Data
+namespace OldManInTheShopServer.Data
 {
     /** <summary>Representation of a query that would be made by a mechanic</summary> */
     [DataContract]

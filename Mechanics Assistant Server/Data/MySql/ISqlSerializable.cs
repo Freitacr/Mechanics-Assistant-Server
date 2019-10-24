@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 
-namespace OldManinTheShopServer.Data.MySql
+namespace OldManInTheShopServer.Data.MySql
 {
     interface ISqlSerializable
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 
-namespace OldManinTheShopServer.Data.MySql.TableDataTypes
+namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
     class PartsRequest : ISqlSerializable
     {

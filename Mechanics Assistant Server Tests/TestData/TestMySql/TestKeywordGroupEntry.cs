@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
-using OldManinTheShopServer.Data.MySql;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Data.MySql;
 using MySql.Data.MySqlClient;
 
 namespace MechanicsAssistantServerTests.TestData.TestMySql

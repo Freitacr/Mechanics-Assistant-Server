@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using OldManinTheShopServer.Data.MySql;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using MySql.Data.MySqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

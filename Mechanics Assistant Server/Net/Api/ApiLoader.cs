@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using System.Linq;
-using OldManinTheShopServer.Models;
+using OldManInTheShopServer.Models;
 
-namespace OldManinTheShopServer.Net.Api
+namespace OldManInTheShopServer.Net.Api
 {
     public static class ApiLoader
     {

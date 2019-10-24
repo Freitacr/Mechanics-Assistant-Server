@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Net;
 
-namespace OldManinTheShopServer.Util
+namespace OldManInTheShopServer.Util
 {
     static class JsonDataObjectUtil<T>
     {

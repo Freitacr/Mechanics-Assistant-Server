@@ -2,9 +2,9 @@
 using System.Net;
 using System.Threading;
 using System.Collections.Generic;
-using OldManinTheShopServer.Net.Api;
+using OldManInTheShopServer.Net.Api;
 
-namespace OldManinTheShopServer.Net
+namespace OldManInTheShopServer.Net
 {
     public class QueryResponseServer
     {

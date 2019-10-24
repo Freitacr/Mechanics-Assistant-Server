@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
-using OldManinTheShopServer.Util;
+using OldManInTheShopServer.Util;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Security.Cryptography;
 using ANSEncodingLib;
 
-namespace OldManinTheShopServer.Data.MySql.TableDataTypes
+namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
     [DataContract]
     class LoggedTokens

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MySql.Data.MySqlClient;
-using OldManinTheShopServer.Data.MySql;
+using OldManInTheShopServer.Data.MySql;
 
 
 namespace MechanicsAssistantServerTests.TestData.TestMySql

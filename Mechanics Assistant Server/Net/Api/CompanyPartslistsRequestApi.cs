@@ -4,11 +4,11 @@ using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Net;
-using OldManinTheShopServer.Data.MySql.TableDataTypes;
-using OldManinTheShopServer.Data.MySql;
-using OldManinTheShopServer.Util;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Util;
 
-namespace OldManinTheShopServer.Net.Api
+namespace OldManInTheShopServer.Net.Api
 {
     [DataContract]
     class CompanyPartslistsApiFullPostRequest

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using OldManinTheShopServer.Data;
+using OldManInTheShopServer.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MechanicsAssistantServerTests.TestData
