@@ -12,7 +12,7 @@ using OldManInTheShopServer.Net.Api;
 using System.IO;
 using OldManInTheShopServer.Util;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
     [TestClass]
     public class TestUserDeleteJobs

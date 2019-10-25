@@ -10,12 +10,14 @@ using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
+using System.IO;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
     [TestClass]
-    public class TestGetUserRequests
+    public class TestUserModifySettings
     {
+
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
@@ -23,8 +25,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static string LoginToken;
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly string Uri = "http://localhost:16384/user/requests";
-        private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
+        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -86,6 +87,16 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             AuthToken = response.Content.ReadAsStringAsync().Result;
         }
 
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            StringConstructor.SetMapping("Key", "displayName");
+            StringConstructor.SetMapping("UserId", 1);
+            StringConstructor.SetMapping("LoginToken", LoginToken);
+            StringConstructor.SetMapping("AuthToken", AuthToken);
+            StringConstructor.SetMapping("Value", "patches01");
+        }
+
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
@@ -102,55 +113,76 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Manipulator.Close();
         }
 
-        [TestInitialize]
-        public void FillStringConstructor()
-        {
-            JsonStringConstructor.SetMapping("UserId", 1);
-            JsonStringConstructor.SetMapping("LoginToken", LoginToken);
-        }
-
         [TestMethod]
-        public void TestGetUserRequestsIncorrectFormat()
+        public void TestModifySettingsIncorrectFormat()
         {
-            JsonStringConstructor.RemoveMapping("LoginToken");
-            string testString = JsonStringConstructor.ToString();
+            StringConstructor.RemoveMapping("Value");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
+            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestGetUserRequestsUnknownUser()
+        public void TestModifySettingsEmptyModificationString()
         {
-            JsonStringConstructor.SetMapping("UserId", 2);
-            string testString = JsonStringConstructor.ToString();
+            StringConstructor.SetMapping("Value", "");
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
+            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [TestMethod]
+        public void TestModifySettingsSettingKeyNotFound()
+        {
+            StringConstructor.SetMapping("Key", "DisplayName");
+            string testString = StringConstructor.ToString();
+            StringContent content = new StringContent(testString);
+            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestGetUserRequestsInvalidLoginToken()
+        public void TestModifySettingsUnknownUser()
         {
-            JsonStringConstructor.SetMapping("LoginToken", "0xbaaaad");
-            string testString = JsonStringConstructor.ToString();
+            StringConstructor.SetMapping("UserId", 3);
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
+            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [TestMethod]
+        public void TestModifySettingsInvalidLoginToken()
+        {
+            StringConstructor.SetMapping("LoginToken", "0xbaaaad");
+            string testString = StringConstructor.ToString();
+            StringContent content = new StringContent(testString);
+            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestGetUserRequestsValidRequest()
+        public void TestModifySettingsValidModification()
         {
-            string testString = JsonStringConstructor.ToString();
+            string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
+            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-
-            Assert.AreEqual("[]", response.Content.ReadAsStringAsync().Result);
+            var user = Manipulator.GetUserById(1);
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
+            MemoryStream streamIn = new MemoryStream(Encoding.UTF8.GetBytes(user.Settings));
+            var settings = serializer.ReadObject(streamIn) as List<SettingsEntry>;
+            foreach(SettingsEntry entry in settings) {
+                if (entry.Key.Equals("displayName"))
+                {
+                    Assert.AreEqual("patches01", entry.Value);
+                    break;
+                }
+            }
         }
-
-
-
     }
+
+
 }

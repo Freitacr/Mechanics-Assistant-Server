@@ -2,8 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Runtime.Serialization.Json;
-using System.Runtime.Serialization;
+using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OldManInTheShopServer.Data.MySql;
@@ -11,19 +10,10 @@ using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
-    [DataContract]
-    class ExpectedLoginResponse
-    {
-        [DataMember(Name ="token")]
-        public string Token { get; set; }
-        [DataMember(Name = "userId")]
-        public int Id { get; set; }
-    }
-
     [TestClass]
-    public class TestUserLogin
+    public class TestUserCreation
     {
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
@@ -61,7 +51,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         public void FillStringConstructor()
         {
             StringConstructor.SetMapping("Email", "abcd@msn");
-            StringConstructor.SetMapping("Password", "12345");
+            StringConstructor.SetMapping("Password", 12345);
+            StringConstructor.SetMapping("SecurityQuestion", "What is your favourite colour?");
+            StringConstructor.SetMapping("SecurityAnswer", "Red");
         }
 
         [ClassCleanup]
@@ -81,46 +73,66 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestLoginEmptyEmail()
+        public void TestAddUserEmptyEmail()
         {
             StringConstructor.SetMapping("Email", "");
             string testString = StringConstructor.ToString();
-            StringContent putData = new StringContent(testString);
-            var response = Client.PutAsync("http://localhost:16384/user", putData);
+            StringContent postData = new StringContent(testString);
+            var response = Client.PostAsync("http://localhost:16384/user", postData);
             var actualResponse = response.Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, actualResponse.StatusCode);
             Assert.AreEqual("Not all fields of the request were filled", actualResponse.Content.ReadAsStringAsync().Result);
         }
 
         [TestMethod]
-        public void TestLoginIncorrectFormat()
+        public void TestAddUserIncorrectFormat()
         {
-            StringConstructor.RemoveMapping("Password");
+            StringConstructor.RemoveMapping("Email");
             string testString = StringConstructor.ToString();
-            StringContent putData = new StringContent(testString);
-            var response = Client.PutAsync("http://localhost:16384/user", putData);
+            StringContent postData = new StringContent(testString);
+            var response = Client.PostAsync("http://localhost:16384/user", postData);
             var actualResponse = response.Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, actualResponse.StatusCode);
             Assert.AreEqual("Incorrect Format", actualResponse.ReasonPhrase);
         }
 
         [TestMethod]
-        public void TestLoginProperFormat()
+        public void TestAdduserProperFormat()
         {
-            Assert.IsTrue(Manipulator.AddUser("abcd@msn", "12345", "what is your favourite colour?", "red"));
+            MySqlConnection connection = new MySqlConnection();
+            connection.ConnectionString = ConnectionString;
+            connection.Open();
+            using (connection)
+            {
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = "select max(id) from " + TableNameStorage.OverallUserTable;
+                var reader = cmd.ExecuteReader();
+                reader.Read();
+                int prevId;
 
-            string testString = StringConstructor.ToString();
-            StringContent postData = new StringContent(testString);
-            var response = Client.PutAsync("http://localhost:16384/user", postData);
-            var actualResponse = response.Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.OK, actualResponse.StatusCode);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ExpectedLoginResponse));
-            var responseContent = (ExpectedLoginResponse) serializer.ReadObject(actualResponse.Content.ReadAsStreamAsync().Result);
-            Assert.AreEqual(1, responseContent.Id);
-            Assert.IsTrue(UserVerificationUtil.LoginTokenValid(Manipulator.GetUserById(1), responseContent.Token));
-            
+                using (reader)
+                    prevId = reader.IsDBNull(0) ? 0 : (int)reader[0];
+
+                string testString = StringConstructor.ToString();
+                StringContent postData = new StringContent(testString);
+                var response = Client.PostAsync("http://localhost:16384/user", postData);
+                var actualResponse = response.Result;
+                Assert.AreEqual(System.Net.HttpStatusCode.OK, actualResponse.StatusCode);
+
+                
+                reader = cmd.ExecuteReader();
+                reader.Read();
+                using (reader)
+                {
+                    Assert.IsFalse(reader.IsDBNull(0));
+                    var id = (int)reader[0];
+                    Assert.AreEqual(prevId + 1, id);
+                    var user = Manipulator.GetUserById(id);
+                    Assert.IsFalse(user == null);
+                    Assert.AreEqual("abcd@msn", user.Email);
+                    Assert.AreEqual("What is your favourite colour?", user.SecurityQuestion);
+                }
+            }
         }
-
-
     }
 }

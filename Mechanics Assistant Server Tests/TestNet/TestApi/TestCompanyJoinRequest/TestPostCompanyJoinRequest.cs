@@ -12,7 +12,7 @@ using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
 using System.IO;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyJoinRequest
 {
     [TestClass]
     public class TestPostCompanyJoinRequest

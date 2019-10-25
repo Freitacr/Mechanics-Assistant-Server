@@ -12,31 +12,21 @@ using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
 using System.IO;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestRepairJob
 {
     [TestClass]
-    public class TestCompanyDenyJoinRequest
+    public class TestAddRepairJob
     {
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
-        private static string LoginToken1;
-        private static string LoginToken2;
-        private static string LoginToken3;
-        private static string LoginToken4;
-        private static string LoginToken5;
-        private static string AuthToken1;
-        private static string AuthToken2;
-        private static string AuthToken3;
-        private static string AuthToken4;
-        private static string AuthToken5;
-
+        private static string LoginToken;
+        private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly string Uri = "http://localhost:16384/company/requests";
+        private static readonly string Uri = "http://localhost:16384/repairjob";
         private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
-
-
+        private static int NextId = 1;
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -77,30 +67,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             }
             Server = ApiLoader.LoadApiAndListen(16384);
             Manipulator.AddUser("abcd@msn", "12345", SecurityQuestion, "red");
-            Manipulator.AddUser("abcde@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.AdminMask);
-            Manipulator.AddUser("abcdf@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.PartMask);
-            Manipulator.AddUser("abcdg@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.SafetyMask);
-            Manipulator.AddUser("abcdh@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.AdminMask | AccessLevelMasks.PartMask);
-            LoginToken1 = GetLoginToken("abcd@msn", "12345");
-            LoginToken2 = GetLoginToken("abcde@msn", "12345");
-            LoginToken3 = GetLoginToken("abcdf@msn", "12345");
-            LoginToken4 = GetLoginToken("abcdg@msn", "12345");
-            LoginToken5 = GetLoginToken("abcdh@msn", "12345");
-
-            AuthToken1 = GetAuthToken(1, LoginToken1);
-            AuthToken2 = GetAuthToken(2, LoginToken2);
-            AuthToken3 = GetAuthToken(3, LoginToken3);
-            AuthToken4 = GetAuthToken(4, LoginToken4);
-            AuthToken5 = GetAuthToken(5, LoginToken5);
-            Manipulator.AddCompany("Testing Company LLC");
-            Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
-            Manipulator.AddJoinRequest(1, 1);
-        }
-
-        private static string GetLoginToken(string email, string password)
-        {
-            var content = new StringContent("{\"Email\":\"" + email + "\",\"Password\":\"" + password + "\"}");
+            var content = new StringContent("{\"Email\":\"abcd@msn\",\"Password\":12345}");
             var response = Client.PutAsync("http://localhost:16384/user", content).Result;
             if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
@@ -109,28 +76,32 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Assert.IsTrue(response.IsSuccessStatusCode);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ExpectedLoginResponse));
             var responseContent = (ExpectedLoginResponse)serializer.ReadObject(response.Content.ReadAsStreamAsync().Result);
-            return responseContent.Token;
-        }
+            LoginToken = responseContent.Token;
 
-        private static string GetAuthToken(int userId, string loginToken)
-        {
-            var content = new StringContent("{\"UserId\":" + userId + ",\"LoginToken\":\"" + loginToken + "\",\"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}");
-            var response = Client.PutAsync("http://localhost:16384/user/auth", content).Result;
+            content = new StringContent("{\"UserId\":" + responseContent.Id + ",\"LoginToken\":\"" + responseContent.Token + "\",\"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}");
+            response = Client.PutAsync("http://localhost:16384/user/auth", content).Result;
             if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
                 Console.WriteLine("Test will fail due to error:" + response.Content.ReadAsStringAsync().Result);
             }
             Assert.IsTrue(response.IsSuccessStatusCode);
-            return response.Content.ReadAsStringAsync().Result;
+            AuthToken = response.Content.ReadAsStringAsync().Result;
+            Manipulator.AddCompany("Testing Company LLC");
         }
 
         [TestInitialize]
         public void FillStringConstructor()
         {
-            StringConstructor.SetMapping("UserId", 2);
-            StringConstructor.SetMapping("LoginToken", LoginToken2);
-            StringConstructor.SetMapping("AuthToken", AuthToken2);
-            StringConstructor.SetMapping("RequestId", 1);
+            JsonStringConstructor constructor = new JsonStringConstructor();
+            constructor.SetMapping("Make", "autocar");
+            constructor.SetMapping("Model", "xpeditor");
+            constructor.SetMapping("Complaint", "runs rough");
+            constructor.SetMapping("Problem", "bad icm");
+            constructor.SetMapping("Year", 1986);
+            StringConstructor.SetMapping("ContainedEntry", constructor);
+            StringConstructor.SetMapping("UserId", 1);
+            StringConstructor.SetMapping("LoginToken", LoginToken);
+            StringConstructor.SetMapping("AuthToken", AuthToken);
         }
 
         [ClassCleanup]
@@ -150,73 +121,83 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestDenyJoinRequestIncorrectFormat()
+        public void TestAddRepairJobIncorrectFormat()
         {
-            StringConstructor.RemoveMapping("LoginToken");
+            StringConstructor.RemoveMapping("ContainedEntry");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage() { Content = content, Method = HttpMethod.Delete, RequestUri = new Uri(Uri) }).Result;
+            var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestDenyJoinRequestUnknownUser()
+        public void TestAddRepairJobUnknownUser()
         {
-            StringConstructor.SetMapping("UserId", 7);
+            StringConstructor.SetMapping("UserId", 3);
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage() { Content = content, Method = HttpMethod.Delete, RequestUri = new Uri(Uri) }).Result;
+            var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestDenyJoinRequestUnauthorizedUser()
+        public void TestAddRepairJobInvalidLoginToken()
         {
-            StringConstructor.SetMapping("UserId", 1);
-            StringConstructor.SetMapping("LoginToken", LoginToken1);
-            StringConstructor.SetMapping("AuthToken", AuthToken1);
+            StringConstructor.SetMapping("LoginToken", "0");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage() { Content = content, Method = HttpMethod.Delete, RequestUri = new Uri(Uri) }).Result;
+            var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestDenyJoinRequestInvalidLoginToken()
-        {
-            StringConstructor.SetMapping("UserId", 1);
-            string testString = StringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage() { Content = content, Method = HttpMethod.Delete, RequestUri = new Uri(Uri) }).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
-        }
-
-        [TestMethod]
-        public void TestDenyJoinRequestInvalidAuthToken()
+        public void TestAddRepairJobInvalidAuthToken()
         {
             StringConstructor.SetMapping("AuthToken", "cca");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage() { Content = content, Method = HttpMethod.Delete, RequestUri = new Uri(Uri) }).Result;
+            var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestDenyJoinRequestValidRequest()
+        public void TestAddRepairJobValidRequest()
         {
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.SendAsync(new HttpRequestMessage() { Content = content, Method = HttpMethod.Delete, RequestUri = new Uri(Uri) }).Result;
+            var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-            var user = Manipulator.GetUserById(1);
-            List<PreviousUserRequest> nowRequests = user.DecodeRequests();
-            PreviousUserRequest partsRequest = nowRequests[0];
-            Assert.AreEqual(1, partsRequest.Request.Company, "Join request company was not 1");
-            Assert.AreEqual("Join", partsRequest.Request.Type);
-            Assert.AreEqual("Denied", partsRequest.RequestStatus);
 
-            List<JoinRequest> partRequests = Manipulator.GetJoinRequests(1);
-            Assert.AreEqual(0, partRequests.Count);
+            var entry = Manipulator.GetDataEntryById(1, NextId, false);
+            Assert.AreEqual("autocar", entry.Make);
+            Assert.AreEqual("xpeditor", entry.Model);
+            Assert.AreEqual("runs rough", entry.Complaint);
+            Assert.AreEqual("bad icm", entry.Problem);
+            Assert.AreEqual(1986, entry.Year);
+            NextId++;
+        }
+
+        [TestMethod]
+        public void TestAddRepairJobValidRequestNoYear()
+        {
+            JsonStringConstructor constructor = new JsonStringConstructor();
+            constructor.SetMapping("Make", "autocar");
+            constructor.SetMapping("Model", "xpeditor");
+            constructor.SetMapping("Complaint", "runs rough");
+            constructor.SetMapping("Problem", "bad icm");
+            StringConstructor.SetMapping("ContainedEntry", constructor);
+            string testString = StringConstructor.ToString();
+            StringContent content = new StringContent(testString);
+            var response = Client.PostAsync(Uri, content).Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
+
+            var entry = Manipulator.GetDataEntryById(1, NextId, false);
+            Assert.AreEqual("autocar", entry.Make);
+            Assert.AreEqual("xpeditor", entry.Model);
+            Assert.AreEqual("runs rough", entry.Complaint);
+            Assert.AreEqual("bad icm", entry.Problem);
+            Assert.AreEqual(-1, entry.Year);
+            NextId++;
         }
     }
 }

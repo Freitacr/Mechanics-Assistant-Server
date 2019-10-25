@@ -12,10 +12,10 @@ using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
 using System.IO;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
 {
     [TestClass]
-    public class TestAddRepairJob
+    public class TestCompanyPostPartsRequest
     {
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
@@ -24,9 +24,10 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         private static string LoginToken;
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly string Uri = "http://localhost:16384/repairjob";
+        private static readonly string Uri = "http://localhost:16384/company/parts/request";
         private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
-        private static int NextId = 1;
+
+    
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
@@ -67,6 +68,10 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             }
             Server = ApiLoader.LoadApiAndListen(16384);
             Manipulator.AddUser("abcd@msn", "12345", SecurityQuestion, "red");
+            Manipulator.AddUser("abcde@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.AdminMask);
+            Manipulator.AddUser("abcdf@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.PartMask);
+            Manipulator.AddUser("abcdg@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.SafetyMask);
+            Manipulator.AddUser("abcdh@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.AdminMask | AccessLevelMasks.PartMask);
             var content = new StringContent("{\"Email\":\"abcd@msn\",\"Password\":12345}");
             var response = Client.PutAsync("http://localhost:16384/user", content).Result;
             if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
@@ -87,21 +92,19 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Assert.IsTrue(response.IsSuccessStatusCode);
             AuthToken = response.Content.ReadAsStringAsync().Result;
             Manipulator.AddCompany("Testing Company LLC");
+            Manipulator.AddDataEntry(1,
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
         }
 
         [TestInitialize]
         public void FillStringConstructor()
         {
-            JsonStringConstructor constructor = new JsonStringConstructor();
-            constructor.SetMapping("Make", "autocar");
-            constructor.SetMapping("Model", "xpeditor");
-            constructor.SetMapping("Complaint", "runs rough");
-            constructor.SetMapping("Problem", "bad icm");
-            constructor.SetMapping("Year", 1986);
-            StringConstructor.SetMapping("ContainedEntry", constructor);
             StringConstructor.SetMapping("UserId", 1);
             StringConstructor.SetMapping("LoginToken", LoginToken);
             StringConstructor.SetMapping("AuthToken", AuthToken);
+            StringConstructor.SetMapping("PartsList", "10mm wrench");
+            StringConstructor.SetMapping("CompanyId", 1);
+            StringConstructor.SetMapping("RepairJobId", 1);
         }
 
         [ClassCleanup]
@@ -121,9 +124,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestAddRepairJobIncorrectFormat()
+        public void TestPostPartsRequestIncorrectFormat()
         {
-            StringConstructor.RemoveMapping("ContainedEntry");
+            StringConstructor.RemoveMapping("PartsList");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PostAsync(Uri, content).Result;
@@ -131,9 +134,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestAddRepairJobUnknownUser()
+        public void TestPostPartsRequestUnknownUser()
         {
-            StringConstructor.SetMapping("UserId", 3);
+            StringConstructor.SetMapping("UserId", 7);
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PostAsync(Uri, content).Result;
@@ -141,7 +144,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestAddRepairJobInvalidLoginToken()
+        public void TestPostPartsRequestInvalidLoginToken()
         {
             StringConstructor.SetMapping("LoginToken", "0");
             string testString = StringConstructor.ToString();
@@ -151,7 +154,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestAddRepairJobInvalidAuthToken()
+        public void TestPostPartsRequestInvalidAuthToken()
         {
             StringConstructor.SetMapping("AuthToken", "cca");
             string testString = StringConstructor.ToString();
@@ -159,45 +162,28 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
-
+        
         [TestMethod]
-        public void TestAddRepairJobValidRequest()
+        public void TestPostPartsRequestValidRequest()
         {
+            var user = Manipulator.GetUserById(1);
+            List<PreviousUserRequest> previousRequests = user.DecodeRequests();
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
+            user = Manipulator.GetUserById(1);
+            List<PreviousUserRequest> nowRequests = user.DecodeRequests();
+            PreviousUserRequest partsRequest = nowRequests[0];
+            Assert.AreEqual(1, partsRequest.Request.Company, "Parts request company was not 1");
+            Assert.AreEqual("Parts", partsRequest.Request.Type);
 
-            var entry = Manipulator.GetDataEntryById(1, NextId, false);
-            Assert.AreEqual("autocar", entry.Make);
-            Assert.AreEqual("xpeditor", entry.Model);
-            Assert.AreEqual("runs rough", entry.Complaint);
-            Assert.AreEqual("bad icm", entry.Problem);
-            Assert.AreEqual(1986, entry.Year);
-            NextId++;
-        }
-
-        [TestMethod]
-        public void TestAddRepairJobValidRequestNoYear()
-        {
-            JsonStringConstructor constructor = new JsonStringConstructor();
-            constructor.SetMapping("Make", "autocar");
-            constructor.SetMapping("Model", "xpeditor");
-            constructor.SetMapping("Complaint", "runs rough");
-            constructor.SetMapping("Problem", "bad icm");
-            StringConstructor.SetMapping("ContainedEntry", constructor);
-            string testString = StringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PostAsync(Uri, content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-
-            var entry = Manipulator.GetDataEntryById(1, NextId, false);
-            Assert.AreEqual("autocar", entry.Make);
-            Assert.AreEqual("xpeditor", entry.Model);
-            Assert.AreEqual("runs rough", entry.Complaint);
-            Assert.AreEqual("bad icm", entry.Problem);
-            Assert.AreEqual(-1, entry.Year);
-            NextId++;
+            List<PartsRequest> partRequests = Manipulator.GetPartsRequests(1);
+            Assert.AreEqual(1, partRequests.Count);
+            PartsRequest request = partRequests[0];
+            Assert.AreEqual("abc", request.JobId);
+            Assert.AreEqual("10mm wrench", request.ReferencedParts);
+            Assert.AreEqual(1, request.UserId);
         }
     }
 }

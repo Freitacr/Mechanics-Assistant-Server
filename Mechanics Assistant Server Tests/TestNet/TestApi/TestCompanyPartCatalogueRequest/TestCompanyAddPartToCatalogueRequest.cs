@@ -12,20 +12,27 @@ using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
 using System.IO;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartCatalogueRequest
 {
     [TestClass]
-    public class TestCompanyPostSafetyRequest
+    public class TestCompanyAddPartToCatalogueRequest
     {
-
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
-        private static string LoginToken;
-        private static string AuthToken;
+        private static string LoginToken1;
+        private static string LoginToken2;
+        private static string LoginToken3;
+        private static string LoginToken4;
+        private static string LoginToken5;
+        private static string AuthToken1;
+        private static string AuthToken2;
+        private static string AuthToken3;
+        private static string AuthToken4;
+        private static string AuthToken5;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly string Uri = "http://localhost:16384/company/safety/request";
+        private static readonly string Uri = "http://localhost:16384/company/parts";
         private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
 
 
@@ -73,7 +80,25 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Manipulator.AddUser("abcdf@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.PartMask);
             Manipulator.AddUser("abcdg@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.SafetyMask);
             Manipulator.AddUser("abcdh@msn", "12345", SecurityQuestion, "red", AccessLevelMasks.AdminMask | AccessLevelMasks.PartMask);
-            var content = new StringContent("{\"Email\":\"abcd@msn\",\"Password\":12345}");
+            LoginToken1 = GetLoginToken("abcd@msn", "12345");
+            LoginToken2 = GetLoginToken("abcde@msn", "12345");
+            LoginToken3 = GetLoginToken("abcdf@msn", "12345");
+            LoginToken4 = GetLoginToken("abcdg@msn", "12345");
+            LoginToken5 = GetLoginToken("abcdh@msn", "12345");
+
+            AuthToken1 = GetAuthToken(1, LoginToken1);
+            AuthToken2 = GetAuthToken(2, LoginToken2);
+            AuthToken3 = GetAuthToken(3, LoginToken3);
+            AuthToken4 = GetAuthToken(4, LoginToken4);
+            AuthToken5 = GetAuthToken(5, LoginToken5);
+            Manipulator.AddCompany("Testing Company LLC");
+            Manipulator.AddDataEntry(1,
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+        }
+
+        private static string GetLoginToken(string email, string password)
+        {
+            var content = new StringContent("{\"Email\":\""+email+"\",\"Password\":\""+password+"\"}");
             var response = Client.PutAsync("http://localhost:16384/user", content).Result;
             if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
@@ -82,30 +107,33 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Assert.IsTrue(response.IsSuccessStatusCode);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ExpectedLoginResponse));
             var responseContent = (ExpectedLoginResponse)serializer.ReadObject(response.Content.ReadAsStreamAsync().Result);
-            LoginToken = responseContent.Token;
+            return responseContent.Token;
+        }
 
-            content = new StringContent("{\"UserId\":" + responseContent.Id + ",\"LoginToken\":\"" + responseContent.Token + "\",\"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}");
-            response = Client.PutAsync("http://localhost:16384/user/auth", content).Result;
+        private static string GetAuthToken(int userId, string loginToken)
+        {
+            var content = new StringContent("{\"UserId\":" + userId + ",\"LoginToken\":\"" + loginToken + "\",\"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}");
+            var response = Client.PutAsync("http://localhost:16384/user/auth", content).Result;
             if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
                 Console.WriteLine("Test will fail due to error:" + response.Content.ReadAsStringAsync().Result);
             }
             Assert.IsTrue(response.IsSuccessStatusCode);
-            AuthToken = response.Content.ReadAsStringAsync().Result;
-            Manipulator.AddCompany("Testing Company LLC");
-            Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+            return response.Content.ReadAsStringAsync().Result;
         }
 
         [TestInitialize]
         public void FillStringConstructor()
         {
-            StringConstructor.SetMapping("UserId", 1);
-            StringConstructor.SetMapping("LoginToken", LoginToken);
-            StringConstructor.SetMapping("AuthToken", AuthToken);
-            StringConstructor.SetMapping("SafetyRequirements", "Eye protection required");
+            StringConstructor.SetMapping("UserId", 3);
+            StringConstructor.SetMapping("LoginToken", LoginToken3);
+            StringConstructor.SetMapping("AuthToken", AuthToken3);
+            StringConstructor.SetMapping("Make", "10mm wrench");
+            StringConstructor.SetMapping("Model", 1);
             StringConstructor.SetMapping("CompanyId", 1);
-            StringConstructor.SetMapping("RepairJobId", 1);
+            StringConstructor.SetMapping("PartId", "a5f3");
+            StringConstructor.SetMapping("PartName", "blowback valve");
+            StringConstructor.SetMapping("Year", 1993);
         }
 
         [ClassCleanup]
@@ -125,9 +153,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestPostSafetyRequestIncorrectFormat()
+        public void TestPostPartIncorrectFormat()
         {
-            StringConstructor.RemoveMapping("SafetyRequirements");
+            StringConstructor.RemoveMapping("PartName");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PostAsync(Uri, content).Result;
@@ -135,7 +163,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestPostSafetyRequestUnknownUser()
+        public void TestPostPartUnknownUser()
         {
             StringConstructor.SetMapping("UserId", 7);
             string testString = StringConstructor.ToString();
@@ -145,7 +173,19 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestPostSafetyRequestInvalidLoginToken()
+        public void TestPostPartUnauthorizedUser()
+        {
+            StringConstructor.SetMapping("UserId", 2);
+            StringConstructor.SetMapping("LoginToken", LoginToken2);
+            StringConstructor.SetMapping("AuthToken", AuthToken2);
+            string testString = StringConstructor.ToString();
+            StringContent content = new StringContent(testString);
+            var response = Client.PostAsync(Uri, content).Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [TestMethod]
+        public void TestPostPartInvalidLoginToken()
         {
             StringConstructor.SetMapping("LoginToken", "0");
             string testString = StringConstructor.ToString();
@@ -155,7 +195,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestPostSafetyRequestInvalidAuthToken()
+        public void TestPostPartInvalidAuthToken()
         {
             StringConstructor.SetMapping("AuthToken", "cca");
             string testString = StringConstructor.ToString();
@@ -165,24 +205,47 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestPostSafetyRequestValidRequest()
+        public void TestPostPartValidRequest()
         {
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.PostAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-            var user = Manipulator.GetUserById(1);
-            List<PreviousUserRequest> nowRequests = user.DecodeRequests();
-            PreviousUserRequest partsRequest = nowRequests[0];
-            Assert.AreEqual(1, partsRequest.Request.Company, "Safety request company was not 1");
-            Assert.AreEqual("Safety", partsRequest.Request.Type);
+            bool foundUploaded = false;
+            List<PartCatalogueEntry> partEntries = Manipulator.GetPartCatalogueEntries(1);
+            foreach(PartCatalogueEntry e in partEntries)
+            {
+                if(e.Make.Equals("10mm wrench"))
+                {
+                    foundUploaded = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(foundUploaded);
+        }
 
-            List<RequirementAdditionRequest> partRequests = Manipulator.GetSafetyAdditionRequests(1);
-            Assert.AreEqual(1, partRequests.Count);
-            RequirementAdditionRequest request = partRequests[0];
-            Assert.AreEqual(1, request.ValidatedDataId);
-            Assert.AreEqual("Eye protection required", request.RequestedAdditions);
-            Assert.AreEqual(1, request.UserId);
+        [TestMethod]
+        public void TestPostPartComboUser()
+        {
+            StringConstructor.SetMapping("UserId", 5);
+            StringConstructor.SetMapping("LoginToken", LoginToken5);
+            StringConstructor.SetMapping("AuthToken", AuthToken5);
+            StringConstructor.SetMapping("Make", "20mm wrench");
+            string testString = StringConstructor.ToString();
+            StringContent content = new StringContent(testString);
+            var response = Client.PostAsync(Uri, content).Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
+            bool foundUploaded = false;
+            List<PartCatalogueEntry> partEntries = Manipulator.GetPartCatalogueEntries(1);
+            foreach (PartCatalogueEntry e in partEntries)
+            {
+                if (e.Make.Equals("20mm wrench"))
+                {
+                    foundUploaded = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(foundUploaded);
         }
     }
 }

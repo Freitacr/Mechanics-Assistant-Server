@@ -10,14 +10,12 @@ using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
-using System.IO;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
     [TestClass]
-    public class TestUserModifySettings
+    public class TestUserGetSettings
     {
-
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
@@ -90,11 +88,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         [TestInitialize]
         public void FillStringConstructor()
         {
-            StringConstructor.SetMapping("Key", "displayName");
             StringConstructor.SetMapping("UserId", 1);
             StringConstructor.SetMapping("LoginToken", LoginToken);
-            StringConstructor.SetMapping("AuthToken", AuthToken);
-            StringConstructor.SetMapping("Value", "patches01");
         }
 
         [ClassCleanup]
@@ -114,75 +109,60 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestModifySettingsIncorrectFormat()
+        public void TestGetSettingsIncorrectFormat()
         {
-            StringConstructor.RemoveMapping("Value");
+            StringConstructor.RemoveMapping("LoginToken");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
+            var response = Client.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestModifySettingsEmptyModificationString()
+        public void TestGetSettingsEmptyLoginToken()
         {
-            StringConstructor.SetMapping("Value", "");
+            StringConstructor.SetMapping("LoginToken", "");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
+            var response = Client.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestModifySettingsSettingKeyNotFound()
+        public void TestGetSettingsUnknownUser()
         {
-            StringConstructor.SetMapping("Key", "DisplayName");
+            StringConstructor.SetMapping("UserId", 2);
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
+            var response = Client.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestModifySettingsUnknownUser()
-        {
-            StringConstructor.SetMapping("UserId", 3);
-            string testString = StringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
-        }
-
-        [TestMethod]
-        public void TestModifySettingsInvalidLoginToken()
+        public void TestGetSettingsInvalidLoginToken()
         {
             StringConstructor.SetMapping("LoginToken", "0xbaaaad");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
+            var response = Client.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [TestMethod]
-        public void TestModifySettingsValidModification()
+        public void TestGetSettingsValidRequest()
         {
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
-            var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
+            var response = Client.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, "http://localhost:16384/user/settings") { Content = content }).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
             var user = Manipulator.GetUserById(1);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
-            MemoryStream streamIn = new MemoryStream(Encoding.UTF8.GetBytes(user.Settings));
-            var settings = serializer.ReadObject(streamIn) as List<SettingsEntry>;
-            foreach(SettingsEntry entry in settings) {
-                if (entry.Key.Equals("displayName"))
-                {
-                    Assert.AreEqual("patches01", entry.Value);
-                    break;
-                }
-            }
+            string respString = response.Content.ReadAsStringAsync().Result;
+            Assert.AreEqual(user.Settings, respString);
         }
     }
-
-
 }

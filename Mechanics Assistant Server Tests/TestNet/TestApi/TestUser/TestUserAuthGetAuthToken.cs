@@ -6,25 +6,21 @@ using System.Runtime.Serialization.Json;
 using MySql.Data.MySqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OldManInTheShopServer.Data.MySql;
-using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
-using System.IO;
 using OldManInTheShopServer.Util;
 
-namespace MechanicsAssistantServerTests.TestNet.TestApi
+namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
     [TestClass]
-    public class TestReportUser
+    public class TestUserAuthGetAuthToken
     {
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
         private static string LoginToken;
-        private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly string Uri = "http://localhost:16384/user/report";
         private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
 
         [ClassInitialize]
@@ -70,21 +66,21 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             var response = Client.PutAsync("http://localhost:16384/user", content).Result;
             if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
-                Console.WriteLine("Test will fail due to error:" + response.Content.ReadAsStringAsync().Result);
+                Console.WriteLine("Test will fail due to sql error:" + response.Content.ReadAsStringAsync().Result);
             }
             Assert.IsTrue(response.IsSuccessStatusCode);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ExpectedLoginResponse));
             var responseContent = (ExpectedLoginResponse)serializer.ReadObject(response.Content.ReadAsStreamAsync().Result);
             LoginToken = responseContent.Token;
+        }
 
-            content = new StringContent("{\"UserId\":" + responseContent.Id + ",\"LoginToken\":\"" + responseContent.Token + "\",\"SecurityQuestion\":\"" + SecurityQuestion + "\",\"SecurityAnswer\":\"red\"}");
-            response = Client.PutAsync("http://localhost:16384/user/auth", content).Result;
-            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
-            {
-                Console.WriteLine("Test will fail due to error:" + response.Content.ReadAsStringAsync().Result);
-            }
-            Assert.IsTrue(response.IsSuccessStatusCode);
-            AuthToken = response.Content.ReadAsStringAsync().Result;
+        [TestInitialize]
+        public void FillStringConstructor()
+        {
+            JsonStringConstructor.SetMapping("UserId", 1);
+            JsonStringConstructor.SetMapping("LoginToken", LoginToken);
+            JsonStringConstructor.SetMapping("SecurityQuestion", SecurityQuestion);
+            JsonStringConstructor.SetMapping("SecurityAnswer", "red");
         }
 
         [ClassCleanup]
@@ -103,85 +99,73 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
             Manipulator.Close();
         }
 
-        [TestInitialize]
-        public void FillStringConstructor()
-        {
-            JsonStringConstructor.SetMapping("DisplayName", "defaultUser");
-            JsonStringConstructor.SetMapping("UserId", 1);
-            JsonStringConstructor.SetMapping("AuthToken", AuthToken);
-            JsonStringConstructor.SetMapping("LoginToken", LoginToken);
-        }
-
         [TestMethod]
-        public void TestReportUserIncorrectFormat()
+        public void TestGetAuthTokenEmptyLoginToken()
         {
-            JsonStringConstructor.RemoveMapping("DisplayName");
+            JsonStringConstructor.SetMapping("LoginToken", "");
             string testString = JsonStringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PostAsync(Uri, content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+            StringContent putData = new StringContent(testString);
+            var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
+            var actualResponse = response.Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, actualResponse.StatusCode);
+            Assert.AreEqual("Not all fields of the request were filled", actualResponse.Content.ReadAsStringAsync().Result);
         }
 
         [TestMethod]
-        public void TestReportUserEmptyDisplayName()
+        public void TestGetAuthTokenIncorrectFormat()
         {
-            JsonStringConstructor.SetMapping("DisplayName", "");
+            JsonStringConstructor.RemoveMapping("SecurityQuestion");
             string testString = JsonStringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PostAsync(Uri, content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+            StringContent putData = new StringContent(testString);
+            var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
+            var actualResponse = response.Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, actualResponse.StatusCode);
+            Assert.AreEqual("Incorrect Format", actualResponse.ReasonPhrase);
         }
 
         [TestMethod]
-        public void TestReportUserUnknownUser()
+        public void TestGetAuthTokenNonExistantUser()
         {
             JsonStringConstructor.SetMapping("UserId", 3);
             string testString = JsonStringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PostAsync(Uri, content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+            StringContent putData = new StringContent(testString);
+            var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
+            var actualResponse = response.Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.NotFound, actualResponse.StatusCode);
         }
 
         [TestMethod]
-        public void TestReportUserInvalidLoginToken()
+        public void TestGetAuthTokenBadLoginToken()
         {
             JsonStringConstructor.SetMapping("LoginToken", "0xbaaaad");
             string testString = JsonStringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PostAsync(Uri, content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+            StringContent putData = new StringContent(testString);
+            var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
+            var actualResponse = response.Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, actualResponse.StatusCode);
         }
 
         [TestMethod]
-        public void TestReportUserInvalidAuthToken()
+        public void TestGetAuthTokenBadAnswer()
         {
-            JsonStringConstructor.SetMapping("AuthToken", "0xbaaaad");
+            JsonStringConstructor.SetMapping("SecurityAnswer", "blue");
             string testString = JsonStringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PostAsync(Uri, content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+            StringContent putData = new StringContent(testString);
+            var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
+            var actualResponse = response.Result;
+            Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, actualResponse.StatusCode);
         }
 
         [TestMethod]
-        public void TestReportUserValidRequest()
+        public void TestGetAuthTokenProperFormat()
         {
             string testString = JsonStringConstructor.ToString();
-            StringContent content = new StringContent(testString);
-            var response = Client.PostAsync(Uri, content).Result;
-            Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-            
-            var user = Manipulator.GetUserById(1);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
-            MemoryStream streamIn = new MemoryStream(Encoding.UTF8.GetBytes(user.Settings));
-            var settings = serializer.ReadObject(streamIn) as List<SettingsEntry>;
-            foreach (SettingsEntry entry in settings)
-            {
-                if (entry.Key.Equals("displayName"))
-                {
-                    Assert.AreEqual("Default User 1", entry.Value);
-                    break;
-                }
-            }
+            StringContent putData = new StringContent(testString);
+            var response = Client.PutAsync("http://localhost:16384/user/auth", putData);
+            var actualResponse = response.Result;
+            Assert.IsTrue(actualResponse.IsSuccessStatusCode);
+            var respString = actualResponse.Content.ReadAsStringAsync().Result;
+            Assert.IsTrue(UserVerificationUtil.AuthTokenValid(Manipulator.GetUserById(1), respString));
         }
     }
 }
