@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Net;
+using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
 using System.IO;

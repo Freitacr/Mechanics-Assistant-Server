@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using MySql.Data.MySqlClient;
+using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;

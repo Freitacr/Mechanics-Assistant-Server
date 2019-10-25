@@ -9,6 +9,7 @@ using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
+using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 using OldManInTheShopServer.Util;
 using System.IO;
 

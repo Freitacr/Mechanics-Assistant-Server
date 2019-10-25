@@ -10,6 +10,7 @@ using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
+using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 using System.IO;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyForum

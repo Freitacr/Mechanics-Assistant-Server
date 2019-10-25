@@ -11,6 +11,7 @@ using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
 using OldManInTheShopServer.Util;
 using System.IO;
+using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyJoinRequest
 {

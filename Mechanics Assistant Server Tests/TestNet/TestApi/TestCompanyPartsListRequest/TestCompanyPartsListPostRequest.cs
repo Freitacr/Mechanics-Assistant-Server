@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Json;
 using MySql.Data.MySqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OldManInTheShopServer.Data.MySql;
+using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Net;
 using OldManInTheShopServer.Net.Api;
