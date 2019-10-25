@@ -127,9 +127,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
         [TestInitialize]
         public void FillStringConstructor()
         {
-            StringConstructor.SetMapping("UserId", 3);
-            StringConstructor.SetMapping("LoginToken", LoginToken3);
-            StringConstructor.SetMapping("AuthToken", AuthToken3);
+            StringConstructor.SetMapping("UserId", 4);
+            StringConstructor.SetMapping("LoginToken", LoginToken4);
+            StringConstructor.SetMapping("AuthToken", AuthToken4);
         }
 
         [ClassCleanup]
