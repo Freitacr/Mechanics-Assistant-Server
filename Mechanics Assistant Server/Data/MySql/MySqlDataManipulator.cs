@@ -549,7 +549,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public List<RequirementAdditionRequest> GetPartsListAdditionRequests(int companyId)
         {
-            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
             var res = RequirementAdditionRequest.Manipulator.RetrieveDataFrom(Connection, tableName);
             if (res == null)
                 LastException = RequirementAdditionRequest.Manipulator.LastException;
