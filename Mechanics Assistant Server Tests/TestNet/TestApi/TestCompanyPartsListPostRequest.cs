@@ -124,7 +124,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi
         }
 
         [TestMethod]
-        public void TestPostPartsRequestIncorrectFormat()
+        public void TestPostPartsListRequestIncorrectFormat()
         {
             StringConstructor.RemoveMapping("RequiredPartsList");
             string testString = StringConstructor.ToString();
