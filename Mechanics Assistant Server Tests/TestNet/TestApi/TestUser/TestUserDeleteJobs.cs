@@ -25,7 +25,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
         private static readonly string Uri = "http://localhost:16384/user/job";
-        private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
+        private static readonly JsonDictionaryStringConstructor JsonStringConstructor = new JsonDictionaryStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)

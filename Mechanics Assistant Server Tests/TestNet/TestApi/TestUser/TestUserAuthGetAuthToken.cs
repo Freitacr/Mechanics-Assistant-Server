@@ -21,7 +21,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
         private static string LoginToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly JsonStringConstructor JsonStringConstructor = new JsonStringConstructor();
+        private static readonly JsonDictionaryStringConstructor JsonStringConstructor = new JsonDictionaryStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)

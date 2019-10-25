@@ -26,7 +26,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestRepairJob
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
         private static readonly string Uri = "http://localhost:16384/repairjob/report";
-        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
+        private static readonly JsonDictionaryStringConstructor StringConstructor = new JsonDictionaryStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)

@@ -19,7 +19,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         private static MySqlDataManipulator Manipulator;
         private static QueryResponseServer Server;
         private static readonly string ConnectionString = new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString("");
-        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
+        private static readonly JsonDictionaryStringConstructor StringConstructor = new JsonDictionaryStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)

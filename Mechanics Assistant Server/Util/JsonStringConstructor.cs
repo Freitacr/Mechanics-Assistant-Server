@@ -4,11 +4,11 @@ using System.Text;
 
 namespace OldManInTheShopServer.Util
 {
-    public class JsonStringConstructor
+    public class JsonDictionaryStringConstructor
     {
         private Dictionary<string, object> Pairs;
 
-        public JsonStringConstructor()
+        public JsonDictionaryStringConstructor()
         {
             Pairs = new Dictionary<string, object>();
         }
@@ -25,11 +25,7 @@ namespace OldManInTheShopServer.Util
 
         public override string ToString()
         {
-            StringBuilder retBuilder = new StringBuilder();
-            retBuilder.Append("{");
-            retBuilder.Append(ParseDictionaryStrObj(Pairs));
-            retBuilder.Append("}");
-            return retBuilder.ToString();
+            return ParseDictionaryStrObj(Pairs);
         }
 
         private string ParseDictionaryStrObj(Dictionary<string, object> dictIn)
@@ -66,7 +62,68 @@ namespace OldManInTheShopServer.Util
                 }
                 retStrings.Add(toAdd);
             }
-            return string.Join(',', retStrings);
+            return "{" + string.Join(',', retStrings) + "}";
+        }
+    }
+
+    public class JsonListStringConstructor
+    {
+        private List<object> Elements;
+
+        public JsonListStringConstructor()
+        {
+            Elements = new List<object>();
+        }
+
+        public bool AddElement(object element)
+        {
+            Elements.Add(element);
+            return true;
+        }
+
+        public override string ToString()
+        {
+            return ParseObjectList(Elements);
+        }
+
+        private string ParseObjectList(List<object> elements)
+        {
+            StringBuilder ret = new StringBuilder("[");
+            List<string> internalStrings = new List<string>();
+            foreach(object o in elements)
+            {
+                string toAdd = "";
+                if (o.GetType().Equals(typeof(Dictionary<string, object>)))
+                {
+                    toAdd += ParseDictionaryStrObj((Dictionary<string, object>)o);
+                }
+                else if (typeof(List<object>).IsAssignableFrom(o.GetType()))
+                {
+                    toAdd += ParseObjectList(o as List<object>);
+                }
+                else if (o.GetType().Equals(typeof(string)))
+                {
+                    toAdd += "\"";
+                    toAdd += o;
+                    toAdd += "\"";
+                }
+                else
+                {
+                    toAdd += o.ToString();
+                }
+                internalStrings.Add(toAdd);
+            }
+            ret.Append(string.Join(',', internalStrings));
+            ret.Append("]");
+            return ret.ToString();
+        }
+
+        private string ParseDictionaryStrObj(Dictionary<string, object> dictIn)
+        {
+            JsonDictionaryStringConstructor subConstructor = new JsonDictionaryStringConstructor();
+            foreach(KeyValuePair<string, object> pair in dictIn)
+                subConstructor.SetMapping(pair.Key, pair.Value);
+            return subConstructor.ToString();
         }
     }
 }

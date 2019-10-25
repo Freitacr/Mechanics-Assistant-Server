@@ -26,7 +26,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyForum
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
         private static readonly string Uri = "http://localhost:16384/company/forum";
-        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
+        private static readonly JsonDictionaryStringConstructor StringConstructor = new JsonDictionaryStringConstructor();
 
 
 

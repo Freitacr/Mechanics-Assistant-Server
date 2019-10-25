@@ -26,7 +26,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestRepairJob
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
         private static readonly string Uri = "http://localhost:16384/repairjob";
-        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
+        private static readonly JsonDictionaryStringConstructor StringConstructor = new JsonDictionaryStringConstructor();
         private static int NextId = 1;
 
         [ClassInitialize]
@@ -93,7 +93,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestRepairJob
         [TestInitialize]
         public void FillStringConstructor()
         {
-            JsonStringConstructor constructor = new JsonStringConstructor();
+            JsonDictionaryStringConstructor constructor = new JsonDictionaryStringConstructor();
             constructor.SetMapping("Make", "autocar");
             constructor.SetMapping("Model", "xpeditor");
             constructor.SetMapping("Complaint", "runs rough");
@@ -181,7 +181,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestRepairJob
         [TestMethod]
         public void TestAddRepairJobValidRequestNoYear()
         {
-            JsonStringConstructor constructor = new JsonStringConstructor();
+            JsonDictionaryStringConstructor constructor = new JsonDictionaryStringConstructor();
             constructor.SetMapping("Make", "autocar");
             constructor.SetMapping("Model", "xpeditor");
             constructor.SetMapping("Complaint", "runs rough");

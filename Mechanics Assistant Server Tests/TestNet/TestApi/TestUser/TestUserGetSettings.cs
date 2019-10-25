@@ -23,7 +23,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         private static string LoginToken;
         private static string AuthToken;
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
+        private static readonly JsonDictionaryStringConstructor StringConstructor = new JsonDictionaryStringConstructor();
 
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
