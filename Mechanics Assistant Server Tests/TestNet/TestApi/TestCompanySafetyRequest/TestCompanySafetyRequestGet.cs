@@ -209,7 +209,13 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
 
             string responseString = response.Content.ReadAsStringAsync().Result;
-            Assert.AreEqual("[\"abcd@msn\"]", responseString);
+            JsonListStringConstructor listConstructor = new JsonListStringConstructor();
+            JsonDictionaryStringConstructor returnConstructor = new JsonDictionaryStringConstructor();
+            returnConstructor.SetMapping("Email", "abcd@msn");
+            returnConstructor.SetMapping("RequestAdditions", "Wear Eye Protection");
+            returnConstructor.SetMapping("JobId", "abc");
+            listConstructor.AddElement(returnConstructor);
+            Assert.AreEqual(listConstructor.ToString(), responseString);
 
             List<RequirementAdditionRequest> requests = Manipulator.GetSafetyAdditionRequests(1);
             Assert.AreEqual(1, requests.Count);
