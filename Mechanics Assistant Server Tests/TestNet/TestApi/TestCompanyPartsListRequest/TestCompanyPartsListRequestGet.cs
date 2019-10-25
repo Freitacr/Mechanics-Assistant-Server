@@ -34,7 +34,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
         private static string AuthToken5;
 
         private static readonly string SecurityQuestion = "What is your favourite colour?";
-        private static readonly string Uri = "http://localhost:16384/company/requests";
+        private static readonly string Uri = "http://localhost:16384/company/partslists/request";
         private static readonly JsonStringConstructor StringConstructor = new JsonStringConstructor();
 
 
