@@ -22,7 +22,7 @@ namespace OldManInTheShopServer.Net.Api
         [DataMember]
         public int RepairJobId;
         [DataMember]
-        public string SafetyRquirements;
+        public string SafetyRequirements;
         [DataMember]
         public int CompanyId;
     }
@@ -50,7 +50,7 @@ namespace OldManInTheShopServer.Net.Api
                     return;
                 }
                 CompanySafetyRequestApiFullPostRequest entry = JsonDataObjectUtil<CompanySafetyRequestApiFullPostRequest>.ParseObject(ctx);
-                if (ValidateFullPostRequest(entry))
+                if (!ValidateFullPostRequest(entry))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
@@ -82,7 +82,7 @@ namespace OldManInTheShopServer.Net.Api
                     }
 
                     //build safety request
-                    RequirementAdditionRequest request = new RequirementAdditionRequest(entry.UserId, entry.RepairJobId, entry.SafetyRquirements);
+                    RequirementAdditionRequest request = new RequirementAdditionRequest(entry.UserId, entry.RepairJobId, entry.SafetyRequirements);
                     //send request
                     res = connection.AddSafetyAdditionRequest(entry.CompanyId,request);
                     if (!res)
@@ -101,17 +101,17 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateFullPostRequest(CompanySafetyRequestApiFullPostRequest req)
         {
-            if (req.UserId == -1)
+            if (req.UserId <= 0)
                 return false;
-            if (req.CompanyId == -1)
+            if (req.CompanyId <= 0)
                 return false;
-            if (req.AuthToken == "")
+            if (req.AuthToken == null || req.AuthToken.Equals(""))
                 return false;
-            if (req.LoginToken == "")
+            if (req.LoginToken == null || req.LoginToken.Equals(""))
                 return false;
-            if (req.RepairJobId == -1)
+            if (req.RepairJobId <= 0)
                 return false;
-            if (req.SafetyRquirements == "")
+            if (req.SafetyRequirements == null || req.SafetyRequirements.Equals(""))
                 return false;
             return true;
         }
