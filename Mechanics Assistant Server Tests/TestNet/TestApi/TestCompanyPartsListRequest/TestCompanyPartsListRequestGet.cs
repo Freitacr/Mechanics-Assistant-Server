@@ -210,7 +210,13 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
 
             string responseString = response.Content.ReadAsStringAsync().Result;
-            Assert.AreEqual("[\"abcd@msn\"]", responseString);
+            JsonListStringConstructor expectedConstructor = new JsonListStringConstructor();
+            JsonDictionaryStringConstructor requestConstructor = new JsonDictionaryStringConstructor();
+            requestConstructor.SetMapping("Email", "abcd@msn");
+            requestConstructor.SetMapping("RequestAdditions", "10mm Wrench");
+            requestConstructor.SetMapping("JobId", "abc");
+            expectedConstructor.AddElement(requestConstructor);
+            Assert.AreEqual(expectedConstructor.ToString(), responseString);
 
             List<RequirementAdditionRequest> requests = Manipulator.GetPartsListAdditionRequests(1);
             Assert.AreEqual(1, requests.Count);
