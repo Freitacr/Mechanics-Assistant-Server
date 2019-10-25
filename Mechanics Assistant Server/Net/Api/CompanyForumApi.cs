@@ -41,40 +41,46 @@ namespace OldManInTheShopServer.Net.Api
 
         private void HandlePostRequest(HttpListenerContext ctx)
         {
-            if (!ctx.Request.HasEntityBody)
-            {
-                WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                return;
+            try {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyForumApiFullPostRequest entry = ParseForumEntry(ctx);
+                if (!ValidateFullPostRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                //Otherwise we have a valid entry, validate user
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                    return;
+                }
+                OverallUser mappedUser = connection.GetUserById(entry.UserID);
+                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                    return;
+                }
+                //user is good, add post text
+                res = connection.AddForumPost(entry.CompanyID, entry.UserID, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserID });
+                if (!res)
+                {
+                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                    return;
+                }
+                WriteBodylessResponse(ctx, 200, "OK");
+                connection.Close();
             }
-            CompanyForumApiFullPostRequest entry = ParseForumEntry(ctx);
-            if (!ValidateFullPostRequest(entry))
+            catch (Exception e)
             {
-                WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                return;
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
-            //Otherwise we have a valid entry, validate user
-            MySqlDataManipulator connection = new MySqlDataManipulator();
-            bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-            if (!res)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                return;
-            }
-            OverallUser mappedUser = connection.GetUserById(entry.UserID);
-            if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
-            {
-                WriteBodyResponse(ctx,401,"Not Authorized","Login token was incorrect.");
-                return;
-            }
-            //user is good, add post text
-            res = connection.AddForumPost(entry.CompanyID,entry.UserID,new UserToTextEntry() {Text = entry.PostText,UserId=entry.UserID});
-            if (!res)
-            {
-                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                return;
-            }
-            WriteBodylessResponse(ctx, 200, "OK");
-            connection.Close();
         }
 
         private CompanyForumApiFullPostRequest ParseForumEntry(HttpListenerContext ctx)
@@ -99,9 +105,9 @@ namespace OldManInTheShopServer.Net.Api
         {
             if (req.UserID == -1)
                 return false;
-            if (req.LoginToken == "")
+            if (req.LoginToken == null || req.LoginToken.Equals(""))
                 return false;
-            if (req.PostText == "")
+            if (req.PostText == null || req.LoginToken.Equals(""))
                 return false;
             if (req.CompanyID == -1)
                 return false;

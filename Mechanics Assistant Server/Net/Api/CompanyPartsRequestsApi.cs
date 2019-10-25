@@ -101,17 +101,17 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateFullPostRequest(CompanyPartsRequestApiFullPostRequest req)
         {
-            if (req.AuthToken == "")
+            if (req.LoginToken == null || req.LoginToken.Equals(""))
+                return false;
+            if (req.AuthToken == null || req.AuthToken.Equals(""))
                 return false;
             if (req.CompanyId == -1)
                 return false;
-            if (req.LoginToken == "")
-                return false;
             if (req.UserId == -1)
                 return false;
-            if (req.PartsList == "")
+            if (req.PartsList == null || req.PartsList.Equals(""))
                 return false;
-            if (req.RepairJobId == "")
+            if (req.RepairJobId == null || req.RepairJobId.Equals(""))
                 return false;
             return true;
         }
