@@ -55,7 +55,7 @@ namespace OldManInTheShopServer.Net.Api
                     return;
                 }
                 CompanyPartsApiFullPostRequest entry = JsonDataObjectUtil<CompanyPartsApiFullPostRequest>.ParseObject(ctx);
-                if (ValidateFullPostRequest(entry))
+                if (!ValidateFullPostRequest(entry))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
@@ -106,21 +106,22 @@ namespace OldManInTheShopServer.Net.Api
         }
         private bool ValidateFullPostRequest(CompanyPartsApiFullPostRequest req)
         {
+
             if (req.UserId == -1)
                 return false;
-            if (req.LoginToken == "")
+            if (req.LoginToken == null || req.LoginToken.Equals(""))
                 return false;
-            if (req.AuthToken == "")
+            if (req.AuthToken == null || req.AuthToken.Equals(""))
                 return false;
-            if (req.Make == "")
+            if (req.Make == null || req.Make.Equals(""))
                 return false;
             if (req.Year == -1)
                 return false;
-            if (req.Model == "")
+            if (req.Model == null || req.Model.Equals(""))
                 return false;
-            if (req.PartId == "")
+            if (req.PartId == null || req.PartId.Equals(""))
                 return false;
-            if (req.PartName == "")
+            if (req.PartName == null || req.PartName.Equals(""))
                 return false;
             if (req.CompanyId == -1)
                 return false;
