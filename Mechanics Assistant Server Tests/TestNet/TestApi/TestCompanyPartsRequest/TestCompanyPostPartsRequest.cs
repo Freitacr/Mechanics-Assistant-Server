@@ -105,7 +105,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
             StringConstructor.SetMapping("AuthToken", AuthToken);
             StringConstructor.SetMapping("PartsList", "10mm wrench");
             StringConstructor.SetMapping("CompanyId", 1);
-            StringConstructor.SetMapping("RepairJobId", 1);
+            StringConstructor.SetMapping("RepairJobId", "abc");
         }
 
         [ClassCleanup]

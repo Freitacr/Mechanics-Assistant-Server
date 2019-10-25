@@ -1067,6 +1067,23 @@ namespace OldManInTheShopServer.Data.MySql
             }
             return entry;
         }
+        public List<JobDataEntry> GetDataEntriesWhere(int companyId, string where, bool validated=false)
+        {
+            string tableName;
+            if(validated)
+            {
+                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            } else
+            {
+                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            }
+            List<JobDataEntry> ret = JobDataEntry.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            if (ret == null)
+            {
+                LastException = OverallUser.Manipulator.LastException;
+            }
+            return ret;
+        }
 
         public bool UpdateDataEntryRequirements(int companyId, JobDataEntry entryToUpdate, bool validated=true)
         {
@@ -1080,6 +1097,7 @@ namespace OldManInTheShopServer.Data.MySql
             cmd.CommandText = "update " + tableName + " set Requirements=\"" + toWrite + "\" where id=" + entryToUpdate.Id + ";";
             return ExecuteNonQuery(cmd);
         }
+
 
         /**
          * <summary>Adds the repair data to the database</summary>
@@ -1122,6 +1140,14 @@ namespace OldManInTheShopServer.Data.MySql
                 LastException = JobDataEntry.Manipulator.LastException;
                 return false;
             }
+
+            if(validated)
+            {
+                JobDataEntry added = GetDataEntriesWhere(companyId, " JobId=\"" + entryToAdd.JobId + "\";", validated)[0];
+                CreateTable(TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
+                    .Replace("(m)", added.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
+            }
+
             return true;
         }
 
