@@ -13,15 +13,15 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyForumApiFullPostRequest
     {
         [DataMember]
-        public int UserID;
+        public int UserId;
         [DataMember]
         public string LoginToken;
         [DataMember]
         public string PostText;
         [DataMember]
-        public int CompanyID;
+        public int CompanyId;
         [DataMember]
-        public int JobEntryID;
+        public int JobEntryId;
         [DataMember]
         public string AuthToken;
     }
@@ -61,14 +61,14 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                     return;
                 }
-                OverallUser mappedUser = connection.GetUserById(entry.UserID);
+                OverallUser mappedUser = connection.GetUserById(entry.UserId);
                 if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
                 {
                     WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                     return;
                 }
                 //user is good, add post text
-                res = connection.AddForumPost(entry.CompanyID, entry.UserID, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserID });
+                res = connection.AddForumPost(entry.CompanyId, entry.UserId, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserId });
                 if (!res)
                 {
                     WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
@@ -103,15 +103,15 @@ namespace OldManInTheShopServer.Net.Api
         }
         private bool ValidateFullPostRequest(CompanyForumApiFullPostRequest req)
         {
-            if (req.UserID == -1)
+            if (req.UserId == -1)
                 return false;
             if (req.LoginToken == null || req.LoginToken.Equals(""))
                 return false;
             if (req.PostText == null || req.LoginToken.Equals(""))
                 return false;
-            if (req.CompanyID == -1)
+            if (req.CompanyId == -1)
                 return false;
-            if (req.JobEntryID == -1)
+            if (req.JobEntryId == -1)
                 return false;
             return true;
         }
