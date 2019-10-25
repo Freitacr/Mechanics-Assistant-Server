@@ -30,7 +30,7 @@ namespace OldManInTheShopServer.Net.Api
         [DataMember]
         public string PartName;
         [DataMember]
-        public int companyId;
+        public int CompanyId;
     }
     class CompanyPartsApi : ApiDefinition
     {
@@ -91,7 +91,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     PartCatalogueEntry ent = new PartCatalogueEntry(entry.Make,entry.Model,entry.Year,entry.PartId,entry.PartName);
-                    res = connection.AddPartEntry(entry.companyId, ent);
+                    res = connection.AddPartEntry(entry.CompanyId, ent);
                     if (!res)
                     {
                         WriteBodyResponse(ctx,500,"Unexpected Server Error",connection.LastException.Message);
@@ -122,7 +122,7 @@ namespace OldManInTheShopServer.Net.Api
                 return false;
             if (req.PartName == "")
                 return false;
-            if (req.companyId == -1)
+            if (req.CompanyId == -1)
                 return false;
             return true;
         }
