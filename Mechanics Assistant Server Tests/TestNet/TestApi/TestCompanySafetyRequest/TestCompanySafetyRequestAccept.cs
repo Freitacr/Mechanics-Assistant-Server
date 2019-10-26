@@ -15,7 +15,8 @@ using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
 {
-    class TestCompanySafetyRequestAccept
+    [TestClass]
+    public class TestCompanySafetyRequestAccept
     {
         private static HttpClient Client;
         private static MySqlDataManipulator Manipulator;
