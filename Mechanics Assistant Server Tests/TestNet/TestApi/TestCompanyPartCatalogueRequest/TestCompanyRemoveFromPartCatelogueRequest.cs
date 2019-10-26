@@ -15,6 +15,7 @@ using MechanicsAssistantServerTests.TestNet.TestApi.TestUser;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartCatalogueRequest
 {
+    [TestClass]
     public class TestCompanyRemoveFromPartCatelogueRequest
     {
         private static HttpClient Client;
