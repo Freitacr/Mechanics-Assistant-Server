@@ -211,8 +211,10 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
 
             string responseString = response.Content.ReadAsStringAsync().Result;
             JsonDictionaryStringConstructor constructor = new JsonDictionaryStringConstructor();
+            constructor.SetMapping("DisplayName", "Default User");
             constructor.SetMapping("JobId", "abc");
             constructor.SetMapping("RequestedPartIds", "[\"bcd\"]");
+            constructor.SetMapping("Id", 1);
             Assert.AreEqual("["+constructor.ToString()+"]", responseString);
 
             List<PartsRequest> requests = Manipulator.GetPartsRequests(1);
