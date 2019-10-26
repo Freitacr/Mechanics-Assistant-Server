@@ -211,12 +211,6 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
             StringContent content = new StringContent(testString);
             var response = Client.PatchAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-            var user = Manipulator.GetUserById(1);
-            List<PreviousUserRequest> nowRequests = user.DecodeRequests();
-            PreviousUserRequest partsRequest = nowRequests[0];
-            Assert.AreEqual(1, partsRequest.Request.Company, "Safety request company was not 1");
-            Assert.AreEqual("Safety", partsRequest.Request.Type);
-            Assert.AreEqual("Accepted", partsRequest.RequestStatus);
 
             List<RequirementAdditionRequest> partRequests = Manipulator.GetSafetyAdditionRequests(1);
             Assert.AreEqual(1, partRequests.Count);
