@@ -83,7 +83,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyForum
             LoginToken5 = GetLoginToken("abcdh@msn", "12345");
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
             Manipulator.AddForumPost(1, 1, new UserToTextEntry(1, "Wear a hard hat"));
         }
 
@@ -140,7 +140,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyForum
         [TestMethod]
         public void TestForumGetRequestIncorrectFormat()
         {
-            StringConstructor.RemoveMapping("AuthToken");
+            StringConstructor.RemoveMapping("LoginToken");
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
             var response = Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Uri) { Content = content }).Result;
@@ -179,19 +179,20 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyForum
             JsonDictionaryStringConstructor repJobConstructor = new JsonDictionaryStringConstructor();
             repJobConstructor.SetMapping("Make", "autocar");
             repJobConstructor.SetMapping("Model", "xpeditor");
+            repJobConstructor.SetMapping("Year", 1986);
             repJobConstructor.SetMapping("Complaint", "runs rough");
             repJobConstructor.SetMapping("Problem", "bad icm");
-            repJobConstructor.SetMapping("Year", 1986);
-            repJobConstructor.SetMapping("PartsRequirements", "[]");
-            repJobConstructor.SetMapping("SafetyRequirements", "[]");
-            repJobConstructor.SetMapping("AuxillaryRequirements", "[]");
+            repJobConstructor.SetMapping("AuxillaryRequirements", new List<object>());
+            repJobConstructor.SetMapping("PartRequirements", new List<object>());
+            repJobConstructor.SetMapping("SafetyRequirements", new List<object>());
             overallConstructor.AddElement(repJobConstructor);
             repJobConstructor = new JsonDictionaryStringConstructor();
-            repJobConstructor.SetMapping("DisplayName", "Default User");
+            repJobConstructor.SetMapping("DisplayName", "defaultUser");
             repJobConstructor.SetMapping("PostText", "Wear a hard hat");
             repJobConstructor.SetMapping("ForumPostId", 1);
             overallConstructor.AddElement(repJobConstructor);
-            Assert.AreEqual(overallConstructor.ToString(), responseString);
+            string constructed = overallConstructor.ToString();
+            Assert.AreEqual(constructed, responseString);
         }
     }
 }

@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
+using OldManInTheShopServer.Util;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
@@ -47,6 +48,15 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             byte[] reqBytes = Encoding.UTF8.GetBytes(stringIn);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RequirementsEntry));
             return serializer.ReadObject(new MemoryStream(reqBytes)) as RequirementsEntry;
+        }
+
+        public static string GenerateEmptyJson()
+        {
+            JsonDictionaryStringConstructor constructor = new JsonDictionaryStringConstructor();
+            constructor.SetMapping("Safety", new List<object>());
+            constructor.SetMapping("Parts", new List<object>());
+            constructor.SetMapping("Auxillary", new List<object>());
+            return constructor.ToString();
         }
     }
 

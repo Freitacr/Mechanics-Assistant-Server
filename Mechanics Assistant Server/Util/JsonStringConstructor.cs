@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -41,10 +42,10 @@ namespace OldManInTheShopServer.Util
                     toAdd += ParseDictionaryStrObj((Dictionary<string, object>)pair.Value);
                     toAdd += "}";
                 }
-                else if (typeof(List<object>).IsAssignableFrom(pair.Value.GetType()))
+                else if (pair.Value is IList)
                 {
                     List<string> strings = new List<string>();
-                    foreach (object o in (List<object>)pair.Value)
+                    foreach (object o in (IList)pair.Value)
                         strings.Add(o.ToString());
                     toAdd += "[";
                     toAdd += string.Join(',', strings);
@@ -97,7 +98,7 @@ namespace OldManInTheShopServer.Util
                 {
                     toAdd += ParseDictionaryStrObj((Dictionary<string, object>)o);
                 }
-                else if (typeof(List<object>).IsAssignableFrom(o.GetType()))
+                else if (o is IList)
                 {
                     toAdd += ParseObjectList(o as List<object>);
                 }
