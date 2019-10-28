@@ -15,7 +15,6 @@ using System.IO;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
 {
-    [TestClass]
     public class TestCompanyPartsRequestGet
     {
         private static HttpClient Client;
@@ -212,9 +211,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
 
             string responseString = response.Content.ReadAsStringAsync().Result;
             JsonDictionaryStringConstructor constructor = new JsonDictionaryStringConstructor();
-            constructor.SetMapping("DisplayName", "defaultUser");
-            constructor.SetMapping("ReferencedParts", new List<string>(new string[] { "\"bcd\"" }));
+            constructor.SetMapping("DisplayName", "Default User");
             constructor.SetMapping("JobId", "abc");
+            constructor.SetMapping("RequestedPartIds", "[\"bcd\"]");
             constructor.SetMapping("Id", 1);
             Assert.AreEqual("["+constructor.ToString()+"]", responseString);
 

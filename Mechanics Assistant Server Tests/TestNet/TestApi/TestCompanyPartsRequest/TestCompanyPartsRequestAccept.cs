@@ -95,8 +95,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
             AuthToken5 = GetAuthToken(5, LoginToken5);
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
-            Manipulator.AddPartsRequest(1, new PartsRequest(1, "abc", "[1]"));
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+            Manipulator.AddPartsListAdditionRequest(1, new RequirementAdditionRequest(1, 1, "[1]"));
         }
 
         private static string GetLoginToken(string email, string password)
@@ -151,7 +151,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
         }
 
         [TestMethod]
-        public void TestAcceptPartsRequestIncorrectFormat()
+        public void TestAcceptSafetyRequestIncorrectFormat()
         {
             StringConstructor.RemoveMapping("LoginToken");
             string testString = StringConstructor.ToString();
@@ -161,7 +161,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
         }
 
         [TestMethod]
-        public void TestAcceptPartsRequestUnknownUser()
+        public void TestAcceptSafetyRequestUnknownUser()
         {
             StringConstructor.SetMapping("UserId", 7);
             string testString = StringConstructor.ToString();
@@ -171,7 +171,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
         }
 
         [TestMethod]
-        public void TestAcceptPartsRequestUnauthorizedUser()
+        public void TestAcceptSafetyRequestUnauthorizedUser()
         {
             StringConstructor.SetMapping("UserId", 1);
             StringConstructor.SetMapping("LoginToken", LoginToken1);
@@ -183,7 +183,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
         }
 
         [TestMethod]
-        public void TestAcceptPartsRequestInvalidLoginToken()
+        public void TestAcceptSafetyRequestInvalidLoginToken()
         {
             StringConstructor.SetMapping("UserId", 1);
             string testString = StringConstructor.ToString();
@@ -193,7 +193,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
         }
 
         [TestMethod]
-        public void TestAcceptPartsRequestInvalidAuthToken()
+        public void TestAcceptSafetyRequestInvalidAuthToken()
         {
             StringConstructor.SetMapping("AuthToken", "cca");
             string testString = StringConstructor.ToString();
@@ -203,7 +203,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
         }
 
         [TestMethod]
-        public void TestAcceptPartsRequestValidRequest()
+        public void TestAcceptSafetyRequestValidRequest()
         {
             string testString = StringConstructor.ToString();
             StringContent content = new StringContent(testString);
@@ -216,7 +216,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsRequest
             Assert.AreEqual("Parts", partsRequest.Request.Type);
             Assert.AreEqual("Accepted", partsRequest.RequestStatus);
 
-            List<PartsRequest> partRequests = Manipulator.GetPartsRequests(1);
+            List<RequirementAdditionRequest> partRequests = Manipulator.GetSafetyAdditionRequests(1);
             Assert.AreEqual(0, partRequests.Count);
         }
     }

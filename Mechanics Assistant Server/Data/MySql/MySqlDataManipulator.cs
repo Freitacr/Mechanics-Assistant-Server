@@ -744,7 +744,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public bool RemovePartsRequest(int companyId, int requestId, bool accept=false)
         {
-            string tableName = TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString());
+            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
             var request = PartsRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
             var user = GetUserById(request.UserId);
             if (user == null)

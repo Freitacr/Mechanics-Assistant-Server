@@ -13,8 +13,6 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public string JobId { get; set; }
         public string ReferencedParts { get; set; }
 
-        public int Id { get; set; }
-
         public PartsRequest()
         {
 
@@ -38,7 +36,6 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             UserId = (int)reader["UserId"];
             JobId = (string)reader["JobId"];
             ReferencedParts = (string)reader["ReferencedParts"];
-            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)
