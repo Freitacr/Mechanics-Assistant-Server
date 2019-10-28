@@ -210,7 +210,11 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyJoinRequest
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
 
             string responseString = response.Content.ReadAsStringAsync().Result;
-            Assert.AreEqual("[\"abcd@msn\"]", responseString);
+            JsonDictionaryStringConstructor constructor = new JsonDictionaryStringConstructor();
+            constructor.SetMapping("Id", 1);
+            constructor.SetMapping("DisplayName", "defaultUser");
+            constructor.SetMapping("Email", "abcd@msn");
+            Assert.AreEqual("[" + constructor.ToString() + "]", responseString);
 
             List<JoinRequest> joinRequests = Manipulator.GetJoinRequests(1);
             Assert.AreEqual(1, joinRequests.Count);
