@@ -95,7 +95,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
             AuthToken5 = GetAuthToken(5, LoginToken5);
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
             Manipulator.AddSafetyAdditionRequest(1, new RequirementAdditionRequest(1, 1, "[\"Wear a Hard Hat\"]"));
         }
 
@@ -132,7 +132,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
             StringConstructor.SetMapping("LoginToken", LoginToken4);
             StringConstructor.SetMapping("AuthToken", AuthToken4);
             StringConstructor.SetMapping("RequestId", 1);
-            StringConstructor.SetMapping("RequirementId", 1);
+            StringConstructor.SetMapping("RequirementId", 0);
             StringConstructor.SetMapping("SafetyRequirementsString", "A Hard Hat is Unnecessary");
         }
 

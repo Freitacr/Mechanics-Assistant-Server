@@ -607,6 +607,15 @@ namespace OldManInTheShopServer.Data.MySql
             return res;
         }
 
+        public bool UpdateSafetyAdditionRequest(int companyId, RequirementAdditionRequest request)
+        {
+            string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
+            string updateString = "update " + tableName + " set RequestedAdditions=\"" + request.RequestedAdditions.Replace("\"", "\\\"") + "\" where id=" + request.Id + ";";
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = updateString;
+            return ExecuteNonQuery(cmd);
+        }
+
         public bool AddSafetyAdditionRequest(int companyId, RequirementAdditionRequest request)
         {
             var user = GetUserById(request.UserId);
@@ -647,7 +656,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public bool RemoveSafetyAdditionRequest(int companyId, int requestId, bool accept = false)
         {
-            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            string tableName = TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString());
             var request = RequirementAdditionRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
             var user = GetUserById(request.UserId);
             if (user == null)
@@ -697,6 +706,22 @@ namespace OldManInTheShopServer.Data.MySql
                 UpdateUserPreviousRequests(user);
                 return false;
             }
+
+            if (accept)
+            {
+                var jobDataEntry = GetDataEntryById(companyId, request.ValidatedDataId);
+                if (jobDataEntry == null)
+                    return true;
+                RequirementsEntry requirements = RequirementsEntry.ParseJsonString(jobDataEntry.Requirements);
+                List<string> toAdd = JsonDataObjectUtil<List<string>>.ParseObject(request.RequestedAdditions);
+                foreach (string i in toAdd)
+                    if (!requirements.Safety.Contains(i))
+                        requirements.Safety.Add(i);
+                jobDataEntry.Requirements = requirements.GenerateJsonString();
+                return UpdateDataEntryRequirements(companyId, jobDataEntry);
+            }
+
+
             return true;
         }
 

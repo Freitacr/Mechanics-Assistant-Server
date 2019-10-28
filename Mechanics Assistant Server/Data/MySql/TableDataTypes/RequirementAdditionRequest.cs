@@ -47,7 +47,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             retBuilder.Append(",");
             retBuilder.Append(ValidatedDataId);
             retBuilder.Append(",");
-            retBuilder.Append("\"" + RequestedAdditions + "\"");
+            retBuilder.Append("\"" + RequestedAdditions.Replace("\"","\\\"") + "\"");
             retBuilder.Append(");");
             return retBuilder.ToString();
         }

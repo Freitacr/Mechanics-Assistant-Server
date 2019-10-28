@@ -95,7 +95,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
             AuthToken = response.Content.ReadAsStringAsync().Result;
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
         }
 
         [TestInitialize]

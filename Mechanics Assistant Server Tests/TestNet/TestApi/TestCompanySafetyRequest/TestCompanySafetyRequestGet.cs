@@ -95,8 +95,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
             AuthToken5 = GetAuthToken(5, LoginToken5);
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
-            Manipulator.AddSafetyAdditionRequest(1, new RequirementAdditionRequest(1, 1, "Wear Eye Protection"));
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
+            Manipulator.AddSafetyAdditionRequest(1, new RequirementAdditionRequest(1, 1, "[\"Wear Eye Protection\"]"));
         }
 
         private static string GetLoginToken(string email, string password)
@@ -212,18 +212,13 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanySafetyRequest
             string responseString = response.Content.ReadAsStringAsync().Result;
             JsonListStringConstructor listConstructor = new JsonListStringConstructor();
             JsonDictionaryStringConstructor returnConstructor = new JsonDictionaryStringConstructor();
-            returnConstructor.SetMapping("Email", "abcd@msn");
-            returnConstructor.SetMapping("RequestAdditions", "Wear Eye Protection");
+            returnConstructor.SetMapping("DisplayName", "defaultUser");
+            returnConstructor.SetMapping("RequestedAdditions", new List<string> (new string[] { "\"Wear Eye Protection\"" }));
             returnConstructor.SetMapping("JobId", "abc");
+            returnConstructor.SetMapping("Id", 1);
             listConstructor.AddElement(returnConstructor);
             Assert.AreEqual(listConstructor.ToString(), responseString);
 
-            List<RequirementAdditionRequest> requests = Manipulator.GetSafetyAdditionRequests(1);
-            Assert.AreEqual(1, requests.Count);
-            RequirementAdditionRequest req = requests[0];
-            Assert.AreEqual(1, req.UserId);
-            Assert.AreEqual("Wear Eye Protection", req.RequestedAdditions);
-            Assert.AreEqual(1, req.ValidatedDataId);
         }
     }
 }
