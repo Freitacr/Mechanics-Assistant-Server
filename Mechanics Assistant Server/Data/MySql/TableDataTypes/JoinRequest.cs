@@ -9,6 +9,8 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     {
         public static readonly TableDataManipulator<JoinRequest> Manipulator = new TableDataManipulator<JoinRequest>();
         public int UserId { get; set; }
+
+        public int Id { get; set; }
         
         public JoinRequest()
         {
@@ -28,6 +30,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public void Deserialize(MySqlDataReader reader)
         {
             UserId = (int)reader["UserId"];
+            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)
