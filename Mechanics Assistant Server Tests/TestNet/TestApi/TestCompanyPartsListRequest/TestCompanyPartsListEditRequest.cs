@@ -94,7 +94,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
                 new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
-            Manipulator.AddSafetyAdditionRequest(1, new RequirementAdditionRequest(1, 1, "[\"Wear a Hard Hat\"]"));
+            Manipulator.AddPartsListAdditionRequest(1, new RequirementAdditionRequest(1, 1, "[1]"));
         }
 
         private static string GetLoginToken(string email, string password)
@@ -130,7 +130,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             StringConstructor.SetMapping("LoginToken", LoginToken3);
             StringConstructor.SetMapping("AuthToken", AuthToken3);
             StringConstructor.SetMapping("RequestId", 1);
-            StringConstructor.SetMapping("RequirementId", 1);
+            StringConstructor.SetMapping("RequirementId", 0);
             StringConstructor.SetMapping("PartsRequirement", 1);
         }
 

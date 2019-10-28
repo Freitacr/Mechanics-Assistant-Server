@@ -12,6 +12,8 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public int ValidatedDataId { get; set; }
         public string RequestedAdditions { get; set; }
 
+        public int Id { get; set; }
+
         public RequirementAdditionRequest()
         {
 
@@ -34,6 +36,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             UserId = (int)reader["UserId"];
             ValidatedDataId = (int)reader["ValidatedDataId"];
             RequestedAdditions = (string)reader["RequestedAdditions"];
+            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)

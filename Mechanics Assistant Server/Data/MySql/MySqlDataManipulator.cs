@@ -454,6 +454,15 @@ namespace OldManInTheShopServer.Data.MySql
             return res == 1;
         }
 
+        public bool UpdatePartsListAdditionRequest(int companyId, RequirementAdditionRequest request)
+        {
+            string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
+            string updateString = "update " + tableName + " set RequestedAdditions=\"" + request.RequestedAdditions + "\" where id=" + request.Id + ";";
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = updateString;
+            return ExecuteNonQuery(cmd);
+        }
+
         public bool AddPartsListAdditionRequest(int companyId, RequirementAdditionRequest request)
         {
             var user = GetUserById(request.UserId);
@@ -494,7 +503,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public bool RemovePartsListAdditionRequest(int companyId, int requestId, bool accept=false)
         {
-            string tableName = TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString());
+            string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
             var request = RequirementAdditionRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requestId.ToString());
             var user = GetUserById(request.UserId);
             if (user == null)
@@ -544,6 +553,21 @@ namespace OldManInTheShopServer.Data.MySql
                 UpdateUserPreviousRequests(user);
                 return false;
             }
+
+            if(accept)
+            {
+                var jobDataEntry = GetDataEntryById(companyId, request.ValidatedDataId);
+                if (jobDataEntry == null)
+                    return true;
+                RequirementsEntry requirements = RequirementsEntry.ParseJsonString(jobDataEntry.Requirements);
+                List<int> toAdd = JsonDataObjectUtil<List<int>>.ParseObject(request.RequestedAdditions);
+                foreach (int i in toAdd)
+                    if (!requirements.Parts.Contains(i))
+                        requirements.Parts.Add(i);
+                jobDataEntry.Requirements = requirements.GenerateJsonString();
+                return UpdateDataEntryRequirements(companyId, jobDataEntry);
+            }
+
             return true;
         }
 
@@ -558,7 +582,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public RequirementAdditionRequest GetPartsListAdditionRequestById(int companyId, int requirementId)
         {
-            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
             var res = RequirementAdditionRequest.Manipulator.RetrieveDataWithId(Connection, tableName, requirementId.ToString());
             if (res == null)
                 LastException = RequirementAdditionRequest.Manipulator.LastException;
@@ -567,7 +591,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public List<RequirementAdditionRequest> GetPartsListAdditionRequestsWhere(int companyId, string where)
         {
-            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
             var res = RequirementAdditionRequest.Manipulator.RetrieveDataWhere(Connection, tableName, where);
             if (res == null)
                 LastException = RequirementAdditionRequest.Manipulator.LastException;
@@ -576,7 +600,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public List<RequirementAdditionRequest> GetPartsListAdditionRequestsByIdRange(int companyId, int startId, int endId)
         {
-            string tableName = TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString());
+            string tableName = TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString());
             var res = RequirementAdditionRequest.Manipulator.RetrieveDataWhere(Connection, tableName, " id >= " + startId + " and id <" + endId + ";");
             if (res == null)
                 LastException = RequirementAdditionRequest.Manipulator.LastException;

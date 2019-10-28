@@ -95,8 +95,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             AuthToken5 = GetAuthToken(5, LoginToken5);
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
-            Manipulator.AddPartsListAdditionRequest(1, new RequirementAdditionRequest(1, 1, "10mm Wrench"));
+                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
+            Manipulator.AddPartEntry(1, new PartCatalogueEntry("autocar", "xpeditor", 1986, "bcd", "10mm Wrench"));
+            Manipulator.AddPartsListAdditionRequest(1, new RequirementAdditionRequest(1, 1, "[1]"));
         }
 
         private static string GetLoginToken(string email, string password)
@@ -212,9 +213,10 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             string responseString = response.Content.ReadAsStringAsync().Result;
             JsonListStringConstructor expectedConstructor = new JsonListStringConstructor();
             JsonDictionaryStringConstructor requestConstructor = new JsonDictionaryStringConstructor();
-            requestConstructor.SetMapping("Email", "abcd@msn");
-            requestConstructor.SetMapping("RequestAdditions", "10mm Wrench");
+            requestConstructor.SetMapping("DisplayName", "defaultUser");
+            requestConstructor.SetMapping("RequestedAdditions", new List<string>(new string[] { "\"bcd\"" }));
             requestConstructor.SetMapping("JobId", "abc");
+            requestConstructor.SetMapping("Id", 1);
             expectedConstructor.AddElement(requestConstructor);
             Assert.AreEqual(expectedConstructor.ToString(), responseString);
 
@@ -222,7 +224,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             Assert.AreEqual(1, requests.Count);
             RequirementAdditionRequest req = requests[0];
             Assert.AreEqual(1, req.UserId);
-            Assert.AreEqual("10mm Wrench", req.RequestedAdditions);
+            Assert.AreEqual("[1]", req.RequestedAdditions);
             Assert.AreEqual(1, req.ValidatedDataId);
         }
     }
