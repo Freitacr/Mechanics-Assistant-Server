@@ -210,7 +210,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartCatalogue
             var response = Client.PatchAsync(Uri, content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
             List<PartCatalogueEntry> partCatelogue = Manipulator.GetPartCatalogueEntries(1);
-            Assert.AreEqual(0, partCatelogue.Count);
+            Assert.AreEqual(1, partCatelogue.Count);
+            Assert.AreEqual(1984, partCatelogue[0].Year);
         }
     }
 }

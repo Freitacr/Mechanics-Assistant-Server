@@ -130,6 +130,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartCatalogue
             StringConstructor.SetMapping("LoginToken", LoginToken3);
             StringConstructor.SetMapping("AuthToken", AuthToken3);
             StringConstructor.SetMapping("PartEntryId", 1);
+            StringConstructor.SetMapping("StartRange", 1);
+            StringConstructor.SetMapping("EndRange", 2);
         }
 
         [ClassCleanup]
