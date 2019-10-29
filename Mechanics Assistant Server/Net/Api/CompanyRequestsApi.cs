@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Net;
@@ -22,6 +22,52 @@ namespace OldManInTheShopServer.Net.Api
         [DataMember]
         public int CompanyId;
     }
+
+    [DataContract]
+    class CompanyRequestsGetRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+    }
+
+    [DataContract]
+    class CompanyRequestsPutRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+
+        [DataMember]
+        public int RequestId;
+    }
+
+    [DataContract]
+    class CompanyRequestsDeleteRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+
+        [DataMember]
+        public int RequestId;
+    }
+
     class CompanyRequestsApi : ApiDefinition
     {
 #if RELEASE
@@ -105,16 +151,244 @@ namespace OldManInTheShopServer.Net.Api
         }
         private void HandleGetRequest(HttpListenerContext ctx)
         {
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyRequestsGetRequest entry = JsonDataObjectUtil<CompanyRequestsGetRequest>.ParseObject(ctx);
+                if (!ValidateGetRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.AdminMask) == 0)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an administrative user");
+                        return;
+                    }
+                    var requests = connection.GetJoinRequests(mappedUser.Company);
+                    JsonListStringConstructor returnConstructor = new JsonListStringConstructor();
+                    requests.ForEach(req => returnConstructor.AddElement(WriteJoinRequestToOutput(req, connection)));
+                    WriteBodyResponse(ctx, 200, "OK", returnConstructor.ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
+        }
 
+        private JsonDictionaryStringConstructor WriteJoinRequestToOutput(JoinRequest requestIn, MySqlDataManipulator connection)
+        {
+            JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+            ret.SetMapping("Id", requestIn.Id);
+            var user = connection.GetUserById(requestIn.UserId);
+            if(user == null)
+            {
+                ret.SetMapping("DisplayName", "Unknown");
+                ret.SetMapping("Email", "Unknown");
+            }
+            else
+            {
+                var userSettings = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(user.Settings);
+                ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals("displayName")).First().Value);
+                ret.SetMapping("Email", user.Email);
+            }
+            return ret;
         }
 
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
-
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyRequestsDeleteRequest entry = JsonDataObjectUtil<CompanyRequestsDeleteRequest>.ParseObject(ctx);
+                if (!ValidateDeleteRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.AdminMask) == 0)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an administrative user");
+                        return;
+                    }
+                    var request = connection.GetJoinRequestById(mappedUser.Company, entry.RequestId);
+                    if (request == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "Request was not found on the server");
+                        return;
+                    }
+                    if (!connection.RemoveJoinRequest(mappedUser.Company, entry.RequestId, accept: false))
+                    {
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "Error ocurred on the server: " + connection.LastException);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
         }
         private void HandlePutRequest(HttpListenerContext ctx)
         {
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyRequestsPutRequest entry = JsonDataObjectUtil<CompanyRequestsPutRequest>.ParseObject(ctx);
+                if (!ValidatePutRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.AdminMask) == 0)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an administrative user");
+                        return;
+                    }
+                    var request = connection.GetJoinRequestById(mappedUser.Company, entry.RequestId);
+                    if(request == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "Request was not found on the server");
+                        return;
+                    }
+                    if(!connection.RemoveJoinRequest(mappedUser.Company, entry.RequestId, accept: true))
+                    {
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "Error ocurred on the server: " + connection.LastException);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
+        }
 
+        private bool ValidatePutRequest(CompanyRequestsPutRequest req)
+        {
+            if (req.LoginToken == null || req.LoginToken.Equals(""))
+                return false;
+            if (req.AuthToken == null || req.AuthToken.Equals(""))
+                return false;
+            if (req.RequestId <= 0)
+                return false;
+            if (req.UserId <= 0)
+                return false;
+            return true;
+        }
+
+        private bool ValidateDeleteRequest(CompanyRequestsDeleteRequest req)
+        {
+            if (req.LoginToken == null || req.LoginToken.Equals(""))
+                return false;
+            if (req.AuthToken == null || req.AuthToken.Equals(""))
+                return false;
+            if (req.RequestId <= 0)
+                return false;
+            if (req.UserId <= 0)
+                return false;
+            return true;
+        }
+
+        private bool ValidateGetRequest(CompanyRequestsGetRequest req)
+        {
+            if (req.LoginToken == null || req.LoginToken.Equals(""))
+                return false;
+            if (req.AuthToken == null || req.AuthToken.Equals(""))
+                return false;
+            if (req.UserId <= 0)
+                return false;
+            return true;
         }
     }
 }

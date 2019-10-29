@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Net;
@@ -32,6 +32,66 @@ namespace OldManInTheShopServer.Net.Api
         [DataMember]
         public int CompanyId;
     }
+
+    [DataContract]
+    class CompanyPartsApiGetRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+
+        [DataMember]
+        public int StartRange;
+
+        [DataMember]
+        public int EndRange;
+    }
+
+    [DataContract]
+    class CompanyPartsApiDeleteRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+
+        [DataMember]
+        public int PartEntryId;
+    }
+
+    [DataContract]
+    class CompanyPartsApiPatchRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+
+        [DataMember]
+        public string FieldName;
+
+        [DataMember]
+        public string FieldValue;
+
+        [DataMember]
+        public int PartEntryId;
+    }
+
+
+
     class CompanyPartsApi : ApiDefinition
     {
 #if RELEASE
@@ -129,17 +189,277 @@ namespace OldManInTheShopServer.Net.Api
         }
         private void HandleGetRequest(HttpListenerContext ctx)
         {
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyPartsApiGetRequest entry = JsonDataObjectUtil<CompanyPartsApiGetRequest>.ParseObject(ctx);
+                if (!ValidateGetRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.PartMask) == 0)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Autherized", "Not marked as a Parts User");
+                        return;
+                    }
 
+                    List<PartCatalogueEntry> catelogue = connection.GetPartCatalogueEntries(mappedUser.Company);
+                    JsonListStringConstructor retConstructor = new JsonListStringConstructor();
+                    catelogue.ForEach(part => retConstructor.AddElement(WritePartCatelogueEntryToOutput(part)));
+
+                    WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
+        }
+
+        private JsonDictionaryStringConstructor WritePartCatelogueEntryToOutput(PartCatalogueEntry entryOut)
+        {
+            JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+            ret.SetMapping("Make", entryOut.Make);
+            ret.SetMapping("Model", entryOut.Model);
+            if (entryOut.Year == -1)
+                ret.SetMapping("Year", "Unknown");
+            else
+                ret.SetMapping("Year", entryOut.Year);
+            ret.SetMapping("PartId", entryOut.PartId);
+            ret.SetMapping("PartName", entryOut.PartName);
+            return ret;
         }
 
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyPartsApiDeleteRequest entry = JsonDataObjectUtil<CompanyPartsApiDeleteRequest>.ParseObject(ctx);
+                if (!ValidateDeleteRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.PartMask) == 0)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Autherized", "Not marked as a Parts User");
+                        return;
+                    }
 
+                    if(connection.GetPartCatalogueEntryById(mappedUser.Company, entry.PartEntryId) == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "Part entry with the given id was not found");
+                        return;
+                    }
+
+                    if(!connection.RemovePartCatalogueEntry(mappedUser.Company, entry.PartEntryId))
+                    {
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occured while removing part entry: " + connection.LastException.Message);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
         }
 
         private void HandlePatchRequest(HttpListenerContext ctx)
         {
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyPartsApiPatchRequest entry = JsonDataObjectUtil<CompanyPartsApiPatchRequest>.ParseObject(ctx);
+                if (!ValidatePatchRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.PartMask) == 0)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Autherized", "Not marked as a Parts User");
+                        return;
+                    }
 
+                    var partEntry = connection.GetPartCatalogueEntryById(mappedUser.Company, entry.PartEntryId);
+
+                    if (partEntry == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "Part entry with the given id was not found");
+                        return;
+                    }
+
+                    switch (entry.FieldName)
+                    {
+                        case "Make":
+                            partEntry.Make = entry.FieldValue;
+                            break;
+                        case "Model":
+                            partEntry.Model = entry.FieldValue;
+                            break;
+                        case "Year":
+                            partEntry.Year = int.Parse(entry.FieldValue);
+                            break;
+                        case "PartId":
+                            partEntry.PartId = entry.FieldValue;
+                            break;
+                        case "PartName":
+                            partEntry.PartName = entry.FieldValue;
+                            break;
+                        default:
+                            WriteBodyResponse(ctx, 404, "Not Found", "The field specified was not found");
+                            return;
+                    }
+
+                    if (!connection.UpdatePartEntry(mappedUser.Company, partEntry))
+                    {
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occured while removing part entry: " + connection.LastException.Message);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
+        }
+
+
+        private bool ValidateGetRequest(CompanyPartsApiGetRequest req)
+        {
+            if (req.LoginToken == null)
+                return false;
+            if (req.AuthToken == null)
+                return false;
+            if (req.UserId <= 0)
+                return false;
+            if (req.StartRange <= 0)
+                return false;
+            if (req.EndRange <= 1)
+                return false;
+            return true;
+        }
+
+        private bool ValidateDeleteRequest(CompanyPartsApiDeleteRequest req)
+        {
+            if (req.LoginToken == null)
+                return false;
+            if (req.AuthToken == null)
+                return false;
+            if (req.UserId <= 0)
+                return false;
+            if (req.PartEntryId <= 0)
+                return false;
+            return true;
+        }
+
+        private bool ValidatePatchRequest(CompanyPartsApiPatchRequest req)
+        {
+            if (req.LoginToken == null)
+                return false;
+            if (req.AuthToken == null)
+                return false;
+            if (req.UserId <= 0)
+                return false;
+            if (req.PartEntryId <= 0)
+                return false;
+            if (req.FieldName == null)
+                return false;
+            if (req.FieldValue == null || req.FieldValue.Equals(""))
+                return false;
+            return true;
         }
     }
 }
