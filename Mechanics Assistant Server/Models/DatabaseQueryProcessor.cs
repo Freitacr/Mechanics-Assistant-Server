@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Reflection;
 using OldManInTheShopServer.Models;
 using OldManInTheShopServer.Models.KeywordPrediction;
@@ -80,7 +80,7 @@ namespace OldManInTheShopServer.Models
                 throw new InvalidCastException("Loaded class could not be cast to IDatabaseQueryProblemPredictor");
         }
 
-        public List<string> ProcessQueryForComplaintGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId)
+        public string ProcessQueryForComplaintGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);
             List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
@@ -92,16 +92,67 @@ namespace OldManInTheShopServer.Models
             List<KeywordGroupEntry> companyComplaintGroups = manipulator.GetCompanyComplaintGroups(companyId);
             if (companyComplaintGroups == null)
                 throw new NullReferenceException("Company " + companyId + " complaint groups were not available in database");
-            List<string> ret = new List<string>();
+            List<KeywordGroupEntry> ret = new List<KeywordGroupEntry>();
+            bool uncategorizedAdded = false;
             foreach(int i in groups)
             {
-                if (i == 0)
-                    ret.Add("Uncategorized");
+                if (i == 0 && !uncategorizedAdded)
+                {
+                    ret.Add(new KeywordGroupEntry("Uncategorized") { Id = 0 });
+                    uncategorizedAdded = true;
+                }
                 else
-                    ret.Add(companyComplaintGroups[i + 1].GroupDefinition);
+                    ret.Add(companyComplaintGroups[i + 1]);
             }
-            return ret;
+            JsonListStringConstructor constructor = new JsonListStringConstructor();
+            ret.ForEach(obj => constructor.AddElement(ConvertKeywordGroupEntry(obj)));
+            return constructor.ToString();
+
+            JsonDictionaryStringConstructor ConvertKeywordGroupEntry(KeywordGroupEntry e)
+            {
+                JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
+                r.SetMapping("GroupDefinition", e.GroupDefinition);
+                r.SetMapping("Id", e.Id);
+                return r;
+            }
         }
+
+        public string ProcessQueryForSimilaryQueries(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int complaintGroupId, int numRequested, int offset=0)
+        {
+            List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);
+            List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
+            List<string> keywords = KeywordPredictor.PredictKeywords(taggedTokens);
+            KeywordExample example = new KeywordExample();
+            foreach (string keyword in keywords)
+                example.AddKeyword(keyword);
+            List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
+            entryIn.ComplaintGroups = "[" + string.Join(',', groups) + "]";
+            List<JobDataEntry> potentials = manipulator.GetDataEntriesByComplaintGroup(companyId, complaintGroupId);
+            List<EntrySimilarity> ret = ProblemPredictor.GetQueryResults(entryIn, potentials, numRequested, offset);
+            JsonListStringConstructor retConstructor = new JsonListStringConstructor();
+            ret.ForEach(obj => retConstructor.AddElement(ConvertEntrySimilarity(obj)));
+            return retConstructor.ToString();
+
+
+            JsonDictionaryStringConstructor ConvertEntrySimilarity(EntrySimilarity e)
+            {
+                JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
+                r.SetMapping("Make", e.Entry.Make);
+                r.SetMapping("Model", e.Entry.Model);
+                r.SetMapping("Complaint", e.Entry.Complaint);
+                r.SetMapping("Problem", e.Entry.Problem);
+                if (e.Entry.Year == -1)
+                    r.SetMapping("Year", "Unknown");
+                else
+                    r.SetMapping("Year", e.Entry.Year);
+                r.SetMapping("Id", e.Entry.Id);
+                r.SetMapping("Similarity", e.Similarity);
+                return r;
+            }
+        }
+
+        
+
 
     }
 }

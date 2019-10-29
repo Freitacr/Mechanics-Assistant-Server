@@ -30,6 +30,7 @@ namespace OldManInTheShopServer.Net.Api
             api.AddMapping(new CompanySettingsApi(portIn));
             api.AddMapping(new CompanyPartslistsRequestsApi(portIn));
             api.AddMapping(new CompanyRequestsApi(portIn));
+            api.AddMapping(new PredictApi(portIn));
             ret.ListenForResponses(api);
             return ret;
         }
