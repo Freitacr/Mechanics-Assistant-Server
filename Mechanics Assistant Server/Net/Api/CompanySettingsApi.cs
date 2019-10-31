@@ -48,6 +48,12 @@ namespace OldManInTheShopServer.Net.Api
             GET += HandleGetRequest;
             PATCH += HandlePatchRequest;
         }
+
+        /// <summary>
+        /// GET request format located in the Web Api Enumeration v2
+        /// under the tab Company/Settings, starting row 1
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try
@@ -108,6 +114,11 @@ namespace OldManInTheShopServer.Net.Api
             return ret;
         }
 
+        /// <summary>
+        /// PATCH request format located in the Web Api Enumeration v2
+        /// under the tab Company/Settings, starting row 27
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePatchRequest(HttpListenerContext ctx)
         {
             try

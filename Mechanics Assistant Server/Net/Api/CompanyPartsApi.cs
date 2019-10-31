@@ -90,8 +90,6 @@ namespace OldManInTheShopServer.Net.Api
         public int PartEntryId;
     }
 
-
-
     class CompanyPartsApi : ApiDefinition
     {
 #if RELEASE
@@ -105,6 +103,12 @@ namespace OldManInTheShopServer.Net.Api
             DELETE += HandleDeleteRequest;
             PATCH += HandlePatchRequest;
         }
+
+        /// <summary>
+        /// POST request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts, starting row 1
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try
@@ -187,6 +191,12 @@ namespace OldManInTheShopServer.Net.Api
                 return false;
             return true;
         }
+
+        /// <summary>
+        /// GET request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts, starting row 72
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try
@@ -260,6 +270,11 @@ namespace OldManInTheShopServer.Net.Api
             return ret;
         }
 
+        /// <summary>
+        /// DELETE request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts, starting row 51
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
             try
@@ -326,6 +341,12 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+
+        /// <summary>
+        /// PATCH request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts, starting row 28
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePatchRequest(HttpListenerContext ctx)
         {
             try

@@ -88,6 +88,11 @@ namespace OldManInTheShopServer.Net.Api
             PUT += HandlePutRequest;
         }
 
+        /// <summary>
+        /// POST request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts/Request, starting row 1
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try
@@ -164,6 +169,11 @@ namespace OldManInTheShopServer.Net.Api
             return true;
         }
 
+        /// <summary>
+        /// GET request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts/Request, starting row 23
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try
@@ -250,6 +260,11 @@ namespace OldManInTheShopServer.Net.Api
             return ret;
         }
 
+        /// <summary>
+        /// DELETE request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts/Request, starting row 71
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
             try
@@ -315,6 +330,11 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// PUT request format located in the Web Api Enumeration v2
+        /// under the tab Company/Parts/Request, starting row 49
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePutRequest(HttpListenerContext ctx)
         {
             try
