@@ -52,7 +52,7 @@ namespace OldManInTheShopServer.Net.Api
 #if RELEASE
         public PredictApi(int port) : base("https://+:" + port + "/predict")
 #elif DEBUG
-        public PredictApi(int port) : base("https://+:" + port + "/predict")
+        public PredictApi(int port) : base("http://+:" + port + "/predict")
 #endif
         {
             GET += HandleGetRequest;
