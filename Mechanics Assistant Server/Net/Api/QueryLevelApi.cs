@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using OldManInTheShopServer.Models;
 using OldManInTheShopServer.Data;
+using System;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -13,14 +14,14 @@ namespace OldManInTheShopServer.Net.Api
     {
 
         private QueryProcessor QueryProcessor;
-        
+#if RELEASE
         public QueryLevelApi(int port, QueryProcessor processorIn) : base("https://+:" + port + "/query")
+#elif DEBUG
+        public QueryLevelApi(int port, QueryProcessor processorIn) : base("http://+:" + port + "/query")
+#endif
         {
             QueryProcessor = processorIn;
-            PUT += HandlePutRequestJson;
             PUT += HandlePutRequestHtml;
-            POST += HandlePostRequest;
-            OPTIONS += HandleOptionRequest;
             //AddAction("put", HandlePutRequest);
             //AddAction("post", HandlePostRequest);
         }
@@ -47,47 +48,52 @@ namespace OldManInTheShopServer.Net.Api
          */
         public void HandlePutRequestHtml(HttpListenerContext ctxIn)
         {
-            if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("text/html"))
-                return;
-            if (!ctxIn.Request.HasEntityBody)
+            try
             {
-                ctxIn.Response.StatusCode = 400;
-                ctxIn.Response.StatusDescription = "Bad Request";
-                string body = "No Body";
-                ctxIn.Response.ContentType = "text/plain";
-                byte[] resp = Encoding.UTF32.GetBytes(body);
-                ctxIn.Response.ContentLength64 = resp.LongLength;
-                ctxIn.Response.OutputStream.Write(resp, 0, resp.Length);
+                if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("text/html"))
+                    return;
+                if (!ctxIn.Request.HasEntityBody)
+                {
+                    ctxIn.Response.StatusCode = 400;
+                    ctxIn.Response.StatusDescription = "Bad Request";
+                    string body = "No Body";
+                    ctxIn.Response.ContentType = "text/plain";
+                    byte[] resp = Encoding.UTF32.GetBytes(body);
+                    ctxIn.Response.ContentLength64 = resp.LongLength;
+                    ctxIn.Response.OutputStream.Write(resp, 0, resp.Length);
+                    ctxIn.Response.OutputStream.Close();
+                    return;
+                }
+                MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
+                query.Make = query.Make.ToLower();
+                query.Model = query.Model.ToLower();
+                List<string> possibleProblems = QueryProcessor.ProcessQuery(query);
+                StringBuilder tableBuilder = new StringBuilder();
+                tableBuilder.Append("<tr><th>Make</th><th>Model</th><th>Year</th><th>Problem</th><th>Similarity</th></tr>");
+                foreach (string possibleProblem in possibleProblems)
+                {
+                    tableBuilder.Append("<tr>");
+                    tableBuilder.Append("<td></td>");
+                    tableBuilder.Append("<td></td>");
+                    tableBuilder.Append("<td></td>");
+                    tableBuilder.Append("<td>" + possibleProblem + "</td>");
+                    tableBuilder.Append("<td>0.0</td>");
+                    tableBuilder.AppendLine("</tr>");
+                }
+                string tableString = tableBuilder.ToString();
+                byte[] problemResp = Encoding.UTF8.GetBytes(tableString);
+                ctxIn.Response.StatusCode = 200;
+                ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
+                ctxIn.Response.StatusDescription = "OK";
+                ctxIn.Response.ContentType = "text/html";
+                ctxIn.Response.ContentLength64 = problemResp.LongLength;
+                ctxIn.Response.OutputStream.Write(problemResp, 0, problemResp.Length);
                 ctxIn.Response.OutputStream.Close();
-                return;
-            }
-            MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
-            query.Make = query.Make.ToLower();
-            query.Model = query.Model.ToLower();
-            List<string> possibleProblems = QueryProcessor.ProcessQuery(query);
-            StringBuilder tableBuilder = new StringBuilder();
-            tableBuilder.Append("<tr><th>Make</th><th>Model</th><th>Year</th><th>Problem</th><th>Similarity</th></tr>");
-            foreach(string possibleProblem in possibleProblems)
+            } catch (Exception e)
             {
-                tableBuilder.Append("<tr>");
-                tableBuilder.Append("<td></td>");
-                tableBuilder.Append("<td></td>");
-                tableBuilder.Append("<td></td>");
-                tableBuilder.Append("<td>" + possibleProblem + "</td>");
-                tableBuilder.Append("<td>0.0</td>");
-                tableBuilder.AppendLine("</tr>");
+                WriteBodyResponse(ctxIn, 500, "Internal Server Error", "Error occurred while processing request: " + e.Message);
             }
-            string tableString = tableBuilder.ToString();
-            byte[] problemResp = Encoding.UTF8.GetBytes(tableString);
-            ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
-            ctxIn.Response.StatusDescription = "OK";
-            ctxIn.Response.ContentType = "text/html";
-            ctxIn.Response.ContentLength64 = problemResp.LongLength;
-            ctxIn.Response.OutputStream.Write(problemResp, 0, problemResp.Length);
-            ctxIn.Response.OutputStream.Close();
-
         }
 
         /**<summary>Responds to the put request made by a client</summary>

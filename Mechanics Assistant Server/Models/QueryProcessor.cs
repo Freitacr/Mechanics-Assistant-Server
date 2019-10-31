@@ -53,6 +53,8 @@ namespace OldManInTheShopServer.Models
 
     public class QueryProcessor
     {
+        public static QueryProcessor GlobalInstance = new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings());
+
         private static readonly int NUMBER_COMPLAINT_GROUPS = 3;
         private static readonly int NUMBER_QUERIES_OUT = 10;
 

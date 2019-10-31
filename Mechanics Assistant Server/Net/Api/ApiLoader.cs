@@ -15,6 +15,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             UriMappingCollection api = new UriMappingCollection();
             QueryResponseServer ret = new QueryResponseServer();
+            api.AddMapping(new QueryLevelApi(portIn, QueryProcessor.GlobalInstance));
             api.AddMapping(new CertValidationApi());
             api.AddMapping(new TopLevelApi());
             api.AddMapping(new RepairJobRequirementApi(portIn));
