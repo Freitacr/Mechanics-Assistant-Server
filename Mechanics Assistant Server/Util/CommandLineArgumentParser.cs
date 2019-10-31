@@ -4,6 +4,9 @@ using System.Text;
 
 namespace OldManInTheShopServer.Util
 {
+    /// <summary>
+    /// Utility class for parsing command line arguments and listing them in a simplistic and easy to access way
+    /// </summary>
     class CommandLineArgumentParser
     {
         public readonly List<string> PositionalArguments;

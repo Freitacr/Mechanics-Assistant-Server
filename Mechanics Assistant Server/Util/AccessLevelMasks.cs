@@ -4,6 +4,9 @@ using System.Text;
 
 namespace OldManInTheShopServer.Util
 {
+    /// <summary>
+    /// Bit masks that determine what privilages and roles a user has
+    /// </summary>
     class AccessLevelMasks
     {
         public static readonly byte PartMask = 0x4;

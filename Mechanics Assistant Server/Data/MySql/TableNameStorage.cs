@@ -4,6 +4,9 @@ using System.Text;
 
 namespace OldManInTheShopServer.Data.MySql
 {
+    /// <summary>
+    /// Class that stores either the full table name, or generic table name format for each table in the database
+    /// </summary>
     class TableNameStorage
     {
         public static readonly string OverallUserTable = "overall_user_table";

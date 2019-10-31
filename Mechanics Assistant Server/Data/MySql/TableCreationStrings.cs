@@ -4,6 +4,9 @@ using System.Text;
 
 namespace OldManInTheShopServer.Data.MySql
 {
+    /// <summary>
+    /// Storage class for storing table creation strings for the data portion of the table creation strings
+    /// </summary>
     public static class TableCreationDataDeclarationStrings
     {
         public static int RequestHistoryBytesSize = 2048;

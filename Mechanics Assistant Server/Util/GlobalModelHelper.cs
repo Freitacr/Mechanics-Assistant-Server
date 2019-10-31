@@ -8,6 +8,9 @@ using System.Text;
 
 namespace OldManInTheShopServer.Util
 {
+    /// <summary>
+    /// Helper class designed to assist in loading or training and saving the global IKeywordPredictor models.
+    /// </summary>
     class GlobalModelHelper
     {
 

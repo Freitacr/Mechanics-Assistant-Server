@@ -10,6 +10,10 @@ using OldManInTheShopServer.Util;
 
 namespace OldManInTheShopServer.Util
 {
+    /// <summary>
+    /// Utility class to ease the testing of the validity of login and auth tokens and
+    /// testing for a valid initial login attempt or intitial authentication attempt
+    /// </summary>
     class UserVerificationUtil
     {
         public static bool LoginTokenValid(OverallUser databaseUser, string loginToken)

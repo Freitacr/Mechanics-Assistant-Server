@@ -5,6 +5,9 @@ using System.Text;
 
 namespace OldManInTheShopServer.Util
 {
+    /// <summary>
+    /// Helper class to ease making strings that represent JSON objects
+    /// </summary>
     public class JsonDictionaryStringConstructor
     {
         private Dictionary<string, object> Pairs;
@@ -67,6 +70,9 @@ namespace OldManInTheShopServer.Util
         }
     }
 
+    /// <summary>
+    /// Helper class to ease making lists of JSON objects
+    /// </summary>
     public class JsonListStringConstructor
     {
         private List<object> Elements;

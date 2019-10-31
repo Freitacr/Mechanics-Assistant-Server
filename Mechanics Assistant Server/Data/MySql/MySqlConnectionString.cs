@@ -1,5 +1,8 @@
 ﻿namespace OldManInTheShopServer.Data.MySql
 {
+    /// <summary>
+    /// Class for constructing a MySqlConnection's ConnectionString
+    /// </summary>
     class MySqlConnectionString
     {
         public string Server { get; set; }

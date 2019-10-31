@@ -13,8 +13,16 @@ namespace OldManInTheShopServer.Util
         public string DefaultFileLocation;
     }
 
+    /// <summary>
+    /// Helper class for dealing with the reflection required to retrieve all IKeywordPredictor implementing classes for global instantiation
+    /// </summary>
     class ReflectionHelper
     {
+        /// <summary>
+        /// Attempts to retrieve all IKeywordPredictor implementing classes, parse their KeywordPredictor attribute for a default file location, and return
+        /// a mapping of the IKeywordPredictor implementing classes to their default file location
+        /// </summary>
+        /// <returns>a mapping of the IKeywordPredictor implementing classes to their default file location</returns>
         public static IEnumerable<KeywordPredictorFileMapping> GetAllKeywordPredictors()
         {
             LinkedList<KeywordPredictorFileMapping> ret = new LinkedList<KeywordPredictorFileMapping>();

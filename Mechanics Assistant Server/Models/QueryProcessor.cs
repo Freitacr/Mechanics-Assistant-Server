@@ -51,6 +51,12 @@ namespace OldManInTheShopServer.Models
         }
     }
 
+    /// <summary>
+    /// Old class for responding to queries for similar JobDataEntries. Will be deprecated as soon as newer DatabaseQueryProcessor is
+    /// fully completed and the web-sided part of this program is updated to use the new processor
+    /// 
+    /// As such, the documentation provided is minimal to none
+    /// </summary>
     public class QueryProcessor
     {
         public static QueryProcessor GlobalInstance = new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings());

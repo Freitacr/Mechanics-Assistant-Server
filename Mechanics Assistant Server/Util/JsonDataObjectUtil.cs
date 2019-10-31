@@ -8,6 +8,10 @@ using System.IO;
 
 namespace OldManInTheShopServer.Util
 {
+    /// <summary>
+    /// Helper class designed to turn working with the DataContractJsonSerializer object easier
+    /// </summary>
+    /// <typeparam name="T">Generic type that has the DataContract attribute applied to its definition.</typeparam>
     static class JsonDataObjectUtil<T>
     {
         public static T ParseObject(HttpListenerContext ctx)

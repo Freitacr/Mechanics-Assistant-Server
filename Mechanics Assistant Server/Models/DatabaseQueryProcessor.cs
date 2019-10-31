@@ -36,6 +36,9 @@ namespace OldManInTheShopServer.Models
         }
     }
 
+    /// <summary>
+    /// Class responsible for processing Prediction Queries using the MySql Database
+    /// </summary>
     public class DatabaseQueryProcessor
     {
         private AveragedPerceptronTagger KeywordTagger;
@@ -80,6 +83,13 @@ namespace OldManInTheShopServer.Models
                 throw new InvalidCastException("Loaded class could not be cast to IDatabaseQueryProblemPredictor");
         }
 
+        /// <summary>
+        /// Attempts to return a list of the top 3 most similar complaint groups from the database
+        /// </summary>
+        /// <param name="entryIn">The query to predict the most similar complaint groups of</param>
+        /// <param name="manipulator">The object to use to access the database</param>
+        /// <param name="companyId">The id of the company the request is being made for. Determines which tables to use in the database</param>
+        /// <returns>Json formatted string that contains the top 3 complaint groups that are most similar to the query made, and their database ids</returns>
         public string ProcessQueryForComplaintGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);
@@ -117,6 +127,17 @@ namespace OldManInTheShopServer.Models
             }
         }
 
+        /// <summary>
+        /// Attempts to retrieve the top <paramref name="numRequested"/> similar JobDataEntries from the database that are a part of the specified complaint group
+        /// </summary>
+        /// <param name="entryIn">Entry that represents the query made</param>
+        /// <param name="manipulator">Object to access the database with</param>
+        /// <param name="companyId">The id of the company to make the request of. Determines which tables to retrieve the data from</param>
+        /// <param name="complaintGroupId">Database id of the complaint group to match JobDataEntries by</param>
+        /// <param name="numRequested">Number of requested JobDataEntries to output</param>
+        /// <param name="offset">Number to offset the list of returned JobDataEntries by.
+        /// So with an offset of 5 and 10 JobDataEntires requested, the top 5-15 JobDataEntries would instead be returned</param>
+        /// <returns>Json string containing the requested similar JobDataEntries</returns>
         public string ProcessQueryForSimilaryQueries(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int complaintGroupId, int numRequested, int offset=0)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);

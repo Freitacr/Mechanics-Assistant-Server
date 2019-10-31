@@ -1,5 +1,12 @@
 ﻿namespace OldManInTheShopServer.Util
 {
+    /// <summary>
+    /// Class that holds the responsiblity of storing the default file locations of
+    /// the various models that this program uses.
+    /// 
+    /// Will soon be deprecated when the new prediction api is fully functional and integrated
+    /// into the web service
+    /// </summary>
     public static class DefaultModelFileLocations
     {
         public static readonly string POS_TAGGER_ENG_FILE = "InitialData\\averaged_perceptron_tagger.ans";
