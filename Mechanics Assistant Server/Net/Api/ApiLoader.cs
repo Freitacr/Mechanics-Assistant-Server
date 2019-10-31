@@ -6,7 +6,11 @@ namespace OldManInTheShopServer.Net.Api
 {
     public static class ApiLoader
     {
-
+        /// <summary>
+        /// Loads all ApiDefinitions and starts a server to listen for them
+        /// </summary>
+        /// <param name="portIn">Number of the port the server should listen on</param>
+        /// <returns></returns>
         public static QueryResponseServer LoadApiAndListen(int portIn)
         {
             UriMappingCollection api = new UriMappingCollection();

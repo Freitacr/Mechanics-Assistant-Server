@@ -28,6 +28,13 @@ namespace OldManInTheShopServer.Net.Api
         {
             GET += HandleGetRequest;
         }
+
+
+        /// <summary>
+        /// GET request format located in the Web Api Enumeration v2 google sheets document in the shared drive, 
+        /// under the tab Company/Accuracy, starting at row 1
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try
