@@ -71,6 +71,11 @@ namespace OldManInTheShopServer.Net.Api
             DELETE += HandleDeleteRequest;
         }
 
+        /// <summary>
+        /// POST request format located in the Web Api Enumeration v2
+        /// under the tab Company/Forum, starting row 1
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try {
@@ -148,6 +153,11 @@ namespace OldManInTheShopServer.Net.Api
             return true;
         }
 
+        /// <summary>
+        /// GET request format located in the Web Api Enumeration v2
+        /// under the tab Company/Forum, starting row 49
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try
@@ -242,6 +252,11 @@ namespace OldManInTheShopServer.Net.Api
             return retConstructor;
         }
 
+        /// <summary>
+        /// DELETE request format located in the Web Api Enumeration v2
+        /// under the tab Company/Forum, starting row 26
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
             try

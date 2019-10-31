@@ -109,6 +109,12 @@ namespace OldManInTheShopServer.Net.Api
             PATCH += HandlePatchRequest;
             PUT += HandlePutRequest;
         }
+
+        /// <summary>
+        /// POST request format located in the Web Api Enumeration v2
+        /// under the tab Company/Safety/Request, starting row 1
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try
@@ -184,6 +190,12 @@ namespace OldManInTheShopServer.Net.Api
                 return false;
             return true;
         }
+
+        /// <summary>
+        /// GET request format located in the Web Api Enumeration v2
+        /// under the tab Company/Safety/Request, starting row 23
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try
@@ -278,6 +290,11 @@ namespace OldManInTheShopServer.Net.Api
             return ret;
         }
 
+        /// <summary>
+        /// DELETE request format located in the Web Api Enumeration v2
+        /// under the tab Company/Safety/Request, starting row 73
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
             try
@@ -346,6 +363,11 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// PATCH request format located in the Web Api Enumeration v2
+        /// under the tab Company/Safety/Request, starting row 95
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePatchRequest(HttpListenerContext ctx)
         {
             try
@@ -425,6 +447,11 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// PUT request format located in the Web Api Enumeration v2
+        /// under the tab Company/Safety/Request, starting row 49
+        /// </summary>
+        /// <param name="ctx">HttpListenerContext to respond to</param>
         private void HandlePutRequest(HttpListenerContext ctx)
         {
             try
