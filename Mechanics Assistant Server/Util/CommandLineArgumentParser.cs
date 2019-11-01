@@ -33,8 +33,36 @@ namespace OldManInTheShopServer.Util
                     PositionalArguments.Add(args[i]);
                 }
             }
+            CombineQuotedPositionalArguments();
         }
 
-
+        private void CombineQuotedPositionalArguments()
+        {
+            List<int> indicesToRemove = new List<int>();
+            for(int i = 0; i < PositionalArguments.Count; i++)
+            {
+                if (PositionalArguments[i].StartsWith("\""))
+                {
+                    int originalIndex = i;
+                    i++;
+                    bool endFound = false;
+                    while(i < PositionalArguments.Count && !PositionalArguments[i].EndsWith("\"")){
+                        PositionalArguments[originalIndex] += PositionalArguments[i];
+                        indicesToRemove.Add(i);
+                        i++;
+                        if (i < PositionalArguments.Count && PositionalArguments[i].EndsWith("\""))
+                            endFound = true;
+                    }
+                    if (!endFound)
+                        throw new FormatException("Quoted arguments did not contain and ending pair of quotes");
+                    PositionalArguments[originalIndex].Remove(0, 1);
+                    PositionalArguments[originalIndex].Remove(PositionalArguments[originalIndex].Length - 1);
+                }
+            }
+            for(int i = indicesToRemove.Count-1; i >= 0; i--)
+            {
+                PositionalArguments.RemoveAt(i);
+            }
+        }
     }
 }

@@ -1620,7 +1620,7 @@ namespace OldManInTheShopServer.Data.MySql
         public bool AddCompany(string companyLegalName)
         {
             var cmd = Connection.CreateCommand();
-            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName) values(\"" + companyLegalName + "\");";
+            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName, ModelAccuracy) values(\"" + companyLegalName + "\", 0.0);";
             if (!ExecuteNonQuery(cmd))
                 return false;
             cmd.CommandText = "select max(id) from " + TableNameStorage.CompanyIdTable;

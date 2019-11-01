@@ -48,28 +48,10 @@ namespace OldManInTheShopServer
             MySqlDataManipulator.GlobalConfiguration.Close();
             MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString(""));
             CommandLineArgumentParser parser = new CommandLineArgumentParser(args);
-            if(parser.KeyedArguments.ContainsKey("-c"))
-            {
-                if(parser.KeyedArguments["-c"].Equals("company"))
-                {
-                    if(!MySqlDataManipulator.GlobalConfiguration.AddCompany(string.Join(" ", parser.PositionalArguments)))
-                    {
-                        Console.WriteLine("Failed to add company " + string.Join(" ", parser.PositionalArguments));
-                        Console.WriteLine("Failed because of error " + MySqlDataManipulator.GlobalConfiguration.LastException.Message);
-                        MySqlDataManipulator.GlobalConfiguration.Close();
-                        return;
-                    }
-                    Console.WriteLine("Successfully added company " + string.Join(" ", parser.PositionalArguments));
-                    MySqlDataManipulator.GlobalConfiguration.Close();
-                    return;
-                } else
-                {
-                    Console.WriteLine("Only company creation is supported. Use -c company.");
-                    MySqlDataManipulator.GlobalConfiguration.Close();
-                    return;
-                }
-            }
+            bool exit = DatabaseEntityCreationUtilities.PerformRequestedCreation(MySqlDataManipulator.GlobalConfiguration, parser);
             MySqlDataManipulator.GlobalConfiguration.Close();
+            if (exit)
+                return;
             if (!GlobalModelHelper.LoadOrTrainGlobalModels(ReflectionHelper.GetAllKeywordPredictors()))
                 throw new NullReferenceException("One or more global models failed to load. Server cannot start.");
             else if(AveragedPerceptronTagger.GetTagger() == null)
