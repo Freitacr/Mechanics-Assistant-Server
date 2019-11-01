@@ -53,6 +53,11 @@ namespace OldManInTheShopServer.Net.Api
             PATCH += HandlePatchRequest;
         }
 
+        /// <summary>
+        /// Request retrieving a user's settings. Documention is found in the Web API Enumeration file
+        /// in the User/Settings tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try
@@ -101,6 +106,11 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// Request editing a user's setting's value. Documention is found in the Web API Enumeration file
+        /// in the User/Settings tab, starting at row 30
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandlePatchRequest(HttpListenerContext ctx)
         {
             try

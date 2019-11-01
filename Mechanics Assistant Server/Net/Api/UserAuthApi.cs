@@ -45,6 +45,11 @@ namespace OldManInTheShopServer.Net.Api
             PUT += HandlePutRequest;
         }
 
+        /// <summary>
+        /// Request for retrieving a user's security question. Documention is found in the Web API Enumeration file
+        /// in the /User/Auth tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try
@@ -93,6 +98,11 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// Request for a user to receive authentication to make edits to content they have access to. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob/Requirements tab, starting at row 21
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandlePutRequest(HttpListenerContext ctx)
         {
             try

@@ -49,6 +49,11 @@ namespace OldManInTheShopServer.Net.Api
             PUT += HandlePutRequest;
         }
 
+        /// <summary>
+        /// Request for creating a base mechanic user account. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob/Requirements tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         public void HandlePostRequest(HttpListenerContext ctx)
         {
             try
@@ -114,6 +119,11 @@ namespace OldManInTheShopServer.Net.Api
             return !(req.SecurityQuestion == null || req.SecurityQuestion.Equals(""));
         }
 
+        /// <summary>
+        /// Request for a user to log in using their email and password. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob/Requirements tab, starting at row 21
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         public void HandlePutRequest(HttpListenerContext ctx)
         {
             try

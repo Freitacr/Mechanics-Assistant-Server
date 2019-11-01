@@ -32,6 +32,11 @@ namespace OldManInTheShopServer.Net.Api
             GET += HandleGetRequest;
         }
 
+        /// <summary>
+        /// Request for retrieving a user's previous request history. Documention is found in the Web API Enumeration file
+        /// in the /User/Request tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandleGetRequest(HttpListenerContext ctx)
         {
             try

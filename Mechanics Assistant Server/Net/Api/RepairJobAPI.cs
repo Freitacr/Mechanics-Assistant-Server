@@ -40,7 +40,11 @@ namespace OldManInTheShopServer.Net.Api
             POST += HandlePostRequest;
         }
 
-
+        /// <summary>
+        /// Request for adding a repair job entry. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try

@@ -42,6 +42,11 @@ namespace OldManInTheShopServer.Net.Api
             PUT += HandlePutRequest;
         }
 
+        /// <summary>
+        /// Request for either negatively or positively reporting a repair job entry. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob/Report tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandlePutRequest(HttpListenerContext ctx) {
             try
             {

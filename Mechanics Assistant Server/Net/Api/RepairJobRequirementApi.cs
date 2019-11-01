@@ -84,6 +84,11 @@ namespace OldManInTheShopServer.Net.Api
             DELETE += HandleDeleteRequest;
         }
 
+        /// <summary>
+        /// Request for adding an auxillary requirement to a repair job entry. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob/Requirements tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try
@@ -154,6 +159,11 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// Request for down voting an auxillary requirement in a repair job entry. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob/Requirements tab, starting at row 21
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
             try
@@ -238,6 +248,11 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// Request for down editing an auxillary requirement in a repair job entry. Documention is found in the Web API Enumeration file
+        /// in the /RepairJob/Requirements tab, starting at row 42
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandlePatchRequest(HttpListenerContext ctx)
         {
             try

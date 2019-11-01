@@ -35,6 +35,11 @@ namespace OldManInTheShopServer.Net.Api
             DELETE += HandleDeleteRequest;
         }
 
+        /// <summary>
+        /// Request for deleting the history of a prediction request. Documention is found in the Web API Enumeration file
+        /// in the User/Job tab, starting at row 1
+        /// </summary>
+        /// <param name="ctx">The HttpListenerContext to respond to</param>
         private void HandleDeleteRequest(HttpListenerContext ctx)
         {
             try
