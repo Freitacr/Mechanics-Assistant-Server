@@ -27,6 +27,7 @@ namespace OldManInTheShopServer.Data.MySql
         /**<summary>Stores the last MySqlException encountered</summary>*/
         public MySqlException LastException { get; private set; }
         private MySqlConnection Connection;
+        public string ConnectionString { get; private set; }
         /// <summary>
         /// Global Instance that should remain closed after initial assignment, connection, and closing.
         /// It is responsible for storing the connection string for use by other MySqlDataManipulators
@@ -65,6 +66,7 @@ namespace OldManInTheShopServer.Data.MySql
             {
                 Connection = new MySqlConnection();
                 Connection.ConnectionString = connectionString;
+                ConnectionString = connectionString;
                 Connection.Open();
             } catch (MySqlException e)
             {
@@ -97,7 +99,7 @@ namespace OldManInTheShopServer.Data.MySql
         /// <returns>See summary</returns>
         public string GetConnectionString()
         {
-            return Connection.ConnectionString;
+            return ConnectionString;
         }
 
         /// <summary>
@@ -1753,8 +1755,8 @@ namespace OldManInTheShopServer.Data.MySql
          */
         public bool ValidateDatabaseIntegrity(string databaseName)
         {
-            string connectionString = Connection.ConnectionString;
-            int databaseKeyLoc = connectionString.IndexOf("database");
+            string connectionString = ConnectionString;
+            int databaseKeyLoc = connectionString.IndexOf("DATABASE");
             int databaseValueEnd = connectionString.IndexOf(";", databaseKeyLoc);
             connectionString = connectionString.Remove(databaseKeyLoc, (databaseValueEnd - databaseKeyLoc)+1);
             if (!Connect(connectionString))
