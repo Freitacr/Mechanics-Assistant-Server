@@ -29,9 +29,37 @@ namespace OldManInTheShopServer
             }
         }
 
+        static DatabaseConfigurationFileContents RetrieveConfiguration(CommandLineArgumentParser parser)
+        {
+            DatabaseConfigurationFileContents config = DatabaseConfigurationFileHandler.LoadConfigurationFile();
+            if(config == null)
+            {
+                if (!DatabaseConfigurationFileHandler.WriteConfigurationFileDefaults())
+                    return null;
+                config = DatabaseConfigurationFileHandler.LoadConfigurationFile();
+                if (!parser.KeyedArguments.ContainsKey("-p"))
+                    return null;
+                config.Pass = parser.KeyedArguments["-p"];
+            }
+            return config;
+        }
+
         static void Main(string[] args)
         {
-            bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString(""));
+            CommandLineArgumentParser parser = new CommandLineArgumentParser(args);
+            DatabaseConfigurationFileContents config = RetrieveConfiguration(parser);
+            if(config == null)
+            {
+                Console.WriteLine("Failed to retrieve or restore database configuration file. Exiting");
+                return;
+            }
+            if(config.Pass == null)
+            {
+                Console.WriteLine("Configuration did not contain a password, this is an irrecoverable error. Exiting");
+                return;
+            }
+
+            bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass));
             
             if(!res && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 1049 && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 0)
             {
@@ -39,15 +67,14 @@ namespace OldManInTheShopServer
                 Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
                 return;
             }
-            if(!MySqlDataManipulator.GlobalConfiguration.ValidateDatabaseIntegrity("db_test"))
+            if(!MySqlDataManipulator.GlobalConfiguration.ValidateDatabaseIntegrity(config.Database))
             {
                 Console.WriteLine("Encountered an error opening the global configuration connection");
                 Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
                 return;
             }
             MySqlDataManipulator.GlobalConfiguration.Close();
-            MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString("localhost", "db_test", "testUser").ConstructConnectionString(""));
-            CommandLineArgumentParser parser = new CommandLineArgumentParser(args);
+            MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass));
             bool exit = DatabaseEntityCreationUtilities.PerformRequestedCreation(MySqlDataManipulator.GlobalConfiguration, parser);
             MySqlDataManipulator.GlobalConfiguration.Close();
             if (exit)

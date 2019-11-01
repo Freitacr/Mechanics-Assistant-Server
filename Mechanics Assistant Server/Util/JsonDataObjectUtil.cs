@@ -45,5 +45,21 @@ namespace OldManInTheShopServer.Util
             }
             return req;
         }
+
+        
+        public static string ConvertObject(T source)
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(T));
+            MemoryStream streamOut = new MemoryStream();
+            try
+            {
+                serializer.WriteObject(streamOut, source);
+            } catch (SerializationException)
+            {
+                return null;
+            }
+            byte[] sourceBytes = streamOut.ToArray();
+            return Encoding.UTF8.GetString(sourceBytes);
+        }
     }
 }
