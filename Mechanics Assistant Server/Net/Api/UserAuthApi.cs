@@ -33,6 +33,19 @@ namespace OldManInTheShopServer.Net.Api
         public string SecurityAnswer;
     }
 
+    [DataContract]
+    class AuthenticationCheckRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+    }
+
     class UserAuthApi : ApiDefinition
     {
 #if RELEASE
@@ -112,7 +125,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                     return;
                 }
-                AuthenticationRequest req = JsonDataObjectUtil<AuthenticationRequest>.ParseObject(ctx);
+                string reqString = new StreamReader(ctx.Request.InputStream).ReadToEnd();
+                AuthenticationRequest req = JsonDataObjectUtil<AuthenticationRequest>.ParseObject(reqString);
                 if (req == null)
                 {
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
@@ -120,6 +134,12 @@ namespace OldManInTheShopServer.Net.Api
                 }
                 if (!ValidateAuthenticationRequest(req))
                 {
+                    AuthenticationCheckRequest req2 = JsonDataObjectUtil<AuthenticationCheckRequest>.ParseObject(reqString);
+                    if(req2 != null && ValidateAuthCheckRequest(req2))
+                    {
+                        HandleAuthCheckRequest(ctx, req2);
+                        return;
+                    }
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
@@ -155,7 +175,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
                         return;
                     }
-                    WriteBodyResponse(ctx, 200, "OK", tokens.AuthLoggedInToken);
+                    JsonDictionaryStringConstructor retConstructor = new JsonDictionaryStringConstructor();
+                    retConstructor.SetMapping("token", tokens.AuthLoggedInToken);
+                    WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
                 }
             } catch(Exception e)
             {
@@ -201,6 +223,55 @@ namespace OldManInTheShopServer.Net.Api
             DateTime now = DateTime.UtcNow;
             now = now.AddHours(.5);
             tokens.AuthLoggedInTokenExpiration = now.ToString();
+        }
+
+        private void HandleAuthCheckRequest(HttpListenerContext ctx, AuthenticationCheckRequest req)
+        {
+            try
+            {
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    var user = connection.GetUserById(req.UserId);
+                    if (user == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(user, req.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Unauthorized", "Login Token is incorrect or expired");
+                        return;
+                    }
+                    if(!UserVerificationUtil.AuthTokenValid(user, req.AuthToken))
+                    {
+                        WriteBodylessResponse(ctx, 401, "Unauthorized");
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
+        }
+
+        private bool ValidateAuthCheckRequest(AuthenticationCheckRequest req)
+        {
+            if (req.LoginToken == null)
+                return false;
+            if (req.AuthToken == null)
+                return false;
+            if (req.UserId <= 0)
+                return false;
+            return true;
         }
     }
 }

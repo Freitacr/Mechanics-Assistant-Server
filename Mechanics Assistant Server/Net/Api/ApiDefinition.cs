@@ -21,6 +21,15 @@ namespace OldManInTheShopServer.Net.Api
         public ApiDefinition(string baseUri)
         {
             Uri = new HttpUri(baseUri);
+            OPTIONS += HandleOptionRequest;
+        }
+        public void HandleOptionRequest(HttpListenerContext ctxIn)
+        {
+            ctxIn.Response.StatusCode = 200;
+            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "*");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
+            ctxIn.Response.Close();
         }
 
         /** <summary>Method to reliably tell the requesting client that the method they used to request a resource is not valid</summary> */
@@ -35,6 +44,8 @@ namespace OldManInTheShopServer.Net.Api
             ctx.Response.StatusCode = responseCode;
             ctx.Response.StatusDescription = responseString;
             ctx.Response.ContentType = contentType;
+            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
             byte[] resp = Encoding.UTF8.GetBytes(responseBody);
             ctx.Response.ContentLength64 = resp.LongLength;
             ctx.Response.OutputStream.Write(resp, 0, resp.Length);
@@ -45,6 +56,8 @@ namespace OldManInTheShopServer.Net.Api
         {
             ctx.Response.StatusCode = responseCode;
             ctx.Response.StatusDescription = responseString;
+            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
             ctx.Response.OutputStream.Close();
         }
     }

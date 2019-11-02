@@ -20,6 +20,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         public string Token { get; set; }
         [DataMember(Name = "userId")]
         public int Id { get; set; }
+        [DataMember(Name = "accessLevel")]
+        public int AccessLevel;
     }
 
     [TestClass]
@@ -118,7 +120,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
             var responseContent = (ExpectedLoginResponse) serializer.ReadObject(actualResponse.Content.ReadAsStreamAsync().Result);
             Assert.AreEqual(1, responseContent.Id);
             Assert.IsTrue(UserVerificationUtil.LoginTokenValid(Manipulator.GetUserById(1), responseContent.Token));
-            
+            Assert.AreEqual(1, responseContent.AccessLevel);
         }
 
 
