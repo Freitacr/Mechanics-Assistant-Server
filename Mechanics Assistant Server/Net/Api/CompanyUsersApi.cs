@@ -32,10 +32,10 @@ namespace OldManInTheShopServer.Net.Api
         public CompanyUsersApi(int port) : base("http://+:"+port+"/company/users")
 #endif
         {
-            GET += HandleGetRequest;
+            PUT += HandlePutRequest;
         }
 
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandlePutRequest(HttpListenerContext ctx)
         {
             try
             {

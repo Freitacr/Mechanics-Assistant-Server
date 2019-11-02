@@ -7,6 +7,7 @@ using System.Net;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
+using System.IO;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -53,7 +54,7 @@ namespace OldManInTheShopServer.Net.Api
     }
 
     [DataContract]
-    class CompanyRequestsDeleteRequest
+    class CompanyRequestsPatchRequest
     {
         [DataMember]
         public int UserId;
@@ -77,8 +78,7 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             POST += HandlePostRequest;
-            GET += HandleGetRequest;
-            DELETE += HandleDeleteRequest;
+            PATCH += HandlePatchRequest;
             PUT += HandlePutRequest;
         }
 
@@ -161,21 +161,10 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Requests, starting row 23
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandleGetRequest(HttpListenerContext ctx, CompanyRequestsGetRequest entry)
         {
             try
             {
-                if (!ctx.Request.HasEntityBody)
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                    return;
-                }
-                CompanyRequestsGetRequest entry = JsonDataObjectUtil<CompanyRequestsGetRequest>.ParseObject(ctx);
-                if (!ValidateGetRequest(entry))
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                    return;
-                }
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -242,7 +231,7 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Requests, starting row 73
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleDeleteRequest(HttpListenerContext ctx)
+        private void HandlePatchRequest(HttpListenerContext ctx)
         {
             try
             {
@@ -251,8 +240,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanyRequestsDeleteRequest entry = JsonDataObjectUtil<CompanyRequestsDeleteRequest>.ParseObject(ctx);
-                if (!ValidateDeleteRequest(entry))
+                CompanyRequestsPatchRequest entry = JsonDataObjectUtil<CompanyRequestsPatchRequest>.ParseObject(ctx);
+                if (!ValidatePatchRequest(entry))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
@@ -321,9 +310,16 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanyRequestsPutRequest entry = JsonDataObjectUtil<CompanyRequestsPutRequest>.ParseObject(ctx);
+                string requestStr = new StreamReader(ctx.Request.InputStream).ReadToEnd();
+                CompanyRequestsPutRequest entry = JsonDataObjectUtil<CompanyRequestsPutRequest>.ParseObject(requestStr);
                 if (!ValidatePutRequest(entry))
                 {
+                    CompanyRequestsGetRequest req2 = JsonDataObjectUtil<CompanyRequestsGetRequest>.ParseObject(requestStr);
+                    if(req2 != null && ValidateGetRequest(req2))
+                    {
+                        HandleGetRequest(ctx, req2);
+                        return;
+                    }
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
@@ -390,7 +386,7 @@ namespace OldManInTheShopServer.Net.Api
             return true;
         }
 
-        private bool ValidateDeleteRequest(CompanyRequestsDeleteRequest req)
+        private bool ValidatePatchRequest(CompanyRequestsPatchRequest req)
         {
             if (req.LoginToken == null || req.LoginToken.Equals(""))
                 return false;

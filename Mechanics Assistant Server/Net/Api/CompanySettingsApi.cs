@@ -25,7 +25,7 @@ namespace OldManInTheShopServer.Net.Api
         public string SettingsKey;
     }
 
-    class CompanySettingsApiGetRequest
+    class CompanySettingsApiPutRequest
     {
         [DataMember]
         public int UserId;
@@ -45,7 +45,7 @@ namespace OldManInTheShopServer.Net.Api
         public CompanySettingsApi(int port) : base("http://+:" + port + "/company/settings")
 #endif
         {
-            GET += HandleGetRequest;
+            PUT += HandlePutRequest;
             PATCH += HandlePatchRequest;
         }
 
@@ -54,7 +54,7 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Settings, starting row 1
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandlePutRequest(HttpListenerContext ctx)
         {
             try
             {
@@ -63,13 +63,13 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
                     return;
                 }
-                CompanySettingsApiGetRequest entry = JsonDataObjectUtil<CompanySettingsApiGetRequest>.ParseObject(ctx);
+                CompanySettingsApiPutRequest entry = JsonDataObjectUtil<CompanySettingsApiPutRequest>.ParseObject(ctx);
                 if (entry == null)
                 {
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Request was in the wrong format");
                     return;
                 }
-                if (!ValidateGetRequest(entry))
+                if (!ValidatePutRequest(entry))
                 {
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields in the request were filled");
                     return;
@@ -183,7 +183,7 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
-        private bool ValidateGetRequest(CompanySettingsApiGetRequest req)
+        private bool ValidatePutRequest(CompanySettingsApiPutRequest req)
         {
             if (req.LoginToken == null)
                 return false;

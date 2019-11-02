@@ -11,7 +11,7 @@ using OldManInTheShopServer.Util;
 namespace OldManInTheShopServer.Net.Api
 {
     [DataContract]
-    class CompanyAccuracyApiFullGetRequest
+    class CompanyAccuracyApiPutRequest
     {
         [DataMember]
         public int UserId;
@@ -26,7 +26,7 @@ namespace OldManInTheShopServer.Net.Api
         public CompanyAccuracyApi(int port) : base("http://+:" + port + "/company/accuracy")
 #endif
         {
-            GET += HandleGetRequest;
+            PUT += HandlePutRequest;
         }
 
 
@@ -35,7 +35,7 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Accuracy, starting at row 1
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandlePutRequest(HttpListenerContext ctx)
         {
             try
             {
@@ -44,8 +44,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanyAccuracyApiFullGetRequest entry = JsonDataObjectUtil<CompanyAccuracyApiFullGetRequest>.ParseObject(ctx);
-                if (!ValidateGetRequest(entry))
+                CompanyAccuracyApiPutRequest entry = JsonDataObjectUtil<CompanyAccuracyApiPutRequest>.ParseObject(ctx);
+                if (!ValidatePutRequest(entry))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
@@ -87,7 +87,7 @@ namespace OldManInTheShopServer.Net.Api
             }
 
         }
-        private bool ValidateGetRequest(CompanyAccuracyApiFullGetRequest req)
+        private bool ValidatePutRequest(CompanyAccuracyApiPutRequest req)
         {
             if (req.LoginToken == null)
                 return false;
