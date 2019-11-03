@@ -25,6 +25,7 @@ namespace OldManInTheShopServer.Net.Api
         public string SettingsKey;
     }
 
+    [DataContract]
     class CompanySettingsApiPutRequest
     {
         [DataMember]
@@ -89,7 +90,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
                         return;
                     }
-                    List<CompanySettingsEntry> entries = connection.GetCompanySettings(user.UserId);
+                    List<CompanySettingsEntry> entries = connection.GetCompanySettings(user.Company);
                     if (entries == null)
                     {
                         WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occured while retrieving settings: " + connection.LastException.Message);
