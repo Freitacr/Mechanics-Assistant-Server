@@ -379,6 +379,11 @@ namespace OldManInTheShopServer.Data.MySql
                 UpdateUserPreviousRequests(user);
                 return false;
             }
+            if(accept)
+            {
+                user.Company = companyId;
+                return UpdateUserCompany(user);
+            }
             return true;
         }
 
@@ -1435,6 +1440,29 @@ namespace OldManInTheShopServer.Data.MySql
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Updates the database version of toUpdate's company to match the version passed in
+        /// </summary>
+        /// <param name="toUpdate">OverallUser object that contains the state the database version should reflect</param>
+        /// <returns>true if the update was successful, false otherwise</returns>
+        public bool UpdateUserCompany(OverallUser toUpdate)
+        {
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set Company=" + toUpdate.Company + " where " +
+                "id = " + toUpdate.UserId + ";";
+            int res;
+            try
+            {
+                res = cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return res == 1;
         }
 
         /// <summary>

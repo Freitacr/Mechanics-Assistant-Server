@@ -41,11 +41,11 @@ namespace OldManInTheShopServer.Net.Api
 
         public static void WriteBodyResponse(HttpListenerContext ctx, int responseCode, string responseString, string responseBody, string contentType = "text/plain")
         {
+            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
             ctx.Response.StatusCode = responseCode;
             ctx.Response.StatusDescription = responseString;
             ctx.Response.ContentType = contentType;
-            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
             byte[] resp = Encoding.UTF8.GetBytes(responseBody);
             ctx.Response.ContentLength64 = resp.LongLength;
             ctx.Response.OutputStream.Write(resp, 0, resp.Length);
