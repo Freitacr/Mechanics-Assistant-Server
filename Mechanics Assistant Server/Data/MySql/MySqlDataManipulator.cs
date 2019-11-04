@@ -255,7 +255,7 @@ namespace OldManInTheShopServer.Data.MySql
         public bool UpdateCompanySettings(int companyId, CompanySettingsEntry toUpdate)
         {
             string tableName = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
-            string cmdText = "update " + tableName + "set SettingKey=\"" + toUpdate.SettingKey + "\", SettingValue=\"" + toUpdate.SettingValue + "\" where id=" + toUpdate.Id+";";
+            string cmdText = "update " + tableName + " set SettingKey=\"" + toUpdate.SettingKey + "\", SettingValue=\"" + toUpdate.SettingValue + "\" where id=" + toUpdate.Id+";";
             var cmd = Connection.CreateCommand();
             cmd.CommandText = cmdText;
             return ExecuteNonQuery(cmd);
@@ -1465,6 +1465,24 @@ namespace OldManInTheShopServer.Data.MySql
             return res == 1;
         }
 
+        public bool UpdateUserAccessLevel(OverallUser toUpdate)
+        {
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set AccessLevel=" + toUpdate.AccessLevel + " where " +
+                "id = " + toUpdate.UserId + ";";
+            int res;
+            try
+            {
+                res = cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return res == 1;
+        }
+
         /// <summary>
         /// Updates the storage location of the JobDataEntry specified, moving it into the validated data if it was not previously validated, or vice versa
         /// </summary>
@@ -1725,10 +1743,28 @@ namespace OldManInTheShopServer.Data.MySql
             if (!ExecuteNonQuery(cmd))
                 return false;
 
+            string companySettingsTable = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
+
             cmd.CommandText = "create table " +
-                TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString()) +
+                companySettingsTable +
                 TableCreationDataDeclarationStrings.CompanySettings;
             if (!ExecuteNonQuery(cmd))
+                return false;
+
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.Public, true.ToString())) != 1)
+                return false;
+
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.Downvotes, 5.ToString())) != 1)
+                return false;
+
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.RetrainInterval, 7.ToString())) != 1)
+                return false;
+
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.ProblemPredictor, "Database")) != 1)
+                return false;
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.KeywordClusterer, "Similarity")) != 1)
+                return false;
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.KeywordPredictor, "Bayesian")) != 1)
                 return false;
 
             return true;

@@ -41,24 +41,50 @@ namespace OldManInTheShopServer.Net.Api
 
         public static void WriteBodyResponse(HttpListenerContext ctx, int responseCode, string responseString, string responseBody, string contentType = "text/plain")
         {
-            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
-            ctx.Response.StatusCode = responseCode;
-            ctx.Response.StatusDescription = responseString;
-            ctx.Response.ContentType = contentType;
-            byte[] resp = Encoding.UTF8.GetBytes(responseBody);
-            ctx.Response.ContentLength64 = resp.LongLength;
-            ctx.Response.OutputStream.Write(resp, 0, resp.Length);
-            ctx.Response.OutputStream.Close();
+            try
+            {
+                ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
+                ctx.Response.StatusCode = responseCode;
+                ctx.Response.StatusDescription = responseString;
+                ctx.Response.ContentType = contentType;
+                byte[] resp = Encoding.UTF8.GetBytes(responseBody);
+                ctx.Response.ContentLength64 = resp.LongLength;
+                ctx.Response.OutputStream.Write(resp, 0, resp.Length);
+                ctx.Response.OutputStream.Close();
+            } catch (HttpListenerException)
+            {
+                try
+                {
+                    ctx.Response.OutputStream.Dispose();
+                } catch (HttpListenerException)
+                {
+                    //ignore, we've tried.
+                }
+            }
         }
 
         public static void WriteBodylessResponse(HttpListenerContext ctx, int responseCode, string responseString)
         {
-            ctx.Response.StatusCode = responseCode;
-            ctx.Response.StatusDescription = responseString;
-            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
-            ctx.Response.OutputStream.Close();
+            try
+            {
+                ctx.Response.StatusCode = responseCode;
+                ctx.Response.StatusDescription = responseString;
+                ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
+                ctx.Response.OutputStream.Close();
+            }
+            catch (HttpListenerException)
+            {
+                try
+                {
+                    ctx.Response.OutputStream.Dispose();
+                }
+                catch (HttpListenerException)
+                {
+                    //ignore, we've tried.
+                }
+            }
         }
     }
 }

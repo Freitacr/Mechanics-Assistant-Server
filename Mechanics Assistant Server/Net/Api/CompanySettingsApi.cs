@@ -112,7 +112,40 @@ namespace OldManInTheShopServer.Net.Api
             ret.SetMapping("SettingValue", entry.SettingValue);
             ret.SetMapping("SettingKey", entry.SettingKey);
             ret.SetMapping("Id", entry.Id);
+            ret.SetMapping("Options", GetOptionsForKey(entry.SettingKey));
             return ret;
+        }
+
+        private JsonListStringConstructor GetOptionsForKey(string settingKey)
+        {
+            int keyHash = settingKey.GetHashCode();
+            if (keyHash == CompanySettingsKey.Downvotes.GetHashCode())
+            {
+                return CompanySettingsOptions.Downvotes;
+            } 
+            else if (keyHash == CompanySettingsKey.KeywordClusterer.GetHashCode())
+            {
+                return CompanySettingsOptions.KeywordClusterer;
+            }
+            else if (keyHash == CompanySettingsKey.KeywordPredictor.GetHashCode())
+            {
+                return CompanySettingsOptions.KeywordPredictor;
+            }
+            else if (keyHash == CompanySettingsKey.ProblemPredictor.GetHashCode())
+            {
+                return CompanySettingsOptions.ProblemPredictor;
+            }
+            else if (keyHash == CompanySettingsKey.Public.GetHashCode())
+            {
+                return CompanySettingsOptions.Public;
+            }
+            else if (keyHash == CompanySettingsKey.RetrainInterval.GetHashCode())
+            {
+                return CompanySettingsOptions.RetrainInterval;
+            } else
+            {
+                throw new ArgumentException("Setting with key " + settingKey + " did not have a listed set of options");
+            }
         }
 
         /// <summary>
@@ -155,7 +188,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
                         return;
                     }
-                    List<CompanySettingsEntry> entries = connection.GetCompanySettings(user.UserId);
+                    List<CompanySettingsEntry> entries = connection.GetCompanySettings(user.Company);
                     if (entries == null)
                     {
                         WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occured while retrieving settings: " + connection.LastException.Message);

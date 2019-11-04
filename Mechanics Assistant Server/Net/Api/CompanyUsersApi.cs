@@ -23,6 +23,24 @@ namespace OldManInTheShopServer.Net.Api
         public string AuthToken;
     }
 
+    [DataContract]
+    class CompanyUsersApiPatchRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+
+        [DataMember]
+        public string AuthToken;
+
+        [DataMember]
+        public int CompanyUserId;
+
+        [DataMember]
+        public int AccessLevel;
+    }
 
     class CompanyUsersApi : ApiDefinition
     {
@@ -33,6 +51,7 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             PUT += HandlePutRequest;
+            PATCH += HandlePatchRequest;
         }
 
         private void HandlePutRequest(HttpListenerContext ctx)
@@ -101,6 +120,87 @@ namespace OldManInTheShopServer.Net.Api
             List<SettingsEntry> entries = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(toConvert.Settings);
             ret.SetMapping("Display Name", entries.Where(obj => obj.Key.Equals("displayName")).First().Value);
             return ret;
+        }
+
+        private void HandlePatchRequest(HttpListenerContext ctx)
+        {
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
+                    return;
+                }
+                CompanyUsersApiPatchRequest entry = JsonDataObjectUtil<CompanyUsersApiPatchRequest>.ParseObject(ctx);
+                if (!ValidatePatchRequset(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was incorrect.");
+                        return;
+                    }
+                    if ((mappedUser.AccessLevel & AccessLevelMasks.AdminMask) == 0)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an admin");
+                        return;
+                    }
+                    OverallUser user = connection.GetUserById(entry.CompanyUserId);
+                    if(user == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "Company User was not found on the server");
+                        return;
+                    }
+                    user.AccessLevel = entry.AccessLevel;
+                    if(!connection.UpdateUserAccessLevel(user))
+                    {
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred while updating user's access level: " + connection.LastException.Message);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
+        }
+
+        private bool ValidatePatchRequset(CompanyUsersApiPatchRequest req)
+        {
+            if (req.UserId <= 0)
+                return false;
+            if (req.CompanyUserId <= 0)
+                return false;
+            if (req.AuthToken == null)
+                return false;
+            if (req.LoginToken == null)
+                return false;
+            if ((req.AccessLevel & AccessLevelMasks.MechanicMask) != 0 && req.AccessLevel > -1 && req.AccessLevel < 16)
+                return true;
+            return false;
         }
 
         private bool ValidateGetRequest(CompanyUsersApiGetRequest req)
