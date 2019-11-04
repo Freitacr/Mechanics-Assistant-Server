@@ -983,10 +983,8 @@ namespace OldManInTheShopServer.Data.MySql
                 if (jobDataEntry == null)
                     return true;
                 RequirementsEntry requirements = RequirementsEntry.ParseJsonString(jobDataEntry.Requirements);
-                List<string> toAdd = JsonDataObjectUtil<List<string>>.ParseObject(request.RequestedAdditions);
-                foreach (string i in toAdd)
-                    if (!requirements.Safety.Contains(i))
-                        requirements.Safety.Add(i);
+                    if (!requirements.Safety.Contains(request.RequestedAdditions))
+                        requirements.Safety.Add(request.RequestedAdditions);
                 jobDataEntry.Requirements = requirements.GenerateJsonString();
                 return UpdateDataEntryRequirements(companyId, jobDataEntry);
             }

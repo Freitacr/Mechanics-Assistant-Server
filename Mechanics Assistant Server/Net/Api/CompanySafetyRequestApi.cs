@@ -7,6 +7,7 @@ using System.Net;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
+using System.IO;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -89,9 +90,6 @@ namespace OldManInTheShopServer.Net.Api
         public int RequestId;
 
         [DataMember]
-        public int RequirementId;
-
-        [DataMember]
         public string SafetyRequirementsString;
     }
 
@@ -104,8 +102,6 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             POST += HandlePostRequest;
-            GET += HandleGetRequest;
-            DELETE += HandleDeleteRequest;
             PATCH += HandlePatchRequest;
             PUT += HandlePutRequest;
         }
@@ -155,15 +151,18 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
                         return;
                     }
-
+                    List<string> safetyRequirements = JsonDataObjectUtil<List<string>>.ParseObject(entry.SafetyRequirements);
                     //build safety request
-                    RequirementAdditionRequest request = new RequirementAdditionRequest(entry.UserId, entry.RepairJobId, entry.SafetyRequirements);
-                    //send request
-                    res = connection.AddSafetyAdditionRequest(entry.CompanyId,request);
-                    if (!res)
+                    foreach (string requirement in safetyRequirements)
                     {
-                        WriteBodyResponse(ctx, 500, "Unexpected Serer Error", connection.LastException.Message);
-                        return;
+                        RequirementAdditionRequest request = new RequirementAdditionRequest(entry.UserId, entry.RepairJobId, requirement);
+                        //send request
+                        res = connection.AddSafetyAdditionRequest(entry.CompanyId, request);
+                        if (!res)
+                        {
+                            WriteBodyResponse(ctx, 500, "Unexpected Serer Error", connection.LastException.Message);
+                            return;
+                        }
                     }
                     WriteBodylessResponse(ctx,200,"OK");
                 }
@@ -196,21 +195,10 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Safety/Request, starting row 23
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandleGetRequest(HttpListenerContext ctx, CompanySafetyRequestApiGetRequest entry)
         {
             try
             {
-                if (!ctx.Request.HasEntityBody)
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                    return;
-                }
-                CompanySafetyRequestApiGetRequest entry = JsonDataObjectUtil<CompanySafetyRequestApiGetRequest>.ParseObject(ctx);
-                if (!ValidateGetRequest(entry))
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                    return;
-                }
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -269,14 +257,7 @@ namespace OldManInTheShopServer.Net.Api
                 List<SettingsEntry> userSettings = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(user.Settings);
                 ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals("displayName")).First().Value);
             }
-
-            List<string> requestedPartAdditions = JsonDataObjectUtil<List<string>>.ParseObject(request.RequestedAdditions);
-            JsonListStringConstructor partsConstructor = new JsonListStringConstructor();
-            foreach (string i in requestedPartAdditions)
-            {
-                partsConstructor.AddElement(i);
-            }
-            ret.SetMapping("RequestedAdditions", partsConstructor);
+            ret.SetMapping("RequestedAdditions", request.RequestedAdditions);
             var job = connection.GetDataEntryById(companyId, request.ValidatedDataId);
             if (job == null)
             {
@@ -295,21 +276,10 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Safety/Request, starting row 73
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleDeleteRequest(HttpListenerContext ctx)
+        private void HandleDeleteRequest(HttpListenerContext ctx, CompanySafetyRequestApiDeleteRequest entry)
         {
             try
             {
-                if (!ctx.Request.HasEntityBody)
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                    return;
-                }
-                CompanySafetyRequestApiDeleteRequest entry = JsonDataObjectUtil<CompanySafetyRequestApiDeleteRequest>.ParseObject(ctx);
-                if (!ValidateDeleteRequest(entry))
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                    return;
-                }
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -377,9 +347,16 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanySafetyRequestApiPatchRequest entry = JsonDataObjectUtil<CompanySafetyRequestApiPatchRequest>.ParseObject(ctx);
+                string reqStr = new StreamReader(ctx.Request.InputStream).ReadToEnd();
+                CompanySafetyRequestApiPatchRequest entry = JsonDataObjectUtil<CompanySafetyRequestApiPatchRequest>.ParseObject(reqStr);
                 if (!ValidatePatchRequest(entry))
                 {
+                    CompanySafetyRequestApiDeleteRequest entry2 = JsonDataObjectUtil<CompanySafetyRequestApiDeleteRequest>.ParseObject(reqStr);
+                    if(entry2 != null && ValidateDeleteRequest(entry2))
+                    {
+                        HandleDeleteRequest(ctx,entry2);
+                        return;
+                    }
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
@@ -422,17 +399,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
 
-                    List<string> requestedParts = JsonDataObjectUtil<List<string>>.ParseObject(request.RequestedAdditions);
-                    if (entry.RequirementId >= requestedParts.Count)
-                    {
-                        WriteBodyResponse(ctx, 404, "Not Found", "The requested part to change was not found");
-                        return;
-                    }
-                    requestedParts[entry.RequirementId] = entry.SafetyRequirementsString;
-                    JsonListStringConstructor editConstructor = new JsonListStringConstructor();
-                    foreach (string i in requestedParts)
-                        editConstructor.AddElement(i);
-                    request.RequestedAdditions = editConstructor.ToString();
+                    request.RequestedAdditions = entry.SafetyRequirementsString;
                     if (!connection.UpdateSafetyAdditionRequest(mappedUser.Company, request))
                     {
                         WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred while attempting to update request: " + connection.LastException.Message);
@@ -461,9 +428,16 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanySafetyRequestApiPutRequest entry = JsonDataObjectUtil<CompanySafetyRequestApiPutRequest>.ParseObject(ctx);
+                string reqStr = new StreamReader(ctx.Request.InputStream).ReadToEnd();
+                CompanySafetyRequestApiPutRequest entry = JsonDataObjectUtil<CompanySafetyRequestApiPutRequest>.ParseObject(reqStr);
                 if (!ValidatePutRequest(entry))
                 {
+                    CompanySafetyRequestApiGetRequest entry2 = JsonDataObjectUtil<CompanySafetyRequestApiGetRequest>.ParseObject(reqStr);
+                    if (entry2 != null && ValidateGetRequest(entry2))
+                    {
+                        HandleGetRequest(ctx, entry2);
+                        return;
+                    }
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
@@ -494,7 +468,7 @@ namespace OldManInTheShopServer.Net.Api
                     }
                     if ((mappedUser.AccessLevel & AccessLevelMasks.SafetyMask) == 0)
                     {
-                        WriteBodyResponse(ctx, 401, "Not Authorized", "User was not a parts level user");
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "User was not a safety level user");
                         return;
                     }
 
@@ -566,8 +540,6 @@ namespace OldManInTheShopServer.Net.Api
             if (req.UserId <= 0)
                 return false;
             if (req.RequestId <= 0)
-                return false;
-            if (req.RequirementId <= -1)
                 return false;
             if (req.SafetyRequirementsString == null)
                 return false;
