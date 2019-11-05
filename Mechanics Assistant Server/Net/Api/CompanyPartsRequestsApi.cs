@@ -7,6 +7,7 @@ using System.Net;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
+using System.IO;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -83,8 +84,7 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             POST += HandlePostRequest;
-            GET += HandleGetRequest;
-            DELETE += HandleDeleteRequest;
+            PATCH += HandleDeleteRequest; //Delete reqeusts cannot contain bodies in Javascript, this is therefore intentional to get around that
             PUT += HandlePutRequest;
         }
 
@@ -174,21 +174,10 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Parts/Request, starting row 23
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandleGetRequest(HttpListenerContext ctx, CompanyPartsRequestGetRequest entry)
         {
             try
             {
-                if (!ctx.Request.HasEntityBody)
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                    return;
-                }
-                CompanyPartsRequestGetRequest entry = JsonDataObjectUtil<CompanyPartsRequestGetRequest>.ParseObject(ctx);
-                if (!ValidateGetRequest(entry))
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                    return;
-                }
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -344,9 +333,20 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanyPartsRequestPutRequest entry = JsonDataObjectUtil<CompanyPartsRequestPutRequest>.ParseObject(ctx);
+                string reqStr;
+                using (var reader = new StreamReader(ctx.Request.InputStream))
+                {
+                    reqStr = reader.ReadToEnd();
+                }
+                CompanyPartsRequestPutRequest entry = JsonDataObjectUtil<CompanyPartsRequestPutRequest>.ParseObject(reqStr);
                 if (!ValidatePutRequest(entry))
                 {
+                    CompanyPartsRequestGetRequest entry2 = JsonDataObjectUtil<CompanyPartsRequestGetRequest>.ParseObject(reqStr);
+                    if(entry2 != null && ValidateGetRequest(entry2))
+                    {
+                        HandleGetRequest(ctx, entry2);
+                        return;
+                    }
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }

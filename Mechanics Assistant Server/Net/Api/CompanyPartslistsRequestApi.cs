@@ -7,6 +7,7 @@ using System.Net;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
+using System.IO;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -106,8 +107,6 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             POST += HandlePostRequest;
-            GET += HandleGetRequest;
-            DELETE += HandleDeleteRequest;
             PATCH += HandlePatchRequest;
             PUT += HandlePutRequest;
         }
@@ -157,13 +156,18 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
                         return;
                     }
-
-                    RequirementAdditionRequest request = new RequirementAdditionRequest(entry.UserId,entry.RepairJobId,entry.RequiredPartsList);
-                    res = connection.AddPartsListAdditionRequest(entry.CompanyId,request);
-                    if (!res)
+                    List<int> requiredPartsList = JsonDataObjectUtil<List<int>>.ParseObject(entry.RequiredPartsList);
+                    foreach(int i in requiredPartsList)
                     {
-                        WriteBodyResponse(ctx,500,"Unexpected Server Error",connection.LastException.Message);
-                        return;
+                        RequirementAdditionRequest request = new RequirementAdditionRequest(entry.UserId,entry.RepairJobId, i.ToString());
+                    
+                        res = connection.AddPartsListAdditionRequest(entry.CompanyId,request);
+                        if (!res)
+                        {
+                            WriteBodyResponse(ctx,500,"Unexpected Server Error",connection.LastException.Message);
+                            return;
+                        }
+
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
@@ -196,21 +200,10 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Partslists/Request, starting row 23
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandleGetRequest(HttpListenerContext ctx, CompanyPartsListsRequestApiGetRequest entry)
         {
             try
             {
-                if (!ctx.Request.HasEntityBody)
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                    return;
-                }
-                CompanyPartsListsRequestApiGetRequest entry = JsonDataObjectUtil<CompanyPartsListsRequestApiGetRequest>.ParseObject(ctx);
-                if (!ValidateGetRequest(entry))
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                    return;
-                }
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -268,16 +261,16 @@ namespace OldManInTheShopServer.Net.Api
                 ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals("displayName")).First().Value);
             }
 
-            List<int> requestedPartAdditions = JsonDataObjectUtil<List<int>>.ParseObject(request.RequestedAdditions);
-            JsonListStringConstructor partsConstructor = new JsonListStringConstructor();
-            foreach (int i in requestedPartAdditions)
+            var part = connection.GetPartCatalogueEntryById(companyId, int.Parse(request.RequestedAdditions));
+            if(part == null)
             {
-                var part = connection.GetPartCatalogueEntryById(companyId, i);
-                if (part == null)
-                    continue;
-                partsConstructor.AddElement(part.PartId);
+                ret.SetMapping("RequestedAdditions", "Unknown Part");
+            } else
+            {
+                ret.SetMapping("RequestedAdditions", part.PartId);
             }
-            ret.SetMapping("RequestedAdditions", partsConstructor);
+            JsonListStringConstructor partsConstructor = new JsonListStringConstructor();
+            
             var job = connection.GetDataEntryById(companyId, request.ValidatedDataId);
             if(job == null)
             {
@@ -305,9 +298,20 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanyPartsListsRequestApiPutRequest entry = JsonDataObjectUtil<CompanyPartsListsRequestApiPutRequest>.ParseObject(ctx);
+                string reqStr;
+                using (var reader = new StreamReader(ctx.Request.InputStream))
+                {
+                    reqStr = reader.ReadToEnd();
+                }
+                CompanyPartsListsRequestApiPutRequest entry = JsonDataObjectUtil<CompanyPartsListsRequestApiPutRequest>.ParseObject(reqStr);
                 if (!ValidatePutRequest(entry))
                 {
+                    var entry2 = JsonDataObjectUtil<CompanyPartsListsRequestApiGetRequest>.ParseObject(reqStr);
+                    if(entry2 != null && ValidateGetRequest(entry2))
+                    {
+                        HandleGetRequest(ctx, entry2);
+                        return;
+                    }
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
@@ -369,21 +373,10 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Partslists/Request, starting row 73
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleDeleteRequest(HttpListenerContext ctx)
+        private void HandleDeleteRequest(HttpListenerContext ctx, CompanyPartsListsRequestApiDeleteRequest entry)
         {
             try
             {
-                if (!ctx.Request.HasEntityBody)
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                    return;
-                }
-                CompanyPartsListsRequestApiDeleteRequest entry = JsonDataObjectUtil<CompanyPartsListsRequestApiDeleteRequest>.ParseObject(ctx);
-                if (!ValidateDeleteRequest(entry))
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
-                    return;
-                }
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -451,9 +444,20 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanyPartsListsRequestApiPatchRequest entry = JsonDataObjectUtil<CompanyPartsListsRequestApiPatchRequest>.ParseObject(ctx);
+                string reqStr;
+                using (var reader = new StreamReader(ctx.Request.InputStream))
+                {
+                    reqStr = reader.ReadToEnd();
+                }
+                CompanyPartsListsRequestApiPatchRequest entry = JsonDataObjectUtil<CompanyPartsListsRequestApiPatchRequest>.ParseObject(reqStr);
                 if (!ValidatePatchRequest(entry))
                 {
+                    CompanyPartsListsRequestApiDeleteRequest entry2 = JsonDataObjectUtil<CompanyPartsListsRequestApiDeleteRequest>.ParseObject(reqStr);
+                    if(entry2 != null && ValidateDeleteRequest(entry2))
+                    {
+                        HandleDeleteRequest(ctx, entry2);
+                        return;
+                    }
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
