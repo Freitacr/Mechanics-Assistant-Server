@@ -5,12 +5,14 @@ using MySql.Data.MySqlClient;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    class CompanyId : ISqlSerializable
+    public class CompanyId : ISqlSerializable
     {
         public static readonly TableDataManipulator<CompanyId> Manipulator = new TableDataManipulator<CompanyId>();
 
         public string LegalName { get; set; }
         public float ModelAccuracy { get; set; }
+        public int Id { get; set; }
+        
 
         public CompanyId()
         {
@@ -32,6 +34,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         {
             LegalName = (string)reader["LegalName"];
             ModelAccuracy = (float)reader["ModelAccuracy"];
+            Id = (int)reader["id"];
         }
 
         public string Serialize(string tableName)

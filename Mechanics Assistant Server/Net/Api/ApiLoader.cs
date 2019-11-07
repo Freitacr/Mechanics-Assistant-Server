@@ -27,6 +27,7 @@ namespace OldManInTheShopServer.Net.Api
             api.AddMapping(new UserJobApi(portIn));
             api.AddMapping(new UserRequestsApi(portIn));
             api.AddMapping(new UserApi(portIn));
+            api.AddMapping(new CompanyListApi(portIn));
             api.AddMapping(new CompanyAccuracyApi(portIn));
             api.AddMapping(new CompanyPartsRequestApi(portIn));
             api.AddMapping(new CompanyPartsApi(portIn));

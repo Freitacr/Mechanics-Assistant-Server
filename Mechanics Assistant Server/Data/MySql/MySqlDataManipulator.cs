@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Security.Cryptography;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using MySql.Data.MySqlClient;
 using System.Runtime.Serialization.Json;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
@@ -1766,6 +1766,14 @@ namespace OldManInTheShopServer.Data.MySql
                 return false;
 
             return true;
+        }
+
+        public List<CompanyId> GetCompaniesWithNamePortion(string namePortion)
+        {
+            List<CompanyId> ret = CompanyId.Manipulator.RetrieveDataWhere(Connection, TableNameStorage.CompanyIdTable, "LegalName like \"%" + namePortion + "%\"");
+            if (ret == null)
+                LastException = CompanyId.Manipulator.LastException;
+            return ret;
         }
 
         /// <summary>

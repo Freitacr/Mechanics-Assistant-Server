@@ -35,6 +35,8 @@ namespace OldManInTheShopServer.Net.Api
         /** <summary>Method to reliably tell the requesting client that the method they used to request a resource is not valid</summary> */
         public static void NotSupported (HttpListenerContext ctx) {
             ctx.Response.StatusCode = 405;
+            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
             ctx.Response.StatusDescription = "Method Not Supported";
             ctx.Response.OutputStream.Close();
         }
