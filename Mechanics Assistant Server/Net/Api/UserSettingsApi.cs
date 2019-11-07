@@ -49,7 +49,7 @@ namespace OldManInTheShopServer.Net.Api
         public UserSettingsApi(int portIn) : base("http://+:" + portIn + "/user/settings")
 #endif        
         {
-            GET += HandleGetRequest;
+            PUT += HandleGetRequest;
             PATCH += HandlePatchRequest;
         }
 
