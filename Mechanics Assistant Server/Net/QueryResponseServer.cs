@@ -50,21 +50,27 @@ namespace OldManInTheShopServer.Net
                         switch(method)
                         {
                             case "DELETE":
+                                Console.WriteLine("Responding with a DELETE");
                                 handler = action.DELETE;
                                 break;
                             case "GET":
+                                Console.WriteLine("Responding with a GET");
                                 handler = action.GET;
                                 break;
                             case "PUT":
+                                Console.WriteLine("Responding with a PUT");
                                 handler = action.PUT;
                                 break;
                             case "POST":
+                                Console.WriteLine("Responding with a POST");
                                 handler = action.POST;
                                 break;
                             case "OPTIONS":
+                                Console.WriteLine("Responding with an OPTIONS");
                                 handler = action.OPTIONS;
                                 break;
                             case "PATCH":
+                                Console.WriteLine("Responding with a PATCH");
                                 handler = action.PATCH;
                                 break;
                         }

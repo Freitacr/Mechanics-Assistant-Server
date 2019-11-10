@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Net;
 using OldManInTheShopServer.Data;
+using System;
+using OldManInTheShopServer.Util;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -76,8 +78,9 @@ namespace OldManInTheShopServer.Net.Api
                 ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
                 ctx.Response.OutputStream.Close();
             }
-            catch (HttpListenerException)
+            catch (Exception e)
             {
+                Logger.Global.Log(Logger.LogLevel.ERROR, e.StackTrace);
                 try
                 {
                     ctx.Response.OutputStream.Dispose();
