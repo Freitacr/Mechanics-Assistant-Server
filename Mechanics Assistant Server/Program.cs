@@ -84,20 +84,23 @@ namespace OldManInTheShopServer
             else if(AveragedPerceptronTagger.GetTagger() == null)
                 throw new NullReferenceException("Failed to load the Averaged Perceptron Tagger");
             Logger.Global.Log(Logger.LogLevel.INFO, "Server is starting up");
-            Thread t = new Thread(RenewCertificate);
-            t.Start();
-            var server = ApiLoader.LoadApiAndListen(16384);
-            while (server.IsAlive)
+            using (Logger.Global)
             {
-                Thread.Sleep(100);
-                if(Console.KeyAvailable)
+                Thread t = new Thread(RenewCertificate);
+                t.Start();
+                var server = ApiLoader.LoadApiAndListen(16384);
+                while (server.IsAlive)
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.Enter)
-                        server.Close();
+                    Thread.Sleep(100);
+                    if (Console.KeyAvailable)
+                    {
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+                        if (key.Key == ConsoleKey.Enter)
+                            server.Close();
+                    }
                 }
+                t.Interrupt();
             }
-            t.Interrupt();
             //QueryProcessor processor = new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings());
             //processor.ProcessQuery(new Util.MechanicQuery("autocar", "xpeditor", null, null, "runs rough"));
         }
