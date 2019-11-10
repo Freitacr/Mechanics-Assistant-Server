@@ -364,6 +364,8 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Internal Server Error", "Error ocurred on the server: " + connection.LastException);
                         return;
                     }
+                    mappedUser.AccessLevel = 1;
+                    connection.UpdateUserAccessLevel(mappedUser);
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
             }
