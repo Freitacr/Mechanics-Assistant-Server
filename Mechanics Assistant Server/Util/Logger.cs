@@ -43,6 +43,7 @@ namespace OldManInTheShopServer.Util
         public void Log(LogLevel logLevel, string message)
         {
             WriterOut.WriteLine(logLevel.ToString() + ": " + message);
+            WriterOut.Flush();
         }
 
         public void Dispose()
