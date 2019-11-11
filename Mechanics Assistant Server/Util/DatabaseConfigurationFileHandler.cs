@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ANSEncodingLib;
+using EncodingUtilities;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace OldManInTheShopServer.Util
 {
@@ -28,42 +31,56 @@ namespace OldManInTheShopServer.Util
 
         public static DatabaseConfigurationFileContents LoadConfigurationFile()
         {
-            StreamReader fileReader;
+            ANSEncodingLib.AnsBlockDecoder fileDecoder;
+            fileDecoder = new ANSEncodingLib.AnsBlockDecoder(new MemoryStream());
+            FileStream fileReader;
             try
             {
-                fileReader = new StreamReader(ConfigurationFileLocation);
-            }
-            catch (FileNotFoundException)
+                fileReader = new FileStream(ConfigurationFileLocation, FileMode.Open, FileAccess.Read);
+            } catch (FileNotFoundException)
             {
                 return null;
             }
-            string fileContents;
             using (fileReader)
-                fileContents = fileReader.ReadToEnd();
-            return JsonDataObjectUtil<DatabaseConfigurationFileContents>.ParseObject(fileContents);
+            {
+                string fileContents;
+                fileDecoder.DecodeStream(fileReader);
+                fileDecoder.Output.Close();
+                byte[] fileBytes = ((MemoryStream)fileDecoder.Output).ToArray();
+                fileContents = Encoding.UTF8.GetString(fileBytes);
+                return JsonDataObjectUtil<DatabaseConfigurationFileContents>.ParseObject(fileContents);
+            }
         }
 
-        public static bool WriteConfigurationFileDefaults()
+        public static DatabaseConfigurationFileContents GenerateDefaultConfiguration()
         {
-            var fileContents = new DatabaseConfigurationFileContents()
+            return new DatabaseConfigurationFileContents()
             {
                 User = "omis",
                 Database = "omis_data",
                 Host = "localhost"
             };
+        }
+
+        public static bool WriteConfigurationFile(DatabaseConfigurationFileContents fileContents)
+        {
             string contents = JsonDataObjectUtil<DatabaseConfigurationFileContents>.ConvertObject(fileContents);
             if (contents == null)
                 return false;
-            StreamWriter fileWriter;
+            AnsBlockEncoder fileWriter;
+            BitWriter writerOut;
             try
             {
-                fileWriter = new StreamWriter(ConfigurationFileLocation);
+                writerOut = new BitWriter(new FileStream(ConfigurationFileLocation, FileMode.Create, FileAccess.Write));
+                fileWriter = new AnsBlockEncoder(1024, writerOut);
             } catch (IOException)
             {
                 return false;
             }
-            using (fileWriter)
-                fileWriter.Write(contents);
+            byte[] toWrite = Encoding.UTF8.GetBytes(contents);
+            MemoryStream streamOut = new MemoryStream(toWrite);
+            fileWriter.EncodeStream(streamOut, 8);
+            writerOut.Close();
             return true;
         }
     }

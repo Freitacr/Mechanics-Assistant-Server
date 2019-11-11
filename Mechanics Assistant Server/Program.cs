@@ -6,6 +6,7 @@ using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
 using MySql.Data.MySqlClient;
 using OldManInTheShopServer.Models.POSTagger;
+using System.Security;
 
 namespace OldManInTheShopServer
 {
@@ -29,36 +30,35 @@ namespace OldManInTheShopServer
             }
         }
 
-        static DatabaseConfigurationFileContents RetrieveConfiguration(CommandLineArgumentParser parser)
+        static DatabaseConfigurationFileContents RetrieveConfiguration()
         {
             DatabaseConfigurationFileContents config = DatabaseConfigurationFileHandler.LoadConfigurationFile();
             if(config == null)
             {
-                if (!DatabaseConfigurationFileHandler.WriteConfigurationFileDefaults())
+                config = DatabaseConfigurationFileHandler.GenerateDefaultConfiguration();
+                string password = MaskedPasswordReader.ReadPasswordMasked("Please enter the password for the default MySql user");
+                config.Pass = password;
+                if (!DatabaseConfigurationFileHandler.WriteConfigurationFile(config))
                     return null;
-                config = DatabaseConfigurationFileHandler.LoadConfigurationFile();
-                if (!parser.KeyedArguments.ContainsKey("-p"))
-                    return null;
-                config.Pass = parser.KeyedArguments["-p"];
             }
             return config;
         }
 
         static void Main(string[] args)
         {
-            CommandLineArgumentParser parser = new CommandLineArgumentParser(args);
-            DatabaseConfigurationFileContents config = RetrieveConfiguration(parser);
+            DatabaseConfigurationFileContents config;
+            try
+            {
+                config = RetrieveConfiguration();
+            } catch (ThreadInterruptedException)
+            {
+                return;
+            }
             if(config == null)
             {
                 Console.WriteLine("Failed to retrieve or restore database configuration file. Exiting");
                 return;
             }
-            if(config.Pass == null)
-            {
-                Console.WriteLine("Configuration did not contain a password, this is an irrecoverable error. Exiting");
-                return;
-            }
-
             bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass));
             
             if(!res && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 1049 && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 0)
@@ -74,6 +74,7 @@ namespace OldManInTheShopServer
                 return;
             }
             MySqlDataManipulator.GlobalConfiguration.Close();
+            CommandLineArgumentParser parser = new CommandLineArgumentParser(args);
             MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass));
             bool exit = DatabaseEntityCreationUtilities.PerformRequestedCreation(MySqlDataManipulator.GlobalConfiguration, parser);
             MySqlDataManipulator.GlobalConfiguration.Close();
