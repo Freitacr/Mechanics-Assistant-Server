@@ -10,6 +10,7 @@ using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Util;
 using ANSEncodingLib;
 using OMISSecLib;
+using System.Runtime.CompilerServices;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
@@ -259,6 +260,16 @@ namespace OldManInTheShopServer.Data.MySql
             var cmd = Connection.CreateCommand();
             cmd.CommandText = cmdText;
             return ExecuteNonQuery(cmd);
+        }
+
+        public bool AddCompanySetting(int companyId, CompanySettingsEntry toAdd)
+        {
+            int res = CompanySettingsEntry.Manipulator.InsertDataInto(Connection, TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString()), toAdd);
+            if(res != 1)
+            {
+                LastException = CompanySettingsEntry.Manipulator.LastException;
+            }
+            return res == 1;
         }
 
         /// <summary>

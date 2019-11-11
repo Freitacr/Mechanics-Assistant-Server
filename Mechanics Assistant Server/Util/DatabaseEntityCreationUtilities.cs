@@ -1,6 +1,8 @@
-﻿using OldManInTheShopServer.Data.MySql;
+﻿using OldManInTheShopServer.Attribute;
+using OldManInTheShopServer.Data.MySql;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace OldManInTheShopServer.Util
@@ -15,59 +17,71 @@ namespace OldManInTheShopServer.Util
         /// <returns>True if there was a creation request made (thus the program should terminate), false otherwise (the program should continue onward)</returns>
         public static bool PerformRequestedCreation(MySqlDataManipulator manipulatorIn, CommandLineArgumentParser argumentsIn)
         {
-            if (argumentsIn.KeyedArguments.ContainsKey("-c"))
+            var commands = ReflectionHelper.GetAllCommands();
+            foreach(CommandLineMapping mapping in commands)
             {
-                if (argumentsIn.KeyedArguments["-c"].Equals("company"))
+                if(mapping.KeyedFields.Count != argumentsIn.KeyedArguments.Count)
+                    continue;
+                if (mapping.PositionalFields.Count != argumentsIn.PositionalArguments.Count)
+                    continue;
+                bool keysPresent = true;
+                foreach(FieldInfo f in mapping.KeyedFields)
                 {
-                    if (!manipulatorIn.AddCompany(string.Join(" ", argumentsIn.PositionalArguments)))
+                    KeyedArgument arg = (KeyedArgument) System.Attribute.GetCustomAttribute(f, typeof(KeyedArgument));
+                    if (!argumentsIn.KeyedArguments.ContainsKey(arg.Key))
                     {
-                        Console.WriteLine("Failed to add company " + string.Join(" ", argumentsIn.PositionalArguments));
-                        Console.WriteLine("Failed because of error " + manipulatorIn.LastException.Message);
-                        return true;
+                        keysPresent = false;
+                        break;
                     }
-                    Console.WriteLine("Successfully added company " + string.Join(" ", argumentsIn.PositionalArguments));
-                    return true;
+                    if (arg.ValueRequired && !argumentsIn.KeyedArguments[arg.Key].Equals(arg.RequiredValue))
+                    {
+                        keysPresent = false;
+                        break;
+                    }
+                    object value = null;
+                    if(f.FieldType.IsPrimitive)
+                    {
+                        value = f.FieldType.GetMethod("Parse", new[] { typeof(string) }).Invoke(null, new[] { argumentsIn.KeyedArguments[arg.Key] });
+                    } else if (f.FieldType.Equals(typeof(string)))
+                    {
+                        value = argumentsIn.KeyedArguments[arg.Key];
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Non primitive field marked as a Keyed Argument in class " + mapping.Command.GetType());
+                    }
+                    f.SetValue(mapping.Command, value);
                 }
-                else if (argumentsIn.KeyedArguments["-c"].Equals("user"))
+                if (!keysPresent)
+                    continue;
+                keysPresent = true;
+                foreach(FieldInfo f in mapping.PositionalFields)
                 {
-                    if(argumentsIn.PositionalArguments.Count != 6 || !int.TryParse(argumentsIn.PositionalArguments[4], out int test) || (test & 1) == 0 || test < 0 || test > 15 || !int.TryParse(argumentsIn.PositionalArguments[5], out int test2))
+                    PositionalArgument arg = (PositionalArgument)System.Attribute.GetCustomAttribute(f, typeof(PositionalArgument));
+                    if(arg.Position > mapping.PositionalFields.Count)
                     {
-                        Console.WriteLine("User creation format: -c user %email% %password% \"%security question%\" \"%security answer%\" %user_role% %company_id%\n" +
-                            "user_role can take the form of any odd number from 1-15 inclusive");
-                        return true;
+                        keysPresent = false;
+                        break;
                     }
-                    Console.WriteLine("Attempting to add user with the email: " + argumentsIn.PositionalArguments[0]);
-                    Console.WriteLine("Attempting to add user with the password: " + argumentsIn.PositionalArguments[1]);
-                    Console.WriteLine("Attempting to add user with the security question: " + argumentsIn.PositionalArguments[2]);
-                    Console.WriteLine("Attempting to add user with the security question answer: " + argumentsIn.PositionalArguments[3]);
-                    Console.WriteLine("Attempting to add user with the access level: " + argumentsIn.PositionalArguments[4]);
-                    Console.WriteLine("Attempting to add user to the company with the id: " + argumentsIn.PositionalArguments[5]);
-                    string email = argumentsIn.PositionalArguments[0];
-                    string password = argumentsIn.PositionalArguments[1];
-                    string securityQuestion = argumentsIn.PositionalArguments[2];
-                    string securityAnswer = argumentsIn.PositionalArguments[3];
-                    int accessLevel = int.Parse(argumentsIn.PositionalArguments[4]);
-                    int companyId = int.Parse(argumentsIn.PositionalArguments[5]);
-                    if(!manipulatorIn.AddUser(
-                        email,
-                        password,
-                        securityQuestion,
-                        securityAnswer,
-                        accessLevel,
-                        companyId)
-                    )
+                    object value = null;
+                    if (f.FieldType.IsPrimitive)
                     {
-                        Console.WriteLine("Creation of user failed. Error that occurred:\n" + manipulatorIn.LastException);
-                        return true;
+                        
+                        value = f.FieldType.GetMethod("Parse", new[] { typeof(string) }).Invoke(null, new[] { argumentsIn.PositionalArguments[arg.Position] });
                     }
-                    Console.WriteLine("Successfully created user");
-                    return true;
+                    else if (f.FieldType.Equals(typeof(string)))
+                    {
+                        value = argumentsIn.PositionalArguments[arg.Position];
+                    } else
+                    {
+                        throw new ArgumentException("Non primitive, Non string field marked as a Positional Argument in class " + mapping.Command.GetType());
+                    }
+                    f.SetValue(mapping.Command, value);
                 }
-                else
-                {
-                    Console.WriteLine("Only company and user creation is supported. Use -c company or -c user.");
-                    return true;
-                }
+                if (!keysPresent)
+                    continue;
+                mapping.Command.PerformFunction(manipulatorIn);
+                return true;
             }
             return false;
         }
