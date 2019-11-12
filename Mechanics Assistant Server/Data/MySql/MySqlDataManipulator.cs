@@ -11,6 +11,7 @@ using OldManInTheShopServer.Util;
 using ANSEncodingLib;
 using OMISSecLib;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("Mechanics Assistant Server Tests")]
@@ -29,6 +30,7 @@ namespace OldManInTheShopServer.Data.MySql
         public MySqlException LastException { get; private set; }
         private MySqlConnection Connection;
         public string ConnectionString { get; private set; }
+        public SecureString ConnectionPassword { get; private set; }
         /// <summary>
         /// Global Instance that should remain closed after initial assignment, connection, and closing.
         /// It is responsible for storing the connection string for use by other MySqlDataManipulators
@@ -67,8 +69,24 @@ namespace OldManInTheShopServer.Data.MySql
             {
                 Connection = new MySqlConnection();
                 Connection.ConnectionString = connectionString;
-                ConnectionString = connectionString;
                 Connection.Open();
+                ConnectionString = Connection.ConnectionString;
+                if (ConnectionPassword == null)
+                {
+                    var portions = connectionString.Split(';');
+                    foreach (string portion in portions)
+                    {
+                        if (portion.ToLower().StartsWith("password"))
+                        {
+                            SecureString password = new SecureString();
+                            var portionSplit = portion.Split("=")[1];
+                            string plaintextPass = portionSplit;
+                            foreach (char c in plaintextPass)
+                                password.AppendChar(c);
+                            ConnectionPassword = password;
+                        }
+                    }
+                }
             } catch (MySqlException e)
             {
                 LastException = e;
@@ -100,7 +118,10 @@ namespace OldManInTheShopServer.Data.MySql
         /// <returns>See summary</returns>
         public string GetConnectionString()
         {
-            return ConnectionString;
+            if (ConnectionPassword == null)
+                throw new ArgumentNullException("Connection has not occurred yet, so a connection string has not been generated");
+
+            return ConnectionString + ";password="+ConnectionPassword.ConvertToString() + ";";
         }
 
         /// <summary>
@@ -1836,8 +1857,8 @@ namespace OldManInTheShopServer.Data.MySql
          */
         public bool ValidateDatabaseIntegrity(string databaseName)
         {
-            string connectionString = ConnectionString;
-            int databaseKeyLoc = connectionString.IndexOf("DATABASE");
+            string connectionString = GetConnectionString();
+            int databaseKeyLoc = connectionString.IndexOf("database");
             int databaseValueEnd = connectionString.IndexOf(";", databaseKeyLoc);
             connectionString = connectionString.Remove(databaseKeyLoc, (databaseValueEnd - databaseKeyLoc)+1);
             if (!Connect(connectionString))

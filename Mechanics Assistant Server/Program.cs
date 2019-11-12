@@ -15,18 +15,21 @@ namespace OldManInTheShopServer
 
         static void RenewCertificate()
         {
-            while (true)
+            try
             {
-                if (CertificateRenewer.CertificateNeedsRenewal())
-                    CertificateRenewer.GetFirstCert(false);
-                try
+                Thread.Sleep(TimeSpan.FromMinutes(1));
+                while (true)
                 {
+                    if (CertificateRenewer.CertificateNeedsRenewal())
+                    {
+                        CertificateRenewer.GetFirstCert(false);
+                    }
                     Thread.Sleep(TimeSpan.FromMinutes(30));
-                } catch (ThreadInterruptedException)
-                {
-                    Console.WriteLine("Certificate Renewal Thread Exiting");
-                    break;
                 }
+            }
+            catch (ThreadInterruptedException)
+            {
+                Console.WriteLine("Certificate Renewal Thread Exiting");
             }
         }
 
@@ -36,7 +39,7 @@ namespace OldManInTheShopServer
             if(config == null)
             {
                 config = DatabaseConfigurationFileHandler.GenerateDefaultConfiguration();
-                string password = MaskedPasswordReader.ReadPasswordMasked("Please enter the password for the default MySql user");
+                SecureString password = MaskedPasswordReader.ReadPasswordMasked("Please enter the password for the default MySql user");
                 config.Pass = password;
                 if (!DatabaseConfigurationFileHandler.WriteConfigurationFile(config))
                     return null;
@@ -59,7 +62,7 @@ namespace OldManInTheShopServer
                 Console.WriteLine("Failed to retrieve or restore database configuration file. Exiting");
                 return;
             }
-            bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass));
+            bool res = MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass.ConvertToString()));
             
             if(!res && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 1049 && MySqlDataManipulator.GlobalConfiguration.LastException.Number != 0)
             {
@@ -75,7 +78,9 @@ namespace OldManInTheShopServer
             }
             MySqlDataManipulator.GlobalConfiguration.Close();
             CommandLineArgumentParser parser = new CommandLineArgumentParser(args);
-            MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass));
+            MySqlDataManipulator.GlobalConfiguration.Connect(new MySqlConnectionString(config.Host, config.Database, config.User).ConstructConnectionString(config.Pass.ConvertToString()));
+            config.Pass.Dispose();
+            config = null;
             bool exit = DatabaseEntityCreationUtilities.PerformRequestedCreation(MySqlDataManipulator.GlobalConfiguration, parser);
             MySqlDataManipulator.GlobalConfiguration.Close();
             if (exit)
