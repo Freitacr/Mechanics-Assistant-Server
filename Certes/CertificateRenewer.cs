@@ -33,10 +33,8 @@ namespace CertesWrapper
             psi.CreateNoWindow = true;
             var countProcess = Process.Start(psi);
             countProcess.WaitForExit();
-#if RELEASE
             if (countProcess.ExitCode > 0)
                 return true;
-#endif
             return false;
         }
 
@@ -102,6 +100,10 @@ namespace CertesWrapper
                 writer.Write(httpContext.KeyAuthz);
                 writer.Close();
                 Challenge httpChallenge = httpContext.Validate().Result;
+                if (httpChallenge.Status.Value != ChallengeStatus.Valid)
+                {
+                    throw new AcmeException("Validation failed.");
+                }
             }
 
             //Everything should be good to go on the whole validate everything front.

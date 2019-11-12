@@ -12,10 +12,10 @@ namespace OldManInTheShopServer.Util
         /// </summary>
         /// <param name="prompt">Prompt to display to the user before they are asked to input values</param>
         /// <returns>A string containing the password in plaintext because MySQL requires a plaintext password. For Reasons. Ugh.</returns>
-        public static SecureString ReadPasswordMasked(string prompt)
+        public static string ReadPasswordMasked(string prompt)
         {
             Console.WriteLine(prompt);
-            SecureString ret = new SecureString();
+            string ret = "";
 
             ConsoleKeyInfo key;
             do
@@ -31,7 +31,7 @@ namespace OldManInTheShopServer.Util
                             for (int i = 0; i < ret.Length; i++)
                                 Console.Write(' ');
                             Console.SetCursorPosition(0, Console.CursorTop - 1);
-                            ret.Clear();
+                            ret = "";
                             continue;
                         }
                     }
@@ -39,7 +39,7 @@ namespace OldManInTheShopServer.Util
                     {
                         if (ret.Length > 0)
                         {
-                            ret.RemoveAt(ret.Length - 1);
+                            ret.Remove(ret.Length - 1);
                             Console.Write("\b \b"); //So this is weird. The escaped b means to pull the writing cursor back one space. So the cursor will move, then write a space, then move behind the space
                             continue;
                         }
@@ -56,7 +56,7 @@ namespace OldManInTheShopServer.Util
                     }
                     else
                     {
-                        ret.AppendChar(key.KeyChar);
+                        ret += (key.KeyChar);
                         Console.Write('*');
                     }
                 }
