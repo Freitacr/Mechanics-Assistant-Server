@@ -38,7 +38,6 @@ namespace OldManInTheShopServer.Net
                     if (!uri.EndsWith('/'))
                         uri += '/';
                     var action = prefixMapping[uri];
-                    Console.WriteLine("Api Handling the request: " + action.GetType().Name);
                     if (action == null)
                     {
                         //Assume unsupported operation
@@ -48,44 +47,37 @@ namespace OldManInTheShopServer.Net
                     } else
                     {
                         HttpMessageHandler handler = null;
-                        string responseMethod = null;
                         switch(method)
                         {
                             case "DELETE":
-                                responseMethod = "DELETE";
+                                Console.WriteLine("Responding with a DELETE");
                                 handler = action.DELETE;
                                 break;
                             case "GET":
-                                responseMethod = "GET";
+                                Console.WriteLine("Responding with a GET");
                                 handler = action.GET;
                                 break;
                             case "PUT":
-                                responseMethod = "PUT";
+                                Console.WriteLine("Responding with a PUT");
                                 handler = action.PUT;
                                 break;
                             case "POST":
-                                responseMethod = "POST";
+                                Console.WriteLine("Responding with a POST");
                                 handler = action.POST;
                                 break;
                             case "OPTIONS":
-                                responseMethod = "OPTIONS";
+                                Console.WriteLine("Responding with an OPTIONS");
                                 handler = action.OPTIONS;
                                 break;
                             case "PATCH":
-                                responseMethod = "PATCH";
+                                Console.WriteLine("Responding with a PATCH");
                                 handler = action.PATCH;
                                 break;
                         }
                         if (handler == null)
-                        {
-                            Console.WriteLine("Telling the client that the operation they attempted was not supported");
                             ThreadPool.QueueUserWorkItem((context) => ApiDefinition.NotSupported(context as HttpListenerContext), ctx);
-                        }
                         else
-                        {
-                            Console.WriteLine("Responding with a " + responseMethod);
                             ThreadPool.QueueUserWorkItem((context) => handler(context as HttpListenerContext), ctx);
-                        }
                     }
                     //Console.WriteLine("HTTP request came in: " + ctx.Request.HttpMethod + " " + ctx.Request.Url);
                 }
