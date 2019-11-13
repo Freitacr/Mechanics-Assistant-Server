@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>OldManInTheShopServer</RootNamespace>
+    <StartupObject>OldManInTheShopServer.ProgramMain</StartupObject>
+    <ApplicationIcon />
+    <AssemblyName>server</AssemblyName>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ANSEncodingLib\ANSEncodingLib.csproj" />
+    <ProjectReference Include="..\Certes\CertesWrapper.csproj" />
+    <ProjectReference Include="..\EncodingUtilities\EncodingUtilities.csproj" />
+    <ProjectReference Include="..\OMISSecLib\OMISSecLib.csproj" />
+    <ProjectReference Include="..\OMISSortingLib\OMISSortingLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="InitialData\averaged_perceptron_tagger.ans">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="InitialData\formattedKeywordTrainingData.ans">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="InitialData\mechanicQueries.ans">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

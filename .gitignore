@@ -341,3 +341,5 @@ healthchecksdb
 
 # Logging Folders for Accuracy Testing
 /**/Log*
+/Mechanic's Assistant Server/temp.dat
+/Mechanic's Assistant POS Tagger
