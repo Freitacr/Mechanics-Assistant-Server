@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Net;
+using System;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -9,27 +10,18 @@ namespace OldManInTheShopServer.Net.Api
         public TopLevelApi() : base("http://+")
         {
             GET += SendRedirect;
-            OPTIONS += HandleOptionRequest;
-        }
-
-        public void HandleOptionRequest(HttpListenerContext ctxIn)
-        {
-            ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "GET");
-            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
-            ctxIn.Response.Close();
         }
 
         public void SendRedirect(HttpListenerContext ctxIn)
         {
-            string html = "<html><head><meta http-equiv=\"Refresh\" content=\"0; url=https://oldmanintheshop.web.app\"></head><body></body></html>";
-            byte[] htmlBytes = Encoding.UTF8.GetBytes(html);
-            ctxIn.Response.ContentType = "text/html";
-            ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.ContentLength64 = htmlBytes.Length;
-            ctxIn.Response.OutputStream.Write(htmlBytes, 0, htmlBytes.Length);
-            ctxIn.Response.Close();
+            try
+            {
+                string html = "<html><head><meta http-equiv=\"Refresh\" content=\"0; url=https://oldmanintheshop.web.app\"></head><body></body></html>";
+                WriteBodyResponse(ctxIn, 200, "OK", html, "text/html");
+            } catch(Exception e)
+            {
+                WriteBodyResponse(ctxIn, 500, "Internal Server Error", e.Message);
+            }
         }
     }
 }
