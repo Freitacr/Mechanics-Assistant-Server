@@ -20,8 +20,10 @@ namespace OldManInTheShopServer
                 Thread.Sleep(TimeSpan.FromMinutes(1));
                 while (true)
                 {
+                    Console.WriteLine("Checking certificate status");
                     if (CertificateRenewer.CertificateNeedsRenewal())
                     {
+                        Console.WriteLine("Attempting to retrieve new certificate");
                         CertificateRenewer.GetFirstCert(false);
                     }
                     Thread.Sleep(TimeSpan.FromMinutes(30));
