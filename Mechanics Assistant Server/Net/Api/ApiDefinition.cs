@@ -27,20 +27,42 @@ namespace OldManInTheShopServer.Net.Api
         }
         public void HandleOptionRequest(HttpListenerContext ctxIn)
         {
-            ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "*");
-            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
-            ctxIn.Response.Close();
+            try
+            {
+                ctxIn.Response.StatusCode = 200;
+                ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "*");
+                ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
+                ctxIn.Response.Close();
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListenerContext objects dispose themselves on HttpListenerExceptions happening.
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctxIn, 500, "Internal Server Error", "Error occurred while responding: " + e.Message);
+            }
         }
 
         /** <summary>Method to reliably tell the requesting client that the method they used to request a resource is not valid</summary> */
         public static void NotSupported (HttpListenerContext ctx) {
-            ctx.Response.StatusCode = 405;
-            ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
-            ctx.Response.StatusDescription = "Method Not Supported";
-            ctx.Response.OutputStream.Close();
+            try
+            {
+                ctx.Response.StatusCode = 405;
+                ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
+                ctx.Response.StatusDescription = "Method Not Supported";
+                ctx.Response.OutputStream.Close();
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListenerContext objects dispose themselves on HttpListenerExceptions happening.
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred while responding: " + e.Message);
+            }
         }
 
         public static void WriteBodyResponse(HttpListenerContext ctx, int responseCode, string responseString, string responseBody, string contentType = "text/plain")
@@ -58,13 +80,10 @@ namespace OldManInTheShopServer.Net.Api
                 ctx.Response.OutputStream.Close();
             } catch (HttpListenerException)
             {
-                try
-                {
-                    ctx.Response.OutputStream.Dispose();
-                } catch (HttpListenerException)
-                {
-                    //ignore, we've tried.
-                }
+                //HttpListenerContext objects dispose themselves on HttpListenerExceptions happening.
+            } catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred while responding: " + e.Message);
             }
         }
 
@@ -78,17 +97,13 @@ namespace OldManInTheShopServer.Net.Api
                 ctx.Response.AddHeader("Access-Control-Allow-Headers", "*");
                 ctx.Response.OutputStream.Close();
             }
+            catch (HttpListenerException)
+            {
+                //HttpListenerContext objects dispose themselves on HttpListenerExceptions happening.
+            }
             catch (Exception e)
             {
-                Logger.Global.Log(Logger.LogLevel.ERROR, e.StackTrace);
-                try
-                {
-                    ctx.Response.OutputStream.Dispose();
-                }
-                catch (HttpListenerException)
-                {
-                    //ignore, we've tried.
-                }
+                WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred while responding: " + e.Message);
             }
         }
     }
