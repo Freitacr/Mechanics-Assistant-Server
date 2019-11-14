@@ -261,8 +261,8 @@ namespace OldManInTheShopServer.Net.Api
                 ret.SetMapping("DisplayName", "Unknown User");
             } else
             {
-                List<SettingsEntry> userSettings = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(user.Settings);
-                ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals("displayName")).First().Value);
+                List<UserSettingsEntry> userSettings = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(user.Settings);
+                ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.DisplayName)).First().Value);
             }
 
             var part = connection.GetPartCatalogueEntryById(companyId, int.Parse(request.RequestedAdditions));

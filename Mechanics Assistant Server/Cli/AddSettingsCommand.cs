@@ -30,9 +30,9 @@ namespace OldManInTheShopServer.Cli
                 var users = manipulator.GetUsersWhere("id > 0");
                 foreach (OverallUser user in users)
                 {
-                    List<SettingsEntry> settings = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(user.Settings);
+                    List<UserSettingsEntry> settings = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(user.Settings);
                     bool found = false;
-                    foreach(SettingsEntry entry in settings)
+                    foreach(UserSettingsEntry entry in settings)
                     {
                         if (entry.Key.Equals(Key))
                         {
@@ -42,8 +42,8 @@ namespace OldManInTheShopServer.Cli
                     }
                     if(!found)
                     {
-                        settings.Add(new SettingsEntry() { Key = Key, Value = Value });
-                        user.Settings = JsonDataObjectUtil<List<SettingsEntry>>.ConvertObject(settings);
+                        settings.Add(new UserSettingsEntry() { Key = Key, Value = Value });
+                        user.Settings = JsonDataObjectUtil<List<UserSettingsEntry>>.ConvertObject(settings);
                         if (!manipulator.UpdateUsersSettings(user))
                         {
                             Console.WriteLine("Failed to update settings for user " + user.UserId);

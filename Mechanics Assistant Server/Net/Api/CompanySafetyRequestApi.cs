@@ -258,8 +258,8 @@ namespace OldManInTheShopServer.Net.Api
             }
             else
             {
-                List<SettingsEntry> userSettings = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(user.Settings);
-                ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals("displayName")).First().Value);
+                List<UserSettingsEntry> userSettings = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(user.Settings);
+                ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.DisplayName)).First().Value);
             }
             ret.SetMapping("RequestedAdditions", request.RequestedAdditions);
             var job = connection.GetDataEntryById(companyId, request.ValidatedDataId);

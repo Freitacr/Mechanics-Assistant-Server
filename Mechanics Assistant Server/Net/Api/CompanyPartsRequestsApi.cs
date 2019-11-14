@@ -239,8 +239,8 @@ namespace OldManInTheShopServer.Net.Api
             }
             else
             {
-                List<SettingsEntry> entries = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(user.Settings);
-                ret.SetMapping("DisplayName", entries.Where(entry => entry.Key.Equals("displayName")).First().Value);
+                List<UserSettingsEntry> entries = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(user.Settings);
+                ret.SetMapping("DisplayName", entries.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.DisplayName)).First().Value);
             }
             List<int> referencedParts = JsonDataObjectUtil<List<int>>.ParseObject(request.ReferencedParts);
             JsonListStringConstructor partsConstructor = new JsonListStringConstructor();

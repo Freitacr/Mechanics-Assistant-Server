@@ -121,8 +121,8 @@ namespace OldManInTheShopServer.Net.Api
             ret.SetMapping("Access Level", toConvert.AccessLevel);
             ret.SetMapping("Email", toConvert.Email);
             ret.SetMapping("DatabaseId", toConvert.UserId);
-            List<SettingsEntry> entries = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(toConvert.Settings);
-            ret.SetMapping("Display Name", entries.Where(obj => obj.Key.Equals("displayName")).First().Value);
+            List<UserSettingsEntry> entries = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(toConvert.Settings);
+            ret.SetMapping("Display Name", entries.Where(obj => obj.Key.Equals(UserSettingsEntryKeys.DisplayName)).First().Value);
             return ret;
         }
 

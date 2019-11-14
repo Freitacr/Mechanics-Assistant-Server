@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Net;
@@ -55,11 +55,11 @@ namespace OldManInTheShopServer.Net.Api
         public PredictApi(int port) : base("http://+:" + port + "/predict")
 #endif
         {
-            GET += HandleGetRequest;
+            POST += HandlePostRequest;
             PUT += HandlePutRequest;
         }
 
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandlePostRequest(HttpListenerContext ctx)
         {
             try
             {
@@ -94,13 +94,18 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
-                    if (mappedUser.Company != req.CompanyId)
+                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\"Is Public\"")[0];
+                    bool isPublic = bool.Parse(isPublicSetting.SettingValue);
+                    if (!isPublic && mappedUser.Company != req.CompanyId)
                     {
-                        WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot predict using other company's data");
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot predict using other company's private data");
                         return;
                     }
+                    List<UserSettingsEntry> userSettings = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(mappedUser.Settings);
+                    UserSettingsEntry complaintGroupResultsSetting = userSettings.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.ComplaintGroupResults)).First();
+                    int numGroupsRequested = int.Parse(complaintGroupResultsSetting.Value);
                     DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
-                    string ret = processor.ProcessQueryForSimilaryQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, 10);
+                    string ret = processor.ProcessQueryForSimilaryQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, numGroupsRequested);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
                 }
             }

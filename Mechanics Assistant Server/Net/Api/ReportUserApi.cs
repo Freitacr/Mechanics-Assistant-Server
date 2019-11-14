@@ -97,7 +97,7 @@ namespace OldManInTheShopServer.Net.Api
                     }
                     foreach (OverallUser reportedUser in users)
                     {
-                        reportedUser.UpdateSettings("displayName", "Default User " + reportedUser.UserId);
+                        reportedUser.UpdateSettings(UserSettingsEntryKeys.DisplayName, "Default User " + reportedUser.UserId);
                         connection.UpdateUsersSettings(reportedUser);
                     }
                     WriteBodylessResponse(ctx, 200, "OK");

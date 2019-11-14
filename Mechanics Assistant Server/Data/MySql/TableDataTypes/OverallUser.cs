@@ -28,13 +28,22 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     }
 
     [DataContract]
-    class SettingsEntry
+    class UserSettingsEntry
     {
         [DataMember]
         public string Key { get; set; } = "";
 
         [DataMember]
         public string Value { get; set; } = "";
+    }
+
+    public static class UserSettingsEntryKeys
+    {
+        public static readonly string DisplayName = "Display Name";
+        public static readonly string ComplaintGroupResults = "Number Complaint Group Results";
+        public static readonly string ProblemGroupResults = "Number Problem Group Results";
+        public static readonly string PredictionQueryResults = "Number Prediction Filtered Results";
+        public static readonly string ArchiveQueryResults = "Number Archive Filtered Results";
     }
 
     [DataContract]
@@ -74,13 +83,13 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     {
         public static string GenerateDefaultSettings()
         {
-            List<SettingsEntry> entries = new List<SettingsEntry>();
-            entries.Add(new SettingsEntry() { Key = "displayName", Value = "defaultUser" });
-            entries.Add(new SettingsEntry() { Key = "numPredictResultGroups", Value = "4" });
-            entries.Add(new SettingsEntry() { Key = "numPredictResultEntries", Value = "20" });
-            entries.Add(new SettingsEntry() { Key = "numArchiveResultGroups", Value = "4" });
-            entries.Add(new SettingsEntry() { Key = "numArchiveResultEntries", Value = "20" });
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
+            List<UserSettingsEntry> entries = new List<UserSettingsEntry>();
+            entries.Add(new UserSettingsEntry() { Key = UserSettingsEntryKeys.DisplayName, Value = "defaultUser" });
+            entries.Add(new UserSettingsEntry() { Key = UserSettingsEntryKeys.ProblemGroupResults, Value = "4" });
+            entries.Add(new UserSettingsEntry() { Key = UserSettingsEntryKeys.ArchiveQueryResults, Value = "20" });
+            entries.Add(new UserSettingsEntry() { Key = UserSettingsEntryKeys.ComplaintGroupResults, Value = "4" });
+            entries.Add(new UserSettingsEntry() { Key = UserSettingsEntryKeys.PredictionQueryResults, Value = "20" });
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<UserSettingsEntry>));
             MemoryStream stream = new MemoryStream();
             serializer.WriteObject(stream, entries);
             byte[] outBytes = stream.ToArray();
@@ -137,9 +146,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         {
             byte[] settings = Encoding.UTF8.GetBytes(Settings);
             MemoryStream stream = new MemoryStream(settings);
-            var serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
-            List<SettingsEntry> settingsEntries = (List<SettingsEntry>)serializer.ReadObject(stream);
-            foreach(SettingsEntry entry in settingsEntries) {
+            var serializer = new DataContractJsonSerializer(typeof(List<UserSettingsEntry>));
+            List<UserSettingsEntry> settingsEntries = (List<UserSettingsEntry>)serializer.ReadObject(stream);
+            foreach(UserSettingsEntry entry in settingsEntries) {
                 if(entry.Key.Equals(key))
                 {
                     entry.Value = value;

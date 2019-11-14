@@ -227,8 +227,8 @@ namespace OldManInTheShopServer.Net.Api
             }
             else
             {
-                var userSettings = JsonDataObjectUtil<List<SettingsEntry>>.ParseObject(user.Settings);
-                ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals("displayName")).First().Value);
+                var userSettings = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(user.Settings);
+                ret.SetMapping("DisplayName", userSettings.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.DisplayName)).First().Value);
                 ret.SetMapping("Email", user.Email);
             }
             return ret;
