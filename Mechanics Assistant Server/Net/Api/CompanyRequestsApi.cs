@@ -137,6 +137,10 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodylessResponse(ctx,200,"OK");
                 }
             }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
             catch (Exception e)
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
@@ -200,6 +204,10 @@ namespace OldManInTheShopServer.Net.Api
                     requests.ForEach(req => returnConstructor.AddElement(WriteJoinRequestToOutput(req, connection)));
                     WriteBodyResponse(ctx, 200, "OK", returnConstructor.ToString());
                 }
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
             }
             catch (Exception e)
             {
@@ -290,6 +298,10 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
             }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
             catch (Exception e)
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
@@ -368,6 +380,10 @@ namespace OldManInTheShopServer.Net.Api
                     connection.UpdateUserAccessLevel(mappedUser);
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
             }
             catch (Exception e)
             {

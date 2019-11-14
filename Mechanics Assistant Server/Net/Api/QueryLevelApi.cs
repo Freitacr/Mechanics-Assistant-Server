@@ -90,7 +90,12 @@ namespace OldManInTheShopServer.Net.Api
                 ctxIn.Response.ContentLength64 = problemResp.LongLength;
                 ctxIn.Response.OutputStream.Write(problemResp, 0, problemResp.Length);
                 ctxIn.Response.OutputStream.Close();
-            } catch (Exception e)
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
             {
                 WriteBodyResponse(ctxIn, 500, "Internal Server Error", "Error occurred while processing request: " + e.Message);
             }

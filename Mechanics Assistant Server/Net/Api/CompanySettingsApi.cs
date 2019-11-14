@@ -100,7 +100,12 @@ namespace OldManInTheShopServer.Net.Api
                     entries.ForEach(obj => retConstructor.AddElement(WriteSettingToOutput(obj)));
                     WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
                 }
-            } catch(Exception e)
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred while processing request: " + e.Message);
             }
@@ -210,6 +215,10 @@ namespace OldManInTheShopServer.Net.Api
 
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
             }
             catch (Exception e)
             {

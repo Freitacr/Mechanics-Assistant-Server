@@ -103,7 +103,11 @@ namespace OldManInTheShopServer.Net.Api
                     string ret = processor.ProcessQueryForSimilaryQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, 10);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
                 }
-            } 
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
             catch (Exception e)
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred during processing of request: " + e.Message);
@@ -154,6 +158,10 @@ namespace OldManInTheShopServer.Net.Api
                     string ret = processor.ProcessQueryForComplaintGroups(req.Entry, connection, req.CompanyId);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
                 }
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
             }
             catch (Exception e)
             {

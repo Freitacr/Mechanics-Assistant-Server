@@ -153,7 +153,12 @@ namespace OldManInTheShopServer.Net.Api
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
-            } catch (Exception e)
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
@@ -242,7 +247,12 @@ namespace OldManInTheShopServer.Net.Api
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
-            } catch (Exception e)
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
@@ -322,7 +332,12 @@ namespace OldManInTheShopServer.Net.Api
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
                 }
-            } catch(Exception e)
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }

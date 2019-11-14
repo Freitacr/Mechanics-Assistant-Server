@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Collections.Generic;
 using OldManInTheShopServer.Net.Api;
+using OldManInTheShopServer.Util;
 
 namespace OldManInTheShopServer.Net
 {
@@ -42,9 +43,16 @@ namespace OldManInTheShopServer.Net
                     if (action == null)
                     {
                         //Assume unsupported operation
-                        ctx.Response.StatusCode = 404;
-                        ctx.Response.StatusDescription = "Not Found";
-                        ctx.Response.OutputStream.Close();
+                        try
+                        {
+                            ctx.Response.StatusCode = 404;
+                            ctx.Response.StatusDescription = "Not Found";
+                            ctx.Response.OutputStream.Close();
+                        }
+                        catch (HttpListenerException)
+                        {
+                            //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+                        }
                     } else
                     {
                         HttpMessageHandler handler = null;
@@ -78,8 +86,14 @@ namespace OldManInTheShopServer.Net
                         }
                         if (handler == null)
                         {
-                            Console.WriteLine("Telling the client that the operation they attempted was not supported");
-                            ThreadPool.QueueUserWorkItem((context) => ApiDefinition.NotSupported(context as HttpListenerContext), ctx);
+                            try
+                            {
+                                Console.WriteLine("Telling the client that the operation they attempted was not supported");
+                                ThreadPool.QueueUserWorkItem((context) => ApiDefinition.NotSupported(context as HttpListenerContext), ctx);
+                            } catch (Exception e)
+                            {
+                                Logger.Global.Log(Logger.LogLevel.ERROR, e.StackTrace);
+                            }
                         }
                         else
                         {
