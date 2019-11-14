@@ -6,6 +6,7 @@ using System.IO;
 using OldManInTheShopServer.Models;
 using OldManInTheShopServer.Data;
 using System;
+using OldManInTheShopServer.Util;
 
 namespace OldManInTheShopServer.Net.Api
 {
@@ -22,23 +23,12 @@ namespace OldManInTheShopServer.Net.Api
         {
             QueryProcessor = processorIn;
             PUT += HandlePutRequestHtml;
-            //AddAction("put", HandlePutRequest);
-            //AddAction("post", HandlePostRequest);
         }
 
         private MechanicQuery ReadMechanicQuery (Stream streamIn)
         {
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(MechanicQuery));
             return serializer.ReadObject(streamIn) as MechanicQuery;
-        }
-
-        public void HandleOptionRequest(HttpListenerContext ctxIn)
-        {
-            ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.AddHeader("Access-Control-Allow-Methods", "PUT,POST");
-            ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
-            ctxIn.Response.Close();
         }
 
         /**<summary>Responds to the put request made by a client</summary>
@@ -54,14 +44,7 @@ namespace OldManInTheShopServer.Net.Api
                     return;
                 if (!ctxIn.Request.HasEntityBody)
                 {
-                    ctxIn.Response.StatusCode = 400;
-                    ctxIn.Response.StatusDescription = "Bad Request";
-                    string body = "No Body";
-                    ctxIn.Response.ContentType = "text/plain";
-                    byte[] resp = Encoding.UTF32.GetBytes(body);
-                    ctxIn.Response.ContentLength64 = resp.LongLength;
-                    ctxIn.Response.OutputStream.Write(resp, 0, resp.Length);
-                    ctxIn.Response.OutputStream.Close();
+                    WriteBodyResponse(ctxIn, 400, "No Body", "Request contained no body");
                     return;
                 }
                 MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
@@ -82,14 +65,7 @@ namespace OldManInTheShopServer.Net.Api
                 }
                 string tableString = tableBuilder.ToString();
                 byte[] problemResp = Encoding.UTF8.GetBytes(tableString);
-                ctxIn.Response.StatusCode = 200;
-                ctxIn.Response.AddHeader("Access-Control-Allow-Origin", "*");
-                ctxIn.Response.AddHeader("Access-Control-Allow-Headers", "*");
-                ctxIn.Response.StatusDescription = "OK";
-                ctxIn.Response.ContentType = "text/html";
-                ctxIn.Response.ContentLength64 = problemResp.LongLength;
-                ctxIn.Response.OutputStream.Write(problemResp, 0, problemResp.Length);
-                ctxIn.Response.OutputStream.Close();
+                WriteBodyResponse(ctxIn, 200, "OK", tableString, "text/html");
             }
             catch (HttpListenerException)
             {
@@ -108,34 +84,30 @@ namespace OldManInTheShopServer.Net.Api
          */
         public void HandlePutRequestJson(HttpListenerContext ctxIn)
         {
-            if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("application/json"))
-                return;
-            if(!ctxIn.Request.HasEntityBody)
+            try
             {
-                ctxIn.Response.StatusCode = 400;
-                ctxIn.Response.StatusDescription = "Bad Request";
-                string body = "No Body";
-                ctxIn.Response.ContentType = "text/plain";
-                byte[] resp = Encoding.UTF32.GetBytes(body);
-                ctxIn.Response.ContentLength64 = resp.LongLength;
-                ctxIn.Response.OutputStream.Write(resp, 0, resp.Length);
-                ctxIn.Response.OutputStream.Close();
-                return;
+                if (!new List<string>(ctxIn.Request.AcceptTypes).Contains("application/json"))
+                    return;
+                if (!ctxIn.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctxIn, 400, "Bad Request", "No Body");
+                    return;
+                }
+                MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
+                query.Make = query.Make.ToLower();
+                query.Model = query.Model.ToLower();
+                List<string> possibleProblems = QueryProcessor.ProcessQuery(query);
+                string problems = JsonDataObjectUtil<List<string>>.ConvertObject(possibleProblems);
+                WriteBodyResponse(ctxIn, 200, "OK", problems, "application/json");
             }
-            MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
-            query.Make = query.Make.ToLower();
-            query.Model = query.Model.ToLower();
-            List<string> possibleProblems = QueryProcessor.ProcessQuery(query);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<string>));
-            MemoryStream stream = new MemoryStream();
-            serializer.WriteObject(stream, possibleProblems);
-            byte[] problemResp = stream.ToArray();
-            ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.StatusDescription = "OK";
-            ctxIn.Response.ContentType = "application/json";
-            ctxIn.Response.ContentLength64 = problemResp.LongLength;
-            ctxIn.Response.OutputStream.Write(problemResp, 0, problemResp.Length);
-            ctxIn.Response.OutputStream.Close();
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctxIn, 500, "Internal Server Error", e.Message);
+            }
         }
         
         /**<summary>Responds to the post request made by a client</summary>
@@ -144,44 +116,37 @@ namespace OldManInTheShopServer.Net.Api
          */
         public void HandlePostRequest(HttpListenerContext ctxIn)
         {
-            if (!ctxIn.Request.HasEntityBody)
+            try
             {
-                ctxIn.Response.StatusCode = 400;
-                ctxIn.Response.StatusDescription = "Bad Request";
-                string body = "No Body";
-                ctxIn.Response.ContentType = "text/plain";
-                byte[] resp = Encoding.UTF8.GetBytes(body);
-                ctxIn.Response.ContentLength64 = resp.LongLength;
-                ctxIn.Response.OutputStream.Write(resp, 0, resp.Length);
-                ctxIn.Response.OutputStream.Close();
-                return;
-            }
-            MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
-            if(!IsQueryViable(query))
-            {
-                //Query was missing one or more fields
-                ctxIn.Response.StatusCode = 400;
-                ctxIn.Response.StatusDescription = "Bad Request";
-                string body = "{\"Bad Query\": \"Query was missing one or more fields\"}";
-                ctxIn.Response.ContentType = "application/json";
-                byte[] resp = Encoding.UTF8.GetBytes(body);
-                ctxIn.Response.ContentLength64 = resp.LongLength;
-                ctxIn.Response.OutputStream.Write(resp, 0, resp.Length);
-                ctxIn.Response.OutputStream.Close();
-                return;
-            }
+                if (!ctxIn.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctxIn, 400, "Bad Request", "No Body");
+                    return;
+                }
+                MechanicQuery query = ReadMechanicQuery(ctxIn.Request.InputStream);
+                if (!IsQueryViable(query))
+                {
+                    //Query was missing one or more fields
+                    WriteBodyResponse(ctxIn, 400, "Bad Request", "Query was missing one or more fields");
+                    return;
+                }
 
-            if(!QueryProcessor.AddData(query))
-            {
-                //Error occurred. Server side.
-                ctxIn.Response.StatusCode = 500;
-                ctxIn.Response.StatusDescription = "Internal Server Error";
-                ctxIn.Response.OutputStream.Close();
-                return;
+                if (!QueryProcessor.AddData(query))
+                {
+                    //Error occurred. Server side.
+                    WriteBodylessResponse(ctxIn, 500, "Internal Server Error");
+                    return;
+                }
+                WriteBodylessResponse(ctxIn, 200, "OK");
             }
-            ctxIn.Response.StatusCode = 200;
-            ctxIn.Response.StatusDescription = "OK";
-            ctxIn.Response.OutputStream.Close();
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctxIn, 500, "Internal Server Error", e.Message);
+            }
         }
 
         private bool IsQueryViable(MechanicQuery queryIn)

@@ -17,19 +17,15 @@ namespace OldManInTheShopServer.Net.Api
             try
             {
                 string html = "<html><head><meta http-equiv=\"Refresh\" content=\"0; url=https://oldmanintheshop.web.app\"></head><body></body></html>";
-                byte[] htmlBytes = Encoding.UTF8.GetBytes(html);
-                ctxIn.Response.ContentType = "text/html";
-                ctxIn.Response.StatusCode = 200;
-                ctxIn.Response.ContentLength64 = htmlBytes.Length;
-                ctxIn.Response.OutputStream.Write(htmlBytes, 0, htmlBytes.Length);
-                ctxIn.Response.Close();
+                WriteBodyResponse(ctxIn, 200, "OK", html, "text/html");
             }
             catch (HttpListenerException)
             {
                 //HttpListeners dispose themselves when an exception occurs, so we can do no more.
-            } catch (Exception)
+            }
+            catch (Exception e)
             {
-                ctxIn.Response.Close();
+                WriteBodyResponse(ctxIn, 500, "Internal Server Error", e.Message);
             }
         }
     }
