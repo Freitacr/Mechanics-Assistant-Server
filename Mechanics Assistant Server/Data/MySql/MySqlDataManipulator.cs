@@ -1618,6 +1618,30 @@ namespace OldManInTheShopServer.Data.MySql
             return ExecuteNonQuery(cmd);
         }
 
+        public bool UpdateDataEntryGroups(int companyId, JobDataEntry entryToUpdate, bool validated=true, bool complaint = true)
+        {
+            string toWrite;
+            string fieldName;
+            if (!complaint)
+            {
+                toWrite = entryToUpdate.ProblemGroups.Replace("\"", "\\\"");
+                fieldName = "ProblemGroupings";
+            }
+            else
+            {
+                toWrite = entryToUpdate.ComplaintGroups.Replace("\"", "\\\"");
+                fieldName = "ComplaintGroupings";
+            }
+            string tableName;
+            if (validated)
+                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            else
+                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            var cmd = Connection.CreateCommand();
+            cmd.CommandText = "update " + tableName + " set " + fieldName + "=\"" + toWrite + "\" where id=" + entryToUpdate.Id + ";";
+            return ExecuteNonQuery(cmd);
+        }
+
         /// <summary>
         /// Returns a list of JobDataEntries that are matched with the specified complaint group
         /// </summary>

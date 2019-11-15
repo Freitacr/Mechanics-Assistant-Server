@@ -12,7 +12,7 @@ using OldManInTheShopServer.Models;
 namespace OldManInTheShopServer.Net.Api
 {
     [DataContract]
-    class PredictApiGetRequest
+    class PredictApiPostRequest
     {
         [DataMember]
         public int UserId;
@@ -68,7 +68,7 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                PredictApiGetRequest req = JsonDataObjectUtil<PredictApiGetRequest>.ParseObject(ctx);
+                PredictApiPostRequest req = JsonDataObjectUtil<PredictApiPostRequest>.ParseObject(ctx);
                 if (!ValidateGetRequest(req))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
@@ -102,10 +102,10 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     List<UserSettingsEntry> userSettings = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(mappedUser.Settings);
-                    UserSettingsEntry complaintGroupResultsSetting = userSettings.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.ComplaintGroupResults)).First();
-                    int numGroupsRequested = int.Parse(complaintGroupResultsSetting.Value);
+                    UserSettingsEntry predictionQueryResultsSetting = userSettings.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.PredictionQueryResults)).First();
+                    int numQueriesRequested = int.Parse(predictionQueryResultsSetting.Value);
                     DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
-                    string ret = processor.ProcessQueryForSimilaryQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, numGroupsRequested);
+                    string ret = processor.ProcessQueryForSimilaryQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, numQueriesRequested);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
                 }
             }
@@ -154,13 +154,22 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
-                    if(mappedUser.Company != req.CompanyId)
+                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\"Is Public\"")[0];
+                    bool isPublic = bool.Parse(isPublicSetting.SettingValue);
+                    if(!isPublic && mappedUser.Company != req.CompanyId)
                     {
-                        WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot predict using other company's data");
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot predict using other company's private data");
                         return;
                     }
+                    UserSettingsEntry numPredictionsRequested = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(mappedUser.Settings).FirstOrDefault(entry => entry.Key.Equals(UserSettingsEntryKeys.ComplaintGroupResults));
+                    if(numPredictionsRequested == null)
+                    {
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "User did not contain a setting with a key " + UserSettingsEntryKeys.ComplaintGroupResults);
+                        return;
+                    }
+                    int numRequested = int.Parse(numPredictionsRequested.Value);
                     DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
-                    string ret = processor.ProcessQueryForComplaintGroups(req.Entry, connection, req.CompanyId);
+                    string ret = processor.ProcessQueryForComplaintGroups(req.Entry, connection, req.CompanyId, numRequested);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
                 }
             }
@@ -174,7 +183,7 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
-        private bool ValidateGetRequest(PredictApiGetRequest req)
+        private bool ValidateGetRequest(PredictApiPostRequest req)
         {
             if (req.Entry == null)
                 return false;

@@ -8,7 +8,7 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
 {
     class EntrySimilarity
     {
-        public float Similarity { get; set; }
+        public float Difference { get; set; }
         public JobDataEntry Entry { get; set; }
     }
 
@@ -29,7 +29,7 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
 
         private static List<int> ExtractComplaintGroups(JobDataEntry entry)
         {
-            string entryComplaintGroups = entry.ComplaintGroups.Substring(1, entry.ComplaintGroups.Length - 1);
+            string entryComplaintGroups = entry.ComplaintGroups.Substring(1, entry.ComplaintGroups.Length - 2);
             string[] complaintGroups = entryComplaintGroups.Split(',');
             List<int> ret = new List<int>();
             foreach (string s in complaintGroups)
@@ -53,7 +53,7 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
             Dictionary<float, List<EntrySimilarity>> distanceMappings = new Dictionary<float, List<EntrySimilarity>>();
             HashSet<float> keys = new HashSet<float>();
             List<EntrySimilarity> ret = new List<EntrySimilarity>();
-            int requiredNum = offset + numRequested;
+            int requiredNum = numRequested;
             foreach (JobDataEntry other in potentials)
             {
                 float dist = CalcSimilarity(query, other);
@@ -62,19 +62,21 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
                     keys.Add(dist);
                     distanceMappings.Add(dist, new List<EntrySimilarity>());
                 }
-                distanceMappings[dist].Add(new EntrySimilarity() { Entry = other, Similarity = dist });
+                distanceMappings[dist].Add(new EntrySimilarity() { Entry = other, Difference = dist });
             }
 
             float[] sortedKeys = new float[keys.Count];
             keys.CopyTo(sortedKeys);
             sortedKeys.RadixSort();
             int keyIndex = 0;
-            while (ret.Count <= requiredNum)
+            while (ret.Count <= requiredNum && keyIndex < sortedKeys.Length)
             {
                 ret.AddRange(distanceMappings[sortedKeys[keyIndex]]);
                 keyIndex++;
             }
-            return ret.GetRange(offset, numRequested);
+            if (ret.Count < numRequested)
+                return ret;
+            return ret.GetRange(0, numRequested);
         }
     }
 }

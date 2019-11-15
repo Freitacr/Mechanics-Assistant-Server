@@ -159,6 +159,8 @@ namespace OldManInTheShopServer.Models.KeywordClustering
 
         public bool Load(MySqlDataManipulator manipulator, int companyId, bool complaint=true)
         {
+            if (ContainedGroups.Count > 0)
+                ContainedGroups.Clear();
             if(complaint)
             {
                 List<KeywordGroupEntry> toLoad = manipulator.GetCompanyComplaintGroups(companyId);

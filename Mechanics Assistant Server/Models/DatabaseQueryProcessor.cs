@@ -83,6 +83,40 @@ namespace OldManInTheShopServer.Models
                 throw new InvalidCastException("Loaded class could not be cast to IDatabaseQueryProblemPredictor");
         }
 
+        public bool TrainClusteringModels(MySqlDataManipulator manipulator, int companyId, List<string> examplesIn, bool complaint = true)
+        {
+            List<KeywordExample> trainingData = new List<KeywordExample>();
+            foreach(string sentence in examplesIn)
+            {
+                List<string> tokens = SentenceTokenizer.TokenizeSentence(sentence);
+                List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
+                List<string> keywords = KeywordPredictor.PredictKeywords(taggedTokens);
+                KeywordExample example = new KeywordExample();
+                foreach (string keyword in keywords)
+                    example.AddKeyword(keyword);
+                trainingData.Add(example);
+            }
+            KeywordClusterer.Train(trainingData);
+            return KeywordClusterer.Save(manipulator, companyId, complaint);
+        }
+
+        public List<int> PredictKeywordsInJobData(JobDataEntry entry, int companyId, MySqlDataManipulator manipulator, bool complaint = true)
+        {
+            List<string> tokens;
+            if(complaint)
+                tokens = SentenceTokenizer.TokenizeSentence(entry.Complaint);
+            else
+                tokens = SentenceTokenizer.TokenizeSentence(entry.Problem);
+            List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
+            List<string> keywords = KeywordPredictor.PredictKeywords(taggedTokens);
+            KeywordExample example = new KeywordExample();
+            foreach (string keyword in keywords)
+                example.AddKeyword(keyword);
+            KeywordClusterer.Load(manipulator, companyId);
+            List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 5);
+            return groups;
+        }
+
         /// <summary>
         /// Attempts to return a list of the top 3 most similar complaint groups from the database
         /// </summary>
@@ -90,7 +124,7 @@ namespace OldManInTheShopServer.Models
         /// <param name="manipulator">The object to use to access the database</param>
         /// <param name="companyId">The id of the company the request is being made for. Determines which tables to use in the database</param>
         /// <returns>Json formatted string that contains the top 3 complaint groups that are most similar to the query made, and their database ids</returns>
-        public string ProcessQueryForComplaintGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId)
+        public string ProcessQueryForComplaintGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int numGroupsRequested=3)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);
             List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
@@ -98,7 +132,8 @@ namespace OldManInTheShopServer.Models
             KeywordExample example = new KeywordExample();
             foreach (string keyword in keywords)
                 example.AddKeyword(keyword);
-            List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
+            KeywordClusterer.Load(manipulator, companyId);
+            List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, numGroupsRequested);
             List<KeywordGroupEntry> companyComplaintGroups = manipulator.GetCompanyComplaintGroups(companyId);
             if (companyComplaintGroups == null)
                 throw new NullReferenceException("Company " + companyId + " complaint groups were not available in database");
@@ -111,8 +146,8 @@ namespace OldManInTheShopServer.Models
                     ret.Add(new KeywordGroupEntry("Uncategorized") { Id = 0 });
                     uncategorizedAdded = true;
                 }
-                else
-                    ret.Add(companyComplaintGroups[i + 1]);
+                else if (i != 0)
+                    ret.Add(companyComplaintGroups[i-1]);
             }
             JsonListStringConstructor constructor = new JsonListStringConstructor();
             ret.ForEach(obj => constructor.AddElement(ConvertKeywordGroupEntry(obj)));
@@ -146,6 +181,7 @@ namespace OldManInTheShopServer.Models
             KeywordExample example = new KeywordExample();
             foreach (string keyword in keywords)
                 example.AddKeyword(keyword);
+            KeywordClusterer.Load(manipulator, companyId);
             List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
             entryIn.ComplaintGroups = "[" + string.Join(',', groups) + "]";
             List<JobDataEntry> potentials = manipulator.GetDataEntriesByComplaintGroup(companyId, complaintGroupId);
@@ -167,7 +203,7 @@ namespace OldManInTheShopServer.Models
                 else
                     r.SetMapping("Year", e.Entry.Year);
                 r.SetMapping("Id", e.Entry.Id);
-                r.SetMapping("Similarity", e.Similarity);
+                r.SetMapping("Difference", e.Difference);
                 return r;
             }
         }
