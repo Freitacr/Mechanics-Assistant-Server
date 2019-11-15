@@ -24,6 +24,16 @@ namespace OldManInTheShopServer.Net.Api
         public string NamePortion;
     }
 
+    [DataContract]
+    class UsableCompanyListRetrieveRequest
+    {
+        [DataMember]
+        public int UserId;
+
+        [DataMember]
+        public string LoginToken;
+    }
+
     class CompanyListApi : ApiDefinition
     {
 #if RELEASE
@@ -33,6 +43,72 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             PUT += HandlePutRequest;
+            POST += HandlePostRequest;
+        }
+
+        private void HandlePostRequest(HttpListenerContext ctx)
+        {
+            try
+            {
+                if (!ctx.Request.HasEntityBody)
+                {
+                    WriteBodyResponse(ctx, 400, "Invalid Format", "Request did not contain a body");
+                    return;
+                }
+                UsableCompanyListRetrieveRequest entry = JsonDataObjectUtil<UsableCompanyListRetrieveRequest>.ParseObject(ctx);
+                if (entry == null)
+                {
+                    WriteBodylessResponse(ctx, 400, "Invalid Format");
+                    return;
+                }
+                if (!ValidateUsableRetrieveRequest(entry))
+                {
+                    WriteBodyResponse(ctx, 400, "Invalid Format", "One or more fields contained an invalid value or were missing");
+                    return;
+                }
+                MySqlDataManipulator connection = new MySqlDataManipulator();
+                using (connection)
+                {
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (mappedUser == null)
+                    {
+                        WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
+                        return;
+                    }
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    List<CompanyId> companies = connection.GetPublicCompanies();
+                    CompanyId userCompany = connection.GetCompanyById(mappedUser.Company);
+                    if (companies == null)
+                    {
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occured while retrieving companies: " + connection.LastException.Message);
+                        return;
+                    }
+                    if (!companies.Contains(userCompany))
+                        companies.Add(userCompany);
+                    JsonListStringConstructor retConstructor = new JsonListStringConstructor();
+                    companies.ForEach(req => retConstructor.AddElement(WriteCompanyIdToOutput(req)));
+
+                    WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
+                }
+            }
+            catch (HttpListenerException)
+            {
+                //HttpListeners dispose themselves when an exception occurs, so we can do no more.
+            }
+            catch (Exception e)
+            {
+                WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
+            }
         }
 
         private void HandlePutRequest(HttpListenerContext ctx)
@@ -119,6 +195,15 @@ namespace OldManInTheShopServer.Net.Api
             if (req.UserId <= 0)
                 return false;
             if (req.NamePortion == null || req.NamePortion.Equals(""))
+                return false;
+            return true;
+        }
+
+        private bool ValidateUsableRetrieveRequest(UsableCompanyListRetrieveRequest req)
+        {
+            if (req.LoginToken == null)
+                return false;
+            if (req.UserId <= 0)
                 return false;
             return true;
         }

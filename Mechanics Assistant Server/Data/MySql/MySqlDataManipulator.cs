@@ -1823,6 +1823,36 @@ namespace OldManInTheShopServer.Data.MySql
 
             return true;
         }
+        
+        public CompanyId GetCompanyById(int companyId)
+        {
+            CompanyId ret = CompanyId.Manipulator.RetrieveDataWithId(Connection, TableNameStorage.CompanyIdTable, companyId.ToString());
+            if (ret == null)
+                LastException = CompanyId.Manipulator.LastException;
+            return ret;
+        }
+
+        public List<CompanyId> GetPublicCompanies()
+        {
+            string companyIdTable = TableNameStorage.CompanyIdTable;
+            List<CompanyId> companies = CompanyId.Manipulator.RetrieveDataFrom(Connection, companyIdTable);
+            if(companies == null)
+            {
+                LastException = CompanyId.Manipulator.LastException;
+                return new List<CompanyId>();
+            }
+            return companies.Where(company => IsCompanyPublic(company)).ToList();
+        }
+
+        private bool IsCompanyPublic(CompanyId company)
+        {
+            string companySettingTable = TableNameStorage.CompanySettingsTable.Replace("(n)", company.Id.ToString());
+            List<CompanySettingsEntry> companySettings = CompanySettingsEntry.Manipulator.RetrieveDataWhere(Connection, companySettingTable, "SettingKey=\"" + CompanySettingsKey.Public + "\"");
+            if (companySettings == null || companySettings.Count == 0)
+                return false;
+            bool.TryParse(companySettings[0].SettingValue, out bool ret);
+            return ret;
+        }
 
         public List<CompanyId> GetCompaniesWithNamePortion(string namePortion)
         {

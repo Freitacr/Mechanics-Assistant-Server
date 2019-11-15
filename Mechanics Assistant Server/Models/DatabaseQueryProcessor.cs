@@ -173,7 +173,7 @@ namespace OldManInTheShopServer.Models
         /// <param name="offset">Number to offset the list of returned JobDataEntries by.
         /// So with an offset of 5 and 10 JobDataEntires requested, the top 5-15 JobDataEntries would instead be returned</param>
         /// <returns>Json string containing the requested similar JobDataEntries</returns>
-        public string ProcessQueryForSimilaryQueries(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int complaintGroupId, int numRequested, int offset=0)
+        public string ProcessQueryForSimilarQueries(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int complaintGroupId, int numRequested, int offset=0)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);
             List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);

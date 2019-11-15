@@ -105,7 +105,7 @@ namespace OldManInTheShopServer.Net.Api
                     UserSettingsEntry predictionQueryResultsSetting = userSettings.Where(entry => entry.Key.Equals(UserSettingsEntryKeys.PredictionQueryResults)).First();
                     int numQueriesRequested = int.Parse(predictionQueryResultsSetting.Value);
                     DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
-                    string ret = processor.ProcessQueryForSimilaryQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, numQueriesRequested);
+                    string ret = processor.ProcessQueryForSimilarQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, numQueriesRequested);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
                 }
             }
