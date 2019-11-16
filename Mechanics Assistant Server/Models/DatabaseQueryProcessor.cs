@@ -195,7 +195,51 @@ namespace OldManInTheShopServer.Models
                     uncategorizedAdded = true;
                 }
                 else if (i != 0)
-                    ret.Add(companyComplaintGroups[i-1]);
+                {
+                    companyComplaintGroups[i - 1].Id = i;
+                    ret.Add(companyComplaintGroups[i - 1]);
+                }
+            }
+            JsonListStringConstructor constructor = new JsonListStringConstructor();
+            ret.ForEach(obj => constructor.AddElement(ConvertKeywordGroupEntry(obj)));
+            return constructor.ToString();
+
+            JsonDictionaryStringConstructor ConvertKeywordGroupEntry(KeywordGroupEntry e)
+            {
+                JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
+                r.SetMapping("GroupDefinition", e.GroupDefinition);
+                r.SetMapping("Id", e.Id);
+                return r;
+            }
+        }
+
+        public string ProcessQueryForProblemGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int numGroupsRequested=3)
+        {
+            List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Problem);
+            List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
+            List<string> keywords = KeywordPredictor.PredictKeywords(taggedTokens);
+            KeywordExample example = new KeywordExample();
+            foreach (string keyword in keywords)
+                example.AddKeyword(keyword);
+            KeywordClusterer.Load(manipulator, companyId, complaint: false);
+            List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, numGroupsRequested);
+            List<KeywordGroupEntry> companyComplaintGroups = manipulator.GetCompanyProblemGroups(companyId);
+            if (companyComplaintGroups == null)
+                throw new NullReferenceException("Company " + companyId + " complaint groups were not available in database");
+            List<KeywordGroupEntry> ret = new List<KeywordGroupEntry>();
+            bool uncategorizedAdded = false;
+            foreach (int i in groups)
+            {
+                if (i == 0 && !uncategorizedAdded)
+                {
+                    ret.Add(new KeywordGroupEntry("Uncategorized") { Id = 0 });
+                    uncategorizedAdded = true;
+                }
+                else if (i != 0)
+                {
+                    companyComplaintGroups[i - 1].Id = i;
+                    ret.Add(companyComplaintGroups[i - 1]);
+                }
             }
             JsonListStringConstructor constructor = new JsonListStringConstructor();
             ret.ForEach(obj => constructor.AddElement(ConvertKeywordGroupEntry(obj)));
@@ -233,6 +277,41 @@ namespace OldManInTheShopServer.Models
             List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
             entryIn.ComplaintGroups = "[" + string.Join(',', groups) + "]";
             List<JobDataEntry> potentials = manipulator.GetDataEntriesByComplaintGroup(companyId, complaintGroupId);
+            List<EntrySimilarity> ret = ProblemPredictor.GetQueryResults(entryIn, potentials, numRequested, offset);
+            JsonListStringConstructor retConstructor = new JsonListStringConstructor();
+            ret.ForEach(obj => retConstructor.AddElement(ConvertEntrySimilarity(obj)));
+            return retConstructor.ToString();
+
+
+            JsonDictionaryStringConstructor ConvertEntrySimilarity(EntrySimilarity e)
+            {
+                JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
+                r.SetMapping("Make", e.Entry.Make);
+                r.SetMapping("Model", e.Entry.Model);
+                r.SetMapping("Complaint", e.Entry.Complaint);
+                r.SetMapping("Problem", e.Entry.Problem);
+                if (e.Entry.Year == -1)
+                    r.SetMapping("Year", "Unknown");
+                else
+                    r.SetMapping("Year", e.Entry.Year);
+                r.SetMapping("Id", e.Entry.Id);
+                r.SetMapping("Difference", e.Difference);
+                return r;
+            }
+        }
+
+        public string ProcessQueryForSimilarQueriesArchive(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int problemGroupId, int numRequested, int offset = 0)
+        {
+            List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Problem);
+            List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
+            List<string> keywords = KeywordPredictor.PredictKeywords(taggedTokens);
+            KeywordExample example = new KeywordExample();
+            foreach (string keyword in keywords)
+                example.AddKeyword(keyword);
+            KeywordClusterer.Load(manipulator, companyId, complaint: false);
+            List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
+            entryIn.ComplaintGroups = "[" + string.Join(',', groups) + "]";
+            List<JobDataEntry> potentials = manipulator.GetDataEntriesByProblemGroup(companyId, problemGroupId);
             List<EntrySimilarity> ret = ProblemPredictor.GetQueryResults(entryIn, potentials, numRequested, offset);
             JsonListStringConstructor retConstructor = new JsonListStringConstructor();
             ret.ForEach(obj => retConstructor.AddElement(ConvertEntrySimilarity(obj)));

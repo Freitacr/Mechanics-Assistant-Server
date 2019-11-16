@@ -1654,6 +1654,18 @@ namespace OldManInTheShopServer.Data.MySql
             return ExecuteNonQuery(cmd);
         }
 
+        public List<JobDataEntry> GetDataEntriesByProblemGroup(int companyId, int problemGroupId, bool validated=true)
+        {
+            string tableName;
+            if (validated)
+                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            else
+                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
+            string where = " ProblemGroupings like \"%" + problemGroupId + "%\";";
+            List<JobDataEntry> ret = GetDataEntriesWhere(companyId, where, validated);
+            return ret;
+        }
+
         /// <summary>
         /// Returns a list of JobDataEntries that are matched with the specified complaint group
         /// </summary>

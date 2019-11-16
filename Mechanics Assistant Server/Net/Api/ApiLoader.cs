@@ -38,6 +38,7 @@ namespace OldManInTheShopServer.Net.Api
             api.AddMapping(new CompanyRequestsApi(portIn));
             api.AddMapping(new CompanyUsersApi(portIn));
             api.AddMapping(new PredictApi(portIn));
+            api.AddMapping(new ArchiveApi(portIn));
             ret.ListenForResponses(api);
             return ret;
         }
