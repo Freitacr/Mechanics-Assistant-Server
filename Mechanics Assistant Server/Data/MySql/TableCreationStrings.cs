@@ -15,7 +15,7 @@ namespace OldManInTheShopServer.Data.MySql
             "ComplaintGroupings varchar(128), ProblemGroupings varchar(128), Requirements varchar(1024), Year int);";
         public static readonly string UserForumEntryTable = "(id int primary key auto_increment, MappedText varchar(512), UserId int);";
         public static readonly string GroupDefinitionTable = "(id int primary key auto_increment, GroupDefinition varchar(128));";
-        public static readonly string CompanyIdTable = "(id int primary key auto_increment, LegalName varchar(256), ModelAccuracy float);";
+        public static readonly string CompanyIdTable = "(id int primary key auto_increment, LegalName varchar(256), ModelAccuracy float, LastTrainedTime varchar(64), LastValidatedTime varchar(64));";
         public static readonly string PartCatalogueTable = "(id int primary key auto_increment, Make varchar(128), Model varchar(128), Year int, PartId varchar(128), PartName varchar(194));";
         public static readonly string OverallUserTable = "(id int primary key auto_increment, " +
             "AccessLevel int, DerivedSecurityToken varbinary(64), SecurityQuestion varchar(256), PersonalData varbinary(1024), Settings varchar(512), Company int, " +

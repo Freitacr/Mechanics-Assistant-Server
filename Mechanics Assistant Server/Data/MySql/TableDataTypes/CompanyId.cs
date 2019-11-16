@@ -11,8 +11,8 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 
         public string LegalName { get; set; }
         public float ModelAccuracy { get; set; }
-        public string LastTrainedTime { get; set; }
-        public string LastValidatedTime { get; set; }
+        public string LastTrainedTime { get; set; } = DateTime.MinValue.ToString();
+        public string LastValidatedTime { get; set; } = DateTime.MinValue.ToString();
         public int Id { get; set; }
         
 
@@ -43,7 +43,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 
         public string Serialize(string tableName)
         {
-            return "insert into " + tableName + "(LegalName, ModelAccuracy) values (\"" + LegalName + "\"," + ModelAccuracy.ToString() + ");";
+            return "insert into " + tableName + "(LegalName, ModelAccuracy, LastTrainedTime, LastValidatedTime) values (\"" + LegalName + "\"," + ModelAccuracy.ToString() + "\"," + LastTrainedTime + "\"," + LastValidatedTime + "\");";
         }
 
         public override bool Equals(object obj)
