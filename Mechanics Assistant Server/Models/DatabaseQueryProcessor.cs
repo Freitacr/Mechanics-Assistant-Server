@@ -34,6 +34,49 @@ namespace OldManInTheShopServer.Models
             };
             return ret;
         }
+
+        public static DatabaseQueryProcessorSettings RetrieveCompanySettings(MySqlDataManipulator manipulator, int companyId)
+        {
+            DatabaseQueryProcessorSettings companySettings = new DatabaseQueryProcessorSettings();
+            List<CompanySettingsEntry> settings = manipulator.GetCompanySettings(companyId);
+            foreach (CompanySettingsEntry setting in settings)
+            {
+                if (CompanySettingsKey.KeywordClusterer.Equals(setting.SettingKey))
+                {
+                    if (setting.SettingValue.Equals("Similarity"))
+                    {
+                        companySettings.KeywordClustererIdString = "DatabaseKeywordSimilarityClusterer";
+                    }
+                    else
+                    {
+                        companySettings.KeywordClustererIdString = "DatabaseKeywordSimilarityClusterer";
+                    }
+                }
+                else if (CompanySettingsKey.KeywordPredictor.Equals(setting.SettingKey))
+                {
+                    if (setting.SettingValue.Equals("Bayesian"))
+                    {
+                        companySettings.KeywordPredictorIdString = "NaiveBayesKeywordPredictor";
+                    }
+                    else
+                    {
+                        companySettings.KeywordPredictorIdString = "NaiveBayesKeywordPredictor";
+                    }
+                }
+                else if (CompanySettingsKey.ProblemPredictor.Equals(setting.SettingKey))
+                {
+                    if (setting.SettingValue.Equals("Database"))
+                    {
+                        companySettings.ProblemPredictorIdString = "DatabaseQueryProblemPredictor";
+                    }
+                    else
+                    {
+                        companySettings.ProblemPredictorIdString = "DatabaseQueryProblemPredictor";
+                    }
+                }
+            }
+            return companySettings;
+        }
     }
 
     /// <summary>
@@ -100,15 +143,20 @@ namespace OldManInTheShopServer.Models
             return KeywordClusterer.Save(manipulator, companyId, complaint);
         }
 
-        public List<int> PredictKeywordsInJobData(JobDataEntry entry, int companyId, MySqlDataManipulator manipulator, bool complaint = true)
+        public List<string> PredictKeywordsInJobData(JobDataEntry entry, bool complaint = true)
         {
             List<string> tokens;
-            if(complaint)
+            if (complaint)
                 tokens = SentenceTokenizer.TokenizeSentence(entry.Complaint);
             else
                 tokens = SentenceTokenizer.TokenizeSentence(entry.Problem);
             List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
-            List<string> keywords = KeywordPredictor.PredictKeywords(taggedTokens);
+            return KeywordPredictor.PredictKeywords(taggedTokens);
+        }
+
+        public List<int> PredictGroupsInJobData(JobDataEntry entry, int companyId, MySqlDataManipulator manipulator, bool complaint = true)
+        {
+            List<string> keywords = PredictKeywordsInJobData(entry, complaint);
             KeywordExample example = new KeywordExample();
             foreach (string keyword in keywords)
                 example.AddKeyword(keyword);

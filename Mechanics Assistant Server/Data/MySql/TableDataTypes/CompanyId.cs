@@ -11,6 +11,8 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 
         public string LegalName { get; set; }
         public float ModelAccuracy { get; set; }
+        public string LastTrainedTime { get; set; }
+        public string LastValidatedTime { get; set; }
         public int Id { get; set; }
         
 
@@ -34,6 +36,8 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         {
             LegalName = (string)reader["LegalName"];
             ModelAccuracy = (float)reader["ModelAccuracy"];
+            LastTrainedTime = (string)reader["LastTrainedTime"];
+            LastValidatedTime = (string)reader["LastValidatedTime"];
             Id = (int)reader["id"];
         }
 

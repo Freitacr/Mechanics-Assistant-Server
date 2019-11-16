@@ -124,6 +124,18 @@ namespace OldManInTheShopServer.Data.MySql
             return ConnectionString + ";password="+ConnectionPassword.ConvertToString() + ";";
         }
 
+        public long GetCountInTable(string tableName)
+        {
+            string commandText = "select count(id) from " + tableName + ";";
+            MySqlCommand cmd = Connection.CreateCommand();
+            cmd.CommandText = commandText;
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            long count = (long)reader[0];
+            reader.Close();
+            return count;
+        }
+
         /// <summary>
         /// Returns all Problem Group definitions from the company's storage
         /// </summary>
@@ -1854,6 +1866,21 @@ namespace OldManInTheShopServer.Data.MySql
             return ret;
         }
 
+        public bool UpdateCompanyAutomatedTestingResults(CompanyId companyIn)
+        {
+            string updateCommand = "update " + TableNameStorage.CompanyIdTable + " set ModelAccuracy=" + companyIn.ModelAccuracy + " where id=" + companyIn.Id + ";";
+            MySqlCommand cmd = Connection.CreateCommand();
+            cmd.CommandText = updateCommand;
+            return ExecuteNonQuery(cmd);
+        }
+
+        public bool UpdateCompanyTrainingTime(CompanyId companyIn)
+        {
+            string updateCommand = "update " + TableNameStorage.CompanyIdTable + " set LastTrainedTime=\"" + companyIn.LastTrainedTime + "\" where id=" + companyIn.Id + ";";
+            MySqlCommand cmd = Connection.CreateCommand();
+            cmd.CommandText = updateCommand;
+            return ExecuteNonQuery(cmd);
+        }
         public List<CompanyId> GetCompaniesWithNamePortion(string namePortion)
         {
             List<CompanyId> ret = CompanyId.Manipulator.RetrieveDataWhere(Connection, TableNameStorage.CompanyIdTable, "LegalName like \"%" + namePortion + "%\"");

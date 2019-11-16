@@ -4,14 +4,73 @@ using CertesWrapper;
 using System;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
-using MySql.Data.MySqlClient;
+using System.Linq;
 using OldManInTheShopServer.Models.POSTagger;
 using System.Security;
+using System.Collections.Generic;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Models;
 
 namespace OldManInTheShopServer
 {
     class ProgramMain
     {
+        
+
+        static void PerformTraining()
+        {
+            try
+            {
+                while (true)
+                {
+                    MySqlDataManipulator manipulator = new MySqlDataManipulator();
+                    if (!manipulator.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString())){
+                        throw new ArgumentException("MySqlDataManipulator failed to connect to the database");
+                    }
+                    Console.WriteLine("Checking company training statuses");
+                    List<CompanyId> companies = manipulator.GetCompaniesWithNamePortion("");
+                    foreach(CompanyId company in companies)
+                    {
+                        if (manipulator.GetCountInTable(TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", company.Id.ToString())) != 0)
+                        {
+                            DateTime lastTrainedTime = DateTime.Parse(company.LastTrainedTime);
+                            CompanySettingsEntry trainInterval = manipulator.GetCompanySettingsWhere(company.Id, "SettingKey=\"" + CompanySettingsKey.RetrainInterval + "\"")[0];
+                            bool shouldTrain = lastTrainedTime.AddDays(int.Parse(trainInterval.SettingValue)) <= DateTime.Now;
+                            if (shouldTrain)
+                            {
+                                Console.WriteLine("Performing training for company " + company.LegalName);
+                                DatabaseQueryProcessor processor = new DatabaseQueryProcessor(DatabaseQueryProcessorSettings.RetrieveCompanySettings(manipulator, company.Id));
+                                CompanyModelUtils.TrainClusteringModel(manipulator, processor, company.Id, complaint: true);
+                                CompanyModelUtils.TrainClusteringModel(manipulator, processor, company.Id, complaint: false);
+                                company.LastTrainedTime = DateTime.Now.ToString();
+                                manipulator.UpdateCompanyTrainingTime(company);
+                                double automatedTestingResults = CompanyModelUtils.PerformAutomatedTesting(manipulator, company.Id, processor);
+                                company.ModelAccuracy = (float)(100-automatedTestingResults);
+                                manipulator.UpdateCompanyAutomatedTestingResults(company);
+                                Console.WriteLine("Accuracy after training: " + company.ModelAccuracy);
+                            }
+                        }
+                        if (manipulator.GetCountInTable(TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", company.Id.ToString())) != 0)
+                        {
+                            DateTime lastValidatedTime = DateTime.Parse(company.LastValidatedTime);
+                            bool shouldValidate = lastValidatedTime.AddDays(14) <= DateTime.Now;
+                            if(shouldValidate)
+                            {
+                                Console.WriteLine("Attempting to validate some non-validated data for company " + company.LegalName);
+                                DatabaseQueryProcessor processor = new DatabaseQueryProcessor(DatabaseQueryProcessorSettings.RetrieveCompanySettings(manipulator, company.Id));
+                                CompanyModelUtils.PerformDataValidation(manipulator, company.Id, processor);
+                            }
+                        }
+                    }
+                    manipulator.Close();
+                    Thread.Sleep(TimeSpan.FromMinutes(120));
+                }
+            }
+            catch (ThreadInterruptedException)
+            {
+                Console.WriteLine("Retraining Thread Exiting");
+            }
+        }
 
         static void RenewCertificate()
         {
@@ -51,6 +110,7 @@ namespace OldManInTheShopServer
 
         static void Main(string[] args)
         {
+            Console.WriteLine(DateTime.Now.ToLocalTime().ToString());
             DatabaseConfigurationFileContents config;
             try
             {
@@ -96,6 +156,8 @@ namespace OldManInTheShopServer
             {
                 Thread t = new Thread(RenewCertificate);
                 t.Start();
+                Thread train = new Thread(PerformTraining);
+                train.Start();
                 var server = ApiLoader.LoadApiAndListen(16384);
                 while (server.IsAlive)
                 {
@@ -108,6 +170,7 @@ namespace OldManInTheShopServer
                     }
                 }
                 t.Interrupt();
+                train.Interrupt();
             }
             //QueryProcessor processor = new QueryProcessor(QueryProcessorSettings.GenerateDefaultSettings());
             //processor.ProcessQuery(new Util.MechanicQuery("autocar", "xpeditor", null, null, "runs rough"));

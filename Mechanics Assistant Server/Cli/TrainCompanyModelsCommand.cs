@@ -23,41 +23,7 @@ namespace OldManInTheShopServer.Cli
         {
             if (!GlobalModelHelper.LoadOrTrainGlobalModels(ReflectionHelper.GetAllKeywordPredictors()))
                 throw new NullReferenceException("One or more global models failed to load. Server cannot start.");
-
-            DatabaseQueryProcessorSettings companySettings = new DatabaseQueryProcessorSettings();
-            List<CompanySettingsEntry> settings = manipulator.GetCompanySettings(CompanyId);
-            foreach(CompanySettingsEntry setting in settings)
-            {
-                if (CompanySettingsKey.KeywordClusterer.Equals(setting.SettingKey))
-                {
-                    if (setting.SettingValue.Equals("Similarity"))
-                    {
-                        companySettings.KeywordClustererIdString = "DatabaseKeywordSimilarityClusterer";
-                    } else
-                    {
-                        companySettings.KeywordClustererIdString = "DatabaseKeywordSimilarityClusterer";
-                    }
-                } else if (CompanySettingsKey.KeywordPredictor.Equals(setting.SettingKey))
-                {
-                    if (setting.SettingValue.Equals("Bayesian"))
-                    {
-                        companySettings.KeywordPredictorIdString = "NaiveBayesKeywordPredictor";
-                    } else
-                    {
-                        companySettings.KeywordPredictorIdString = "NaiveBayesKeywordPredictor";
-                    }
-                } else if (CompanySettingsKey.ProblemPredictor.Equals(setting.SettingKey))
-                {
-                    if(setting.SettingValue.Equals("Database"))
-                    {
-                        companySettings.ProblemPredictorIdString = "DatabaseQueryProblemPredictor";
-                    } else
-                    {
-                        companySettings.ProblemPredictorIdString = "DatabaseQueryProblemPredictor";
-                    }
-                }
-            }
-            DatabaseQueryProcessor processor = new DatabaseQueryProcessor(companySettings);
+            DatabaseQueryProcessor processor = new DatabaseQueryProcessor(DatabaseQueryProcessorSettings.RetrieveCompanySettings(manipulator, CompanyId));
 
             List<JobDataEntry> validatedData = manipulator.GetDataEntriesWhere(CompanyId, "id > 0", validated: true);
             List<string> sentences;
@@ -71,7 +37,7 @@ namespace OldManInTheShopServer.Cli
                 }
                 foreach (JobDataEntry entry in validatedData)
                 {
-                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictKeywordsInJobData(entry, CompanyId, manipulator, true));
+                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, CompanyId, manipulator, true));
                     entry.ComplaintGroups = groups;
                     manipulator.UpdateDataEntryGroups(CompanyId, entry, complaint: true);
                 }
@@ -85,7 +51,7 @@ namespace OldManInTheShopServer.Cli
                 }
                 foreach(JobDataEntry entry in validatedData)
                 {
-                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictKeywordsInJobData(entry, CompanyId, manipulator, false));
+                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, CompanyId, manipulator, false));
                     entry.ProblemGroups = groups;
                     manipulator.UpdateDataEntryGroups(CompanyId, entry, complaint: false);
                 }

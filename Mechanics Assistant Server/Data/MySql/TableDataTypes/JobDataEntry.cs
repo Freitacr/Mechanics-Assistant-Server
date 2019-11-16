@@ -157,7 +157,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
                 return false;
             }
             var other = obj as JobDataEntry;
-            return other.JobId.Equals(JobId) && Make.Equals(other.Make) && Model.Equals(other.Model) &&
+            return Make.Equals(other.Make) && Model.Equals(other.Model) &&
                 Complaint.Equals(other.Complaint) && Problem.Equals(other.Problem);
         }
 
