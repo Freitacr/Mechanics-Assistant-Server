@@ -1561,8 +1561,9 @@ namespace OldManInTheShopServer.Data.MySql
 
             if(!wasValidated)
             {
+                JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + toSwitch.Complaint + "\";", wasValidated).Where(entry => entry.Equals(toSwitch)).First();
                 CreateTable(TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
-                    .Replace("(m)", toSwitch.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
+                    .Replace("(m)", added.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
             } else
             {
                 cmd.CommandText = "drop table " + TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
@@ -1746,7 +1747,7 @@ namespace OldManInTheShopServer.Data.MySql
 
             if(validated)
             {
-                JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + entryToAdd.Complaint + "\";", validated)[0];
+                JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + entryToAdd.Complaint + "\";", validated).Where(entry => entry.Equals(entryToAdd)).First();
                 CreateTable(TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
                     .Replace("(m)", added.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
             }
