@@ -104,6 +104,11 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                     return;
                 }
+                if(entry.PostText.Contains('<'))
+                {
+                    WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                    return;
+                }
                 //user is good, add post text
                 res = connection.AddForumPost(entry.CompanyId, entry.UserId, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserId });
                 if (!res)
