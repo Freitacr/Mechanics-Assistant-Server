@@ -1558,6 +1558,22 @@ namespace OldManInTheShopServer.Data.MySql
                 JobDataEntry.Manipulator.InsertDataInto(Connection, previousTableName, toSwitch);
                 return false;
             }
+
+            if(!wasValidated)
+            {
+                CreateTable(TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
+                    .Replace("(m)", toSwitch.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
+            } else
+            {
+                cmd.CommandText = "drop table " + TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
+                    .Replace("(m)", toSwitch.Id.ToString());
+                LastException = null;
+                if (!ExecuteNonQuery(cmd))
+                {
+                    if (LastException != null)
+                        Logger.Global.Log(Logger.LogLevel.WARNING, "Forum Table " + companyId + "," + toSwitch.Id + " was not deleted successfully");
+                }
+            }
             return res == 1;
         }
 
@@ -1730,7 +1746,7 @@ namespace OldManInTheShopServer.Data.MySql
 
             if(validated)
             {
-                JobDataEntry added = GetDataEntriesWhere(companyId, " JobId=\"" + entryToAdd.JobId + "\";", validated)[0];
+                JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + entryToAdd.Complaint + "\";", validated)[0];
                 CreateTable(TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
                     .Replace("(m)", added.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
             }
