@@ -87,6 +87,32 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
 
+                    if (entry.ContainedEntry.Complaint.Contains('<'))
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                        return;
+                    }
+                    if (entry.ContainedEntry.Problem.Contains('<'))
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                        return;
+                    }
+                    if (entry.ContainedEntry.JobId.Contains('<'))
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                        return;
+                    }
+                    if (entry.ContainedEntry.Make.Contains('<'))
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                        return;
+                    }
+                    if (entry.ContainedEntry.Model.Contains('<'))
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                        return;
+                    }
+
                     //Now that we know the user is good, actually do the addition.
                     res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
                     if (!res)
