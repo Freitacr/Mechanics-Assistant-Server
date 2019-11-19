@@ -1762,8 +1762,10 @@ namespace OldManInTheShopServer.Data.MySql
         /// <returns>true if company addition was successful, false otherwise</returns>
         public bool AddCompany(string companyLegalName)
         {
+            DateTime dt = DateTime.Now;
             var cmd = Connection.CreateCommand();
-            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName, ModelAccuracy) values(\"" + companyLegalName + "\", 0.0);";
+
+            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName, ModelAccuracy, LastTrainedTime, LastValidatedTime) values(\"" + companyLegalName + "\", 0.0,date("+dt.ToString()+"),date("+dt.ToString()+");";
             if (!ExecuteNonQuery(cmd))
                 return false;
             cmd.CommandText = "select max(id) from " + TableNameStorage.CompanyIdTable;
