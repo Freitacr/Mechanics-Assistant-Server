@@ -160,16 +160,80 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot predict using other company's private data");
                         return;
                     }
-                    UserSettingsEntry numPredictionsRequested = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(mappedUser.Settings).FirstOrDefault(entry => entry.Key.Equals(UserSettingsEntryKeys.ProblemGroupResults));
+                    UserSettingsEntry numPredictionsRequested = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(mappedUser.Settings).FirstOrDefault(entry => entry.Key.Equals(UserSettingsEntryKeys.ArchiveQueryResults));
                     if (numPredictionsRequested == null)
                     {
-                        WriteBodyResponse(ctx, 500, "Internal Server Error", "User did not contain a setting with a key " + UserSettingsEntryKeys.ProblemGroupResults);
+                        WriteBodyResponse(ctx, 500, "Internal Server Error", "User did not contain a setting with a key " + UserSettingsEntryKeys.ArchiveQueryResults);
                         return;
                     }
                     int numRequested = int.Parse(numPredictionsRequested.Value);
-                    DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
-                    string ret = processor.ProcessQueryForProblemGroups(req.Entry, connection, req.CompanyId, numRequested);
-                    WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
+
+                    string whereString = "";
+                    bool addedWhere = false;
+                    if(req.Entry.Complaint != null)
+                    {
+                        if (!PerformSanitization(req.Entry.Complaint))
+                            return;
+                        whereString += " Complaint like \"%" + req.Entry.Complaint + "%\"";
+                        addedWhere = true;
+                    }
+                    if(req.Entry.Problem != null)
+                    {
+                        if (!PerformSanitization(req.Entry.Problem)) return;
+                        if (addedWhere)
+                            whereString += " and";
+                        whereString += " Problem like \"%" + req.Entry.Problem + "%\"";
+                        addedWhere = true;
+                    }
+                    if (req.Entry.Make != null)
+                    {
+                        if (!PerformSanitization(req.Entry.Make)) return;
+                        if (addedWhere)
+                            whereString += " and";
+                        whereString += " Make like \"%" + req.Entry.Make + "%\"";
+                        addedWhere = true;
+                    }
+                    if(req.Entry.Model != null)
+                    {
+                        if (!PerformSanitization(req.Entry.Model)) return;
+                        if (addedWhere)
+                            whereString += " and"; 
+                        whereString += " Model like \"%" + req.Entry.Model + "%\"";
+                        addedWhere = true;
+                    }
+                    if(req.Entry.Year != 0)
+                    {
+                        if (addedWhere)
+                            whereString += " and";
+                        whereString += " Year =" + req.Entry.Year;
+                        addedWhere = true;
+                    }
+                    if (!addedWhere)
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "No fields in the request's entry were filled");
+                        return;
+                    }
+                    List<JobDataEntry> entries = connection.GetDataEntriesWhere(req.CompanyId, whereString, true);
+                    JsonListStringConstructor retConstructor = new JsonListStringConstructor();
+                    try
+                    {
+                        entries.ForEach(entry => retConstructor.AddElement(ConvertEntry(entry)));
+                    } catch(NullReferenceException)
+                    {
+                        WriteBodyResponse(ctx, 200, "OK", "[]", "application/json");
+                        return;
+                    }
+                    WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString(), "application/json");
+
+                    bool PerformSanitization(string queryIn)
+                    {
+                        if(queryIn.Contains('`'))
+                        {
+                            WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the single quote character, which is disallowed due to MySQL injection attacks");
+                            return false;
+                        }
+                        return true;
+                    }
                 }
             }
             catch (HttpListenerException)
@@ -180,6 +244,21 @@ namespace OldManInTheShopServer.Net.Api
             {
                 WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occurred during processing of request: " + e.Message);
             }
+        }
+
+        private JsonDictionaryStringConstructor ConvertEntry(JobDataEntry e)
+        {
+            JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
+            r.SetMapping("Make", e.Make);
+            r.SetMapping("Model", e.Model);
+            r.SetMapping("Complaint", e.Complaint);
+            r.SetMapping("Problem", e.Problem);
+            if (e.Year == -1)
+                r.SetMapping("Year", "Unknown");
+            else
+                r.SetMapping("Year", e.Year);
+            r.SetMapping("Id", e.Id);
+            return r;
         }
 
         private bool ValidateGetRequest(ArchiveApiPostRequest req)
