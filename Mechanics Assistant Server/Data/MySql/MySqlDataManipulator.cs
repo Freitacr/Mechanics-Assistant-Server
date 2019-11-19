@@ -1765,7 +1765,7 @@ namespace OldManInTheShopServer.Data.MySql
             DateTime dt = DateTime.Now;
             var cmd = Connection.CreateCommand();
 
-            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName, ModelAccuracy, LastTrainedTime, LastValidatedTime) values(\"" + companyLegalName + "\", 0.0,date("+dt.ToString()+"),date("+dt.ToString()+");";
+            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName, ModelAccuracy, LastTrainedTime, LastValidatedTime) values(\"" + companyLegalName + "\", 0.0, date("+dt.ToString()+"), date("+dt.ToString()+");";
             if (!ExecuteNonQuery(cmd))
                 return false;
             cmd.CommandText = "select max(id) from " + TableNameStorage.CompanyIdTable;
