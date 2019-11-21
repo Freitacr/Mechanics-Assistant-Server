@@ -132,7 +132,7 @@ namespace OldManInTheShopServer
                 Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
                 return;
             }
-            if(!MySqlDataManipulator.GlobalConfiguration.ValidateDatabaseIntegrity(config.Database))
+            if(!MySqlDataManipulator.GlobalConfiguration.ValidateDatabaseIntegrity(new MySqlConnectionString(config.Host, null, config.User).ConstructConnectionString(config.Pass.ConvertToString()), config.Database))
             {
                 Console.WriteLine("Encountered an error opening the global configuration connection");
                 Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);

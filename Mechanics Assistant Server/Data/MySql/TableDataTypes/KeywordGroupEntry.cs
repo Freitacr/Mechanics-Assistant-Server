@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    public class KeywordGroupEntry : ISqlSerializable
+    public class KeywordGroupEntry : MySqlTableDataMember<KeywordGroupEntry>
     {
         public static readonly TableDataManipulator<KeywordGroupEntry> Manipulator = new TableDataManipulator<KeywordGroupEntry>();
-        public string GroupDefinition { get; set; }
-
-        public int Id { get; set; }
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string GroupDefinition;
 
         public KeywordGroupEntry()
         {
@@ -22,22 +22,10 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             GroupDefinition = groupDefinition;
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new KeywordGroupEntry(GroupDefinition);
         }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            GroupDefinition = (string)reader["GroupDefinition"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            return "insert into " + tableName + "(GroupDefinition) values (\"" + GroupDefinition + "\");";
-        }
-
         
         public override bool Equals(object obj)
         {
@@ -52,6 +40,13 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return GroupDefinition.GetHashCode();
+        }
+
+        protected override void ApplyDefaults() {}
+
+        public override string ToString()
+        {
+            return GroupDefinition ?? "";
         }
     }
 }

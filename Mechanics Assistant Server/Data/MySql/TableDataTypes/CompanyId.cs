@@ -2,18 +2,25 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    public class CompanyId : ISqlSerializable
+    public class CompanyId : MySqlTableDataMember<CompanyId>
     {
         public static readonly TableDataManipulator<CompanyId> Manipulator = new TableDataManipulator<CompanyId>();
 
-        public string LegalName { get; set; }
-        public float ModelAccuracy { get; set; }
-        public string LastTrainedTime { get; set; } = DateTime.MinValue.ToString();
-        public string LastValidatedTime { get; set; } = DateTime.MinValue.ToString();
-        public int Id { get; set; }
+        [SqlTableMember("varchar(256)", MySqlDataFormatString = "\"{0}\"")]
+        public string LegalName;
+
+        [SqlTableMember("float")]
+        public float ModelAccuracy;
+        
+        [SqlTableMember("varchar(64)", MySqlDataFormatString = "\"{0}\"")]
+        public string LastTrainedTime = DateTime.MinValue.ToString();
+        
+        [SqlTableMember("varchar(64)", MySqlDataFormatString = "\"{0}\"")]
+        public string LastValidatedTime = DateTime.MinValue.ToString();
         
 
         public CompanyId()
@@ -27,23 +34,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             ModelAccuracy = modelAccuracy;
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new CompanyId(LegalName, ModelAccuracy);
-        }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            LegalName = (string)reader["LegalName"];
-            ModelAccuracy = (float)reader["ModelAccuracy"];
-            LastTrainedTime = (string)reader["LastTrainedTime"];
-            LastValidatedTime = (string)reader["LastValidatedTime"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            return "insert into " + tableName + "(LegalName, ModelAccuracy, LastTrainedTime, LastValidatedTime) values (\"" + LegalName + "\"," + ModelAccuracy.ToString() + "\"," + LastTrainedTime + "\"," + LastValidatedTime + "\");";
         }
 
         public override bool Equals(object obj)
@@ -64,6 +57,14 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override string ToString()
         {
             return LegalName;
+        }
+
+        protected override void ApplyDefaults()
+        {
+            LegalName = null;
+            ModelAccuracy = 0;
+            LastTrainedTime = DateTime.Now.ToString();
+            LastValidatedTime = DateTime.Now.ToString();
         }
     }
 }

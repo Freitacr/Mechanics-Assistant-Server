@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    public class UserToTextEntry : ISqlSerializable
+    public class UserToTextEntry : MySqlTableDataMember<UserToTextEntry>
     {
         public static readonly TableDataManipulator<UserToTextEntry> Manipulator = new TableDataManipulator<UserToTextEntry>();
 
-        public string Text { get; set; }
-        public int UserId { get; set; }
+        [SqlTableMember("varchar(512)", MySqlDataFormatString = "\"{0}\"")]
+        public string Text;
 
-        public int Id { get; set; }
+        [SqlTableMember("int")]
+        public int UserId;
 
         public UserToTextEntry()
         {
@@ -25,21 +27,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             Text = text;
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new UserToTextEntry(UserId, Text);
-        }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            Text = (string)reader["MappedText"];
-            UserId = (int)reader["UserId"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            return "insert into " + tableName + "(MappedText, UserId) values (\"" + Text + "\", " + UserId + ");";
         }
 
         // override object.Equals
@@ -57,6 +47,16 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return Text.GetHashCode() + UserId;
+        }
+
+
+        public override string ToString()
+        {
+            return UserId + ": " + (Text ?? "");
+        }
+
+        protected override void ApplyDefaults()
+        {
         }
     }
 }

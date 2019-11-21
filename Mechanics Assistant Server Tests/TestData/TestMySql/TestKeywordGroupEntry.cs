@@ -38,7 +38,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.GroupDefinitionTable;
+                cmd.CommandText = new KeywordGroupEntry().GetCreateTableString(TableName);
                 cmd.ExecuteNonQuery();
             }
             catch (MySqlException e)

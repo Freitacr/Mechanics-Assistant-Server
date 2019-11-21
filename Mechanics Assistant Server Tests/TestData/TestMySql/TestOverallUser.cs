@@ -39,7 +39,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = "create table " + TableName + TableCreationDataDeclarationStrings.OverallUserTable;
+                cmd.CommandText = new OverallUser().GetCreateTableString(TableName);
                 cmd.ExecuteNonQuery();
             }
             catch (MySqlException e)
@@ -75,8 +75,6 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
                 Settings = "try",
-                Job1Results = new byte[] { 0 },
-                Job2Results = new byte[] { 0 },
                 RequestHistory = new byte[] { 0 }
             };
             Id2 = new OverallUser()
@@ -89,8 +87,6 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
                 Settings = "try",
-                Job1Results = new byte[] { 0 },
-                Job2Results = new byte[] { 0 },
                 RequestHistory = new byte[] { 0 }
             };
             Id3 = new OverallUser()
@@ -103,8 +99,6 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
                 PersonalData = new byte[] { 9, 10, 11, 12 },
                 SecurityQuestion = "bye",
                 Settings = "try",
-                Job1Results = new byte[] { 0 },
-                Job2Results = new byte[] { 0 },
                 RequestHistory = new byte[] { 0 }
             };
         }

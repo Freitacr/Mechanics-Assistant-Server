@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.IO;
 using OldManInTheShopServer.Util;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
@@ -61,38 +62,45 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     }
 
     [DataContract]
-    public class JobDataEntry : ISqlSerializable
+    public class JobDataEntry : MySqlTableDataMember<JobDataEntry>
     {
         public static TableDataManipulator<JobDataEntry> Manipulator = new TableDataManipulator<JobDataEntry>();
 
         [DataMember]
-        public string JobId { get; set; }
-        
-        [DataMember]
-        public string Make { get; set; }
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string JobId;
 
         [DataMember]
-        public string Model { get; set; }
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string Make;
 
         [DataMember]
-        public string Complaint { get; set; }
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string Model;
 
         [DataMember]
-        public string Problem { get; set; }
+        [SqlTableMember("varchar(512)", MySqlDataFormatString = "\"{0}\"")]
+        public string Complaint;
+
+        [DataMember]
+        [SqlTableMember("varchar(512)", MySqlDataFormatString = "\"{0}\"")]
+        public string Problem;
 
         [DataMember(IsRequired = false)]
-        public string ComplaintGroups { get; set; } = "[]";
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string ComplaintGroups = "[]";
 
         [DataMember(IsRequired = false)]
-        public string ProblemGroups { get; set; } = "[]";
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string ProblemGroups= "[]";
 
         [DataMember(IsRequired = false)]
-        public string Requirements { get; set; } = new RequirementsEntry().GenerateJsonString();
+        [SqlTableMember("varchar(1024)", MySqlDataFormatString = "\"{0}\"")]
+        public string Requirements = new RequirementsEntry().GenerateJsonString();
 
         [DataMember(IsRequired = false, EmitDefaultValue = true)]
-        public int Year { get; set; } = -1;
-
-        public int Id { get; private set; }
+        [SqlTableMember("int")]
+        public int Year = -1;
 
         public JobDataEntry()
         {
@@ -124,30 +132,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
                 Year = -1;
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new JobDataEntry(JobId, Make, Model, Complaint, Problem, ComplaintGroups, ProblemGroups, Requirements, Year);
-        }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            JobId = (string)reader["JobId"];
-            Make = (string)reader["Make"];
-            Model = (string)reader["Model"];
-            Complaint = (string)reader["Complaint"];
-            Problem = (string)reader["Problem"];
-            ComplaintGroups = (string)reader["ComplaintGroupings"];
-            ProblemGroups = (string)reader["ProblemGroupings"];
-            Requirements = (string)reader["Requirements"];
-            Year = (int)reader["Year"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            return "insert into " + tableName + "(JobId, Make, Model, Complaint, Problem, ComplaintGroupings, ProblemGroupings, Requirements, Year) values (\"" +
-                JobId + "\",\"" + Make + "\",\"" + Model + "\",\"" + Complaint + "\",\"" + Problem +
-                "\",\"" + ComplaintGroups.Replace("\"", "\\\"") + "\",\"" + ProblemGroups.Replace("\"", "\\\"") + "\",\"" + Requirements.Replace("\"", "\\\"") + "\"," + Year + ")";
         }
 
         public override bool Equals(object obj)
@@ -164,6 +151,19 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return Make.GetHashCode() + Model.GetHashCode() * Complaint.GetHashCode();
+        }
+
+        protected override void ApplyDefaults()
+        {
+            ComplaintGroups = "[]";
+            ProblemGroups = "[]";
+            Requirements = new RequirementsEntry().GenerateJsonString();
+            Year = -1;
+        }
+
+        public override string ToString()
+        {
+            return JobId ?? "";
         }
     }
 }

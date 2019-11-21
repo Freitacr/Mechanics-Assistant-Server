@@ -36,7 +36,7 @@ namespace OldManInTheShopServer.Data.MySql
         /// It is responsible for storing the connection string for use by other MySqlDataManipulators
         /// </summary>
         public static MySqlDataManipulator GlobalConfiguration = new MySqlDataManipulator();
-
+        public bool Connected { get { return ConnectionPassword == null; } }
 
         /// <summary>
         /// Executes the command stored in cmd, and returns whether the call succeeded
@@ -340,7 +340,7 @@ namespace OldManInTheShopServer.Data.MySql
             req.Request.CalculateMD5();
             requests.Add(req);
             user.EncodeRequests(requests);
-            while(user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while(user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -397,7 +397,7 @@ namespace OldManInTheShopServer.Data.MySql
                 }
             }
             user.EncodeRequests(requests);
-            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -415,7 +415,7 @@ namespace OldManInTheShopServer.Data.MySql
                     }
                 }
                 user.EncodeRequests(requests);
-                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
                 {
                     requests.RemoveAt(0);
                     user.EncodeRequests(requests);
@@ -732,7 +732,7 @@ namespace OldManInTheShopServer.Data.MySql
             req.Request.CalculateMD5(request.RequestedAdditions+request.ValidatedDataId);
             requests.Add(req);
             user.EncodeRequests(requests);
-            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -791,7 +791,7 @@ namespace OldManInTheShopServer.Data.MySql
                 }
             }
             user.EncodeRequests(requests);
-            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -809,7 +809,7 @@ namespace OldManInTheShopServer.Data.MySql
                     }
                 }
                 user.EncodeRequests(requests);
-                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
                 {
                     requests.RemoveAt(0);
                     user.EncodeRequests(requests);
@@ -936,7 +936,7 @@ namespace OldManInTheShopServer.Data.MySql
             req.Request.CalculateMD5(request.RequestedAdditions+request.ValidatedDataId);
             requests.Add(req);
             user.EncodeRequests(requests);
-            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -994,7 +994,7 @@ namespace OldManInTheShopServer.Data.MySql
                 }
             }
             user.EncodeRequests(requests);
-            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -1012,7 +1012,7 @@ namespace OldManInTheShopServer.Data.MySql
                     }
                 }
                 user.EncodeRequests(requests);
-                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
                 {
                     requests.RemoveAt(0);
                     user.EncodeRequests(requests);
@@ -1119,7 +1119,7 @@ namespace OldManInTheShopServer.Data.MySql
             req.Request.CalculateMD5(request.ReferencedParts + request.JobId);
             requests.Add(req);
             user.EncodeRequests(requests);
-            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -1167,7 +1167,7 @@ namespace OldManInTheShopServer.Data.MySql
                 }
             }
             user.EncodeRequests(requests);
-            while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+            while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
             {
                 requests.RemoveAt(0);
                 user.EncodeRequests(requests);
@@ -1185,7 +1185,7 @@ namespace OldManInTheShopServer.Data.MySql
                     }
                 }
                 user.EncodeRequests(requests);
-                while (user.RequestHistory.Length >= TableCreationDataDeclarationStrings.RequestHistoryBytesSize)
+                while (user.RequestHistory.Length >= OverallUser.RequestHistoryBytesSize)
                 {
                     requests.RemoveAt(0);
                     user.EncodeRequests(requests);
@@ -1270,44 +1270,6 @@ namespace OldManInTheShopServer.Data.MySql
         }
 
         /// <summary>
-        /// Adds the encoded job results to the user specified
-        /// </summary>
-        /// <param name="toUpdate">The user object to update the database with</param>
-        /// <param name="jobId">The Id of the job the mechanic worked requested information for (shop sided id, not our database id)</param>
-        /// <param name="encodedJobResults">Encoded results of the query for ease of recall</param>
-        /// <returns>True if the update occurred successfully, or false if an error occurred</returns>
-        public bool AddJobDataToUser(OverallUser toUpdate, string jobId, byte[] encodedJobResults)
-        {
-            toUpdate.Job2Results = toUpdate.Job1Results;
-            toUpdate.Job2Id = toUpdate.Job1Id;
-            toUpdate.Job1Id = jobId;
-            toUpdate.Job1Results = encodedJobResults;
-            var cmd = Connection.CreateCommand();
-            StringBuilder cmdBuilder = new StringBuilder("update " + TableNameStorage.OverallUserTable);
-            cmdBuilder.Append(" set Job1Id=\"");
-            cmdBuilder.Append(toUpdate.Job1Id);
-            cmdBuilder.Append("\", Job1Results=");
-            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job1Results));
-            cmdBuilder.Append(", Job2Id=\"");
-            cmdBuilder.Append(toUpdate.Job2Id);
-            cmdBuilder.Append("\", Job2Results=");
-            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job2Results));
-            cmdBuilder.Append(" where id=" + toUpdate.UserId + ";");
-            cmd.CommandText = cmdBuilder.ToString();
-            int res;
-            try
-            {
-                res = cmd.ExecuteNonQuery();
-            }
-            catch (MySqlException e)
-            {
-                LastException = e;
-                return false;
-            }
-            return res == 1;
-        }
-
-        /// <summary>
         /// Retrives a the user by their database id
         /// </summary>
         /// <param name="id">database id of the user to retrieve</param>
@@ -1388,46 +1350,6 @@ namespace OldManInTheShopServer.Data.MySql
             return res == 1;
         }
 
-        /// <summary>
-        /// Deletes the previous data on a job data query from the specified user
-        /// </summary>
-        /// <param name="toUpdate">The user to remove the job data query from</param>
-        /// <param name="jobDataId">Id of the job data to remove, valid range is 1 to 2 inclusive</param>
-        /// <returns>true if the deletion was successful, false otherwise</returns>
-        public bool DeleteUserJobData(OverallUser toUpdate, int jobDataId)
-        {
-            if(jobDataId == 1)
-            {
-                toUpdate.Job1Id = toUpdate.Job2Id;
-                toUpdate.Job1Results = toUpdate.Job2Results;
-            }
-            toUpdate.Job2Id = "";
-            toUpdate.Job2Results = null;
-            var cmd = Connection.CreateCommand();
-            StringBuilder cmdBuilder = new StringBuilder("update " + TableNameStorage.OverallUserTable);
-            cmdBuilder.Append(" set Job1Id=\"");
-            cmdBuilder.Append(toUpdate.Job1Id);
-            cmdBuilder.Append("\", Job1Results=");
-            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job1Results));
-            cmdBuilder.Append(", Job2Id=\"");
-            cmdBuilder.Append(toUpdate.Job2Id);
-            cmdBuilder.Append("\", Job2Results=");
-            cmdBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(toUpdate.Job2Results));
-            cmdBuilder.Append(" where id=" + toUpdate.UserId + ";");
-            cmd.CommandText = cmdBuilder.ToString();
-            int res;
-            try
-            {
-                res = cmd.ExecuteNonQuery();
-            }
-            catch (MySqlException e)
-            {
-                LastException = e;
-                return false;
-            }
-            return res == 1;
-        }
-
         /**
          * <summary>Adds the user to the database using the data provided</summary>
          * <param name="email">The email of the user to create</param>
@@ -1446,9 +1368,7 @@ namespace OldManInTheShopServer.Data.MySql
                 SecurityQuestion = securityQuestion,
                 DerivedSecurityToken = secLib.ConstructDerivedSecurityToken(Encoding.UTF8.GetBytes(email), Encoding.UTF8.GetBytes(password)),
                 AccessLevel = accessLevel,
-                Company = companyId,
-                Job1Id = "",
-                Job2Id = ""
+                Company = companyId
             };
             LoggedTokens defaultTokens = new LoggedTokens();
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
@@ -1562,8 +1482,8 @@ namespace OldManInTheShopServer.Data.MySql
             if(!wasValidated)
             {
                 JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + toSwitch.Complaint + "\";", wasValidated).Where(entry => entry.Equals(toSwitch)).First();
-                CreateTable(TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
-                    .Replace("(m)", added.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
+                UserToTextEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
+                    .Replace("(m)", added.Id.ToString()));
             } else
             {
                 cmd.CommandText = "drop table " + TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
@@ -1673,11 +1593,6 @@ namespace OldManInTheShopServer.Data.MySql
 
         public List<JobDataEntry> GetDataEntriesByProblemGroup(int companyId, int problemGroupId, bool validated=true)
         {
-            string tableName;
-            if (validated)
-                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
-            else
-                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
             string where = " ProblemGroupings like \"%" + problemGroupId + "%\";";
             List<JobDataEntry> ret = GetDataEntriesWhere(companyId, where, validated);
             return ret;
@@ -1692,12 +1607,6 @@ namespace OldManInTheShopServer.Data.MySql
         /// <returns>A list of JobDataEntries that match the specified complaint group, or null if an error occurs</returns>
         public List<JobDataEntry> GetDataEntriesByComplaintGroup(int companyId, int complaintGroupId, bool validated = true)
         {
-
-            string tableName;
-            if (validated)
-                tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
-            else
-                tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
             string where = " ComplaintGroupings like \"%"+ complaintGroupId+"%\";";
             List<JobDataEntry> ret = GetDataEntriesWhere(companyId, where, validated);
             return ret;
@@ -1748,8 +1657,8 @@ namespace OldManInTheShopServer.Data.MySql
             if(validated)
             {
                 JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + entryToAdd.Complaint + "\";", validated).Where(entry => entry.Equals(entryToAdd)).First();
-                CreateTable(TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
-                    .Replace("(m)", added.Id.ToString()), TableCreationDataDeclarationStrings.UserForumEntryTable);
+                UserToTextEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
+                    .Replace("(m)", added.Id.ToString()));
             }
 
             return true;
@@ -1765,7 +1674,12 @@ namespace OldManInTheShopServer.Data.MySql
             DateTime dt = DateTime.Now;
             var cmd = Connection.CreateCommand();
 
-            cmd.CommandText = "insert into " + TableNameStorage.CompanyIdTable + "(LegalName, ModelAccuracy, LastTrainedTime, LastValidatedTime) values(\"" + companyLegalName + "\", 0.0, \""+dt.ToString()+"\", \""+dt.ToString()+"\");";
+            CompanyId toAdd = new CompanyId();
+            toAdd.LegalName = companyLegalName;
+            toAdd.LastTrainedTime = dt.ToString();
+            toAdd.LastValidatedTime = dt.ToString();
+            string serializationStr = toAdd.Serialize(TableNameStorage.CompanyIdTable);
+            cmd.CommandText = serializationStr;
             if (!ExecuteNonQuery(cmd))
                 return false;
             cmd.CommandText = "select max(id) from " + TableNameStorage.CompanyIdTable;
@@ -1786,66 +1700,35 @@ namespace OldManInTheShopServer.Data.MySql
 
             //As we as the developers are the only ones who will be adding companies, this method will not
             //do due diligence in restoring the database to its state prior to this method call.
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyComplaintKeywordGroupsTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.GroupDefinitionTable;
-            if (!ExecuteNonQuery(cmd))
+            if (!KeywordGroupEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyProblemKeywordGroupsTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyProblemKeywordGroupsTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.GroupDefinitionTable;
-            if (!ExecuteNonQuery(cmd))
+            if (!KeywordGroupEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyComplaintKeywordGroupsTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.CompanyJoinRequest;
-            if (!ExecuteNonQuery(cmd))
+            if (!JoinRequest.Manipulator.CreateTable(Connection, TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.JobDataEntryTable;
-            if (!ExecuteNonQuery(cmd))
+            if (!JobDataEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.JobDataEntryTable;
-            if (!ExecuteNonQuery(cmd))
+            if (!JobDataEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.PartCatalogueTable;
-            if (!ExecuteNonQuery(cmd))
+            if (!PartCatalogueEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.PartsListAdditionRequest;
-            if (!ExecuteNonQuery(cmd))
+            if (!RequirementAdditionRequest.Manipulator.CreateTable(Connection, TableNameStorage.CompanyPartsListsRequestsTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.CompanyPartsRequest;
-            if (!ExecuteNonQuery(cmd))
+            if (!PartsRequest.Manipulator.CreateTable(Connection, TableNameStorage.CompanyPartsRequestTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            cmd.CommandText = "create table " +
-                TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString()) +
-                TableCreationDataDeclarationStrings.SafetyAdditionRequest;
-            if (!ExecuteNonQuery(cmd))
+            if (!RequirementAdditionRequest.Manipulator.CreateTable(Connection, TableNameStorage.CompanySafetyRequestsTable.Replace("(n)", companyId.ToString())))
                 return false;
 
             string companySettingsTable = TableNameStorage.CompanySettingsTable.Replace("(n)", companyId.ToString());
-
-            cmd.CommandText = "create table " +
-                companySettingsTable +
-                TableCreationDataDeclarationStrings.CompanySettings;
-            if (!ExecuteNonQuery(cmd))
+            if (!CompanySettingsEntry.Manipulator.CreateTable(Connection, companySettingsTable))
                 return false;
 
             if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.Public, true.ToString())) != 1)
@@ -1921,27 +1804,6 @@ namespace OldManInTheShopServer.Data.MySql
         }
 
         /// <summary>
-        /// Attempts to create a table in the current database with the specified name and data string
-        /// </summary>
-        /// <param name="tableName">Name of the table to create, usually comes from <code>TableNameStorage</code> or modified from the same class</param>
-        /// <param name="tableData">Data string of the table to create, comes from <code>TableCreationDataDeclarationStrings</code></param>
-        /// <returns>True if creation was successful, false otherwise</returns>
-        public bool CreateTable(string tableName, string tableData)
-        {
-            var cmd = Connection.CreateCommand();
-            cmd.CommandText = ("create table " + tableName + tableData);
-            try
-            {
-                cmd.ExecuteNonQuery();
-                return true;
-            } catch (MySqlException e)
-            {
-                LastException = e;
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Attempts to create a schema with the specified name
         /// </summary>
         /// <param name="databaseName">The name of the schema to create</param>
@@ -1964,15 +1826,11 @@ namespace OldManInTheShopServer.Data.MySql
 
         /**
          * <summary>Validates whether the database is in the correct format to be worked with by this class</summary>
-         * <param name="createIfMissing">Flag for whether to create missing tables or the database itself if it is found to be missing</param>
+         * <param name="connectionString">MySql Connection String WITHOUT the database field</param>
          * <param name="databaseName">The name of the database to verify integrity of</param>
          */
-        public bool ValidateDatabaseIntegrity(string databaseName)
+        public bool ValidateDatabaseIntegrity(string connectionString, string databaseName)
         {
-            string connectionString = GetConnectionString();
-            int databaseKeyLoc = connectionString.IndexOf("database");
-            int databaseValueEnd = connectionString.IndexOf(";", databaseKeyLoc);
-            connectionString = connectionString.Remove(databaseKeyLoc, (databaseValueEnd - databaseKeyLoc)+1);
             if (!Connect(connectionString))
                 return false;
             if(!CreateDatabase(databaseName))
@@ -1990,14 +1848,14 @@ namespace OldManInTheShopServer.Data.MySql
                 LastException = e;
                 return false;
             }
-            if (!CreateTable(TableNameStorage.OverallUserTable, TableCreationDataDeclarationStrings.OverallUserTable))
+            if (! OverallUser.Manipulator.CreateTable(Connection, TableNameStorage.OverallUserTable))
             {
-                if (LastException.Number != 1050)
+                if (OverallUser.Manipulator.LastException.Number != 1050)
                     return false;
             }
-            if (!CreateTable(TableNameStorage.CompanyIdTable, TableCreationDataDeclarationStrings.CompanyIdTable))
+            if (!CompanyId.Manipulator.CreateTable(Connection, TableNameStorage.CompanyIdTable))
             {
-                if (LastException.Number != 1050)
+                if (CompanyId.Manipulator.LastException.Number != 1050)
                     return false;
             }
 

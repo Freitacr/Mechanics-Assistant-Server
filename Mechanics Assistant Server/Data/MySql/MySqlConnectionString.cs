@@ -24,7 +24,8 @@
         public string ConstructConnectionString(string password)
         {
             string ret = "SERVER=" + Server + ";";
-            ret += "DATABASE=" + Database + ";";
+            if(Database != null)
+                ret += "DATABASE=" + Database + ";";
             ret += "UID=" + UserId + ";";
             ret += "PASSWORD=" + password + ";";
             return ret;

@@ -20,6 +20,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         public string Token { get; set; }
         [DataMember(Name = "userId")]
         public int Id { get; set; }
+
         [DataMember(Name = "accessLevel")]
         public int AccessLevel;
     }

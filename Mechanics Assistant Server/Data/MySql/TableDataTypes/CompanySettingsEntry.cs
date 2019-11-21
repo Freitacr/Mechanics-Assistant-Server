@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 using OldManInTheShopServer.Util;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
@@ -35,14 +36,15 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 
     }
 
-    public class CompanySettingsEntry : ISqlSerializable
+    public class CompanySettingsEntry : MySqlTableDataMember<CompanySettingsEntry>
     {
         public static readonly TableDataManipulator<CompanySettingsEntry> Manipulator = new TableDataManipulator<CompanySettingsEntry>();
 
-        public string SettingKey { get; set; }
-        public string SettingValue { get; set; }
+        [SqlTableMember("varchar(64)", MySqlDataFormatString = "\"{0}\"")]
+        public string SettingKey;
 
-        public int Id { get; set; }
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string SettingValue;
 
         public CompanySettingsEntry()
         {
@@ -55,22 +57,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             SettingValue = value;
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new CompanySettingsEntry(SettingKey, SettingValue);
-        }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            SettingKey = (string)reader["SettingKey"];
-            SettingValue = (string)reader["SettingValue"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            return "insert into " + tableName + "(SettingKey, SettingValue) values(" +
-                "\"" + SettingKey + "\",\"" + SettingValue + "\");";
         }
 
         public override bool Equals(object obj)
@@ -88,6 +77,17 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return SettingKey.GetHashCode() + SettingValue.GetHashCode();
+        }
+
+        protected override void ApplyDefaults()
+        {
+            SettingKey = null;
+            SettingValue = null;
+        }
+
+        public override string ToString()
+        {
+            return SettingKey + ": " + SettingValue;
         }
     }
 }

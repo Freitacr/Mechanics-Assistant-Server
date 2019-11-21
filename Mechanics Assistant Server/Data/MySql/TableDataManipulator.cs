@@ -9,7 +9,7 @@ namespace OldManInTheShopServer.Data.MySql
     /// that come with the ISqlSerializable interface
     /// </summary>
     /// <typeparam name="T">A type that derives itself from the ISqlSerializable interface that has a default constructor</typeparam>
-    public class TableDataManipulator<T> where T : ISqlSerializable, new()
+    public class TableDataManipulator<T> where T : MySqlTableDataMember<T>, new()
     {
         /// <summary>
         /// The last MySqlException that occurred in this object
@@ -172,6 +172,22 @@ namespace OldManInTheShopServer.Data.MySql
                 LastException = e;
                 return -1;
             }
+        }
+
+        public bool CreateTable(MySqlConnection connection, string tableName)
+        {
+            T creator = new T();
+            MySqlCommand cmd = connection.CreateCommand();
+            cmd.CommandText = creator.GetCreateTableString(tableName);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            } catch (MySqlException e)
+            {
+                LastException = e;
+                return false;
+            }
+            return true;
         }
     }
 }

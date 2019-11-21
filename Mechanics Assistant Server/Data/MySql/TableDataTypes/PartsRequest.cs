@@ -2,18 +2,22 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    public class PartsRequest : ISqlSerializable
+    public class PartsRequest : MySqlTableDataMember<PartsRequest>
     {
         public static readonly TableDataManipulator<PartsRequest> Manipulator = new TableDataManipulator<PartsRequest>();
 
-        public int UserId { get; set; }
-        public string JobId { get; set; }
-        public string ReferencedParts { get; set; }
+        [SqlTableMember("int")]
+        public int UserId;
 
-        public int Id { get; set; }
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string JobId;
+
+        [SqlTableMember("varchar(256)", MySqlDataFormatString = "\"{0}\"")]
+        public string ReferencedParts;
 
         public PartsRequest()
         {
@@ -28,30 +32,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         }
 
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new PartsRequest(UserId, JobId, ReferencedParts);
-        }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            UserId = (int)reader["UserId"];
-            JobId = (string)reader["JobId"];
-            ReferencedParts = (string)reader["ReferencedParts"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            var retBuilder = new StringBuilder("insert into " + tableName);
-            retBuilder.Append("(UserId, JobId, ReferencedParts) values(");
-            retBuilder.Append(UserId.ToString());
-            retBuilder.Append(",");
-            retBuilder.Append("\"" + JobId + "\"");
-            retBuilder.Append(",");
-            retBuilder.Append("\"" + ReferencedParts + "\"");
-            retBuilder.Append(");");
-            return retBuilder.ToString();
         }
 
         public override bool Equals(object obj)
@@ -68,6 +51,15 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return UserId + ReferencedParts.GetHashCode() + JobId.GetHashCode();
+        }
+
+        protected override void ApplyDefaults()
+        {
+        }
+
+        public override string ToString()
+        {
+            return UserId.ToString() + (JobId ?? "");
         }
     }
 }

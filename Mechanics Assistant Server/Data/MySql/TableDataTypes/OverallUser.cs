@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Security.Cryptography;
 using ANSEncodingLib;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
@@ -79,7 +80,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public string RequestStatus { get; set; } = "";
     }
 
-    public class OverallUser : ISqlSerializable
+    public class OverallUser : MySqlTableDataMember<OverallUser>
     {
         public static string GenerateDefaultSettings()
         {
@@ -99,29 +100,46 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         
         public static readonly TableDataManipulator<OverallUser> Manipulator = new TableDataManipulator<OverallUser>();
 
-        public int AccessLevel { get; set; }
-        public byte[] DerivedSecurityToken { get; set; }
-        public string SecurityQuestion { get; set; }
-        public byte[] PersonalData { get; set; }
-        public string Settings { get; set; }
-        public int Company { get; set; }
-        public byte[] AuthToken { get; set; }
-        public string LoggedTokens { get; set; }
-        public string Job1Id { get; set; }
-        public string Job2Id { get; set; }
-        public byte[] Job1Results { get; set; }
-        public byte[] Job2Results { get; set; }
-        public string Email { get; set; }
-        public byte[] RequestHistory { get; set; }
-        public int UserId { get; set; }
+        [SqlTableMember("int")]
+        public int AccessLevel;
+
+        [SqlTableMember("varbinary(64)")]
+        public byte[] DerivedSecurityToken;
+
+        [SqlTableMember("varchar(256)", MySqlDataFormatString = "\"{0}\"")]
+        public string SecurityQuestion;
+
+        [SqlTableMember("varbinary(1024)")]
+        public byte[] PersonalData;
+
+        [SqlTableMember("varchar(512)", MySqlDataFormatString = "\"{0}\"")]
+        public string Settings;
+
+        [SqlTableMember("int")]
+        public int Company;
+
+        [SqlTableMember("varbinary(64)")]
+        public byte[] AuthToken;
+
+        [SqlTableMember("varchar(512)", MySqlDataFormatString = "\"{0}\"")]
+        public string LoggedTokens;
+
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string Email;
+
+        public static int RequestHistoryBytesSize = 2048;
+
+        [SqlTableMember("varbinary(2048)")]
+        public byte[] RequestHistory;
+
+        [SqlTableMember("int")]
+        public int UserId;
 
         public OverallUser()
         {
-            Job1Results = new byte[] { 0 };
-            Job2Results = new byte[] { 0 };
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             OverallUser ret = new OverallUser
             {
@@ -133,10 +151,6 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
                 Company = Company,
                 AuthToken = (byte[])AuthToken.Clone(),
                 LoggedTokens = LoggedTokens,
-                Job1Id = Job1Id,
-                Job2Id = Job2Id,
-                Job1Results = Job1Results,
-                Job2Results = Job2Results,
                 Email = Email,
                 RequestHistory = RequestHistory
             };
@@ -187,7 +201,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             RequestHistory = streamOut.ToArray();
         }
 
-        public void Deserialize(MySqlDataReader reader)
+        public override void Deserialize(MySqlDataReader reader)
         {
             AccessLevel = (int)reader["AccessLevel"];
             DerivedSecurityToken = (byte[])reader["DerivedSecurityToken"];
@@ -196,22 +210,18 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             Settings = (string)reader["Settings"];
             Company = (int)reader["Company"];
             AuthToken = (byte[])reader["AuthToken"];
-            LoggedTokens = (string)reader["LoggedToken"];
+            LoggedTokens = (string)reader["LoggedTokens"];
             Email = (string)reader["Email"];
             RequestHistory = (byte[])reader["RequestHistory"];
-            Job1Id = (string)reader["Job1Id"];
-            Job2Id = (string)reader["Job2Id"];
-            Job1Results = (byte[])reader["Job1Results"];
-            Job2Results = (byte[])reader["Job2Results"];
             UserId = (int)reader["id"];
         }
 
-        public string Serialize(string tableName)
+        public override string Serialize(string tableName)
         {
             StringBuilder retBuilder = new StringBuilder();
             retBuilder.Append("insert into ");
             retBuilder.Append(tableName);
-            retBuilder.Append("(AccessLevel, DerivedSecurityToken, SecurityQuestion, PersonalData, Settings, Company, AuthToken, LoggedToken, Job1Id, Job2Id, Job1Results, Job2Results, Email, RequestHistory) Values (");
+            retBuilder.Append("(AccessLevel, DerivedSecurityToken, SecurityQuestion, PersonalData, Settings, Company, AuthToken, LoggedTokens, Email, RequestHistory) Values (");
             retBuilder.Append(AccessLevel);
             retBuilder.Append(",");
             retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(DerivedSecurityToken));
@@ -227,14 +237,6 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(AuthToken));
             retBuilder.Append(",");
             retBuilder.Append("\"" + LoggedTokens + "\"");
-            retBuilder.Append(",");
-            retBuilder.Append("\"" + Job1Id + "\"");
-            retBuilder.Append(",");
-            retBuilder.Append("\"" + Job2Id + "\"");
-            retBuilder.Append(",");
-            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(Job1Results));
-            retBuilder.Append(",");
-            retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(Job2Results));
             retBuilder.Append(",");
             retBuilder.Append("\"" + Email + "\"");
             retBuilder.Append(",");
@@ -274,6 +276,15 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return Company + AccessLevel + SecurityQuestion.GetHashCode() + LoggedTokens.GetHashCode();
+        }
+
+        protected override void ApplyDefaults()
+        {
+        }
+
+        public override string ToString()
+        {
+            return Email ?? "";
         }
     }
 }

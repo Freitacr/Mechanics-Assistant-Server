@@ -171,10 +171,10 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
             var response = Client.PatchAsync("http://localhost:16384/user/settings", content).Result;
             Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
             var user = Manipulator.GetUserById(1);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<SettingsEntry>));
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<UserSettingsEntry>));
             MemoryStream streamIn = new MemoryStream(Encoding.UTF8.GetBytes(user.Settings));
-            var settings = serializer.ReadObject(streamIn) as List<SettingsEntry>;
-            foreach(SettingsEntry entry in settings) {
+            var settings = serializer.ReadObject(streamIn) as List<UserSettingsEntry>;
+            foreach(UserSettingsEntry entry in settings) {
                 if (entry.Key.Equals("displayName"))
                 {
                     Assert.AreEqual("patches01", entry.Value);

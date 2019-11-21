@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    public class RequirementAdditionRequest : ISqlSerializable
+    public class RequirementAdditionRequest : MySqlTableDataMember<RequirementAdditionRequest>
     {
         public static readonly TableDataManipulator<RequirementAdditionRequest> Manipulator = new TableDataManipulator<RequirementAdditionRequest>();
-        public int UserId { get; set; }
-        public int ValidatedDataId { get; set; }
-        public string RequestedAdditions { get; set; }
 
-        public int Id { get; set; }
+        [SqlTableMember("int")]
+        public int UserId;
+
+        [SqlTableMember("int")]
+        public int ValidatedDataId;
+
+        [SqlTableMember("varchar(256)", MySqlDataFormatString = "\"{0}\"")]
+        public string RequestedAdditions;
 
         public RequirementAdditionRequest()
         {
@@ -26,30 +31,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             RequestedAdditions = requestedAdditions;
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new RequirementAdditionRequest(UserId, ValidatedDataId, RequestedAdditions);
-        }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            UserId = (int)reader["UserId"];
-            ValidatedDataId = (int)reader["ValidatedDataId"];
-            RequestedAdditions = (string)reader["RequestedAdditions"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            var retBuilder = new StringBuilder("insert into " + tableName);
-            retBuilder.Append("(UserId, ValidatedDataId, RequestedAdditions) values(");
-            retBuilder.Append(UserId);
-            retBuilder.Append(",");
-            retBuilder.Append(ValidatedDataId);
-            retBuilder.Append(",");
-            retBuilder.Append("\"" + RequestedAdditions.Replace("\"","\\\"") + "\"");
-            retBuilder.Append(");");
-            return retBuilder.ToString();
         }
 
         public override bool Equals(object obj)
@@ -70,6 +54,15 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return ValidatedDataId + UserId + RequestedAdditions.GetHashCode();
+        }
+
+        protected override void ApplyDefaults()
+        {
+        }
+
+        public override string ToString()
+        {
+            return ValidatedDataId + ": " + (RequestedAdditions ?? "");
         }
     }
 }

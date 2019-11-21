@@ -2,19 +2,29 @@
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
-    public class PartCatalogueEntry : ISqlSerializable
+    public class PartCatalogueEntry : MySqlTableDataMember<PartCatalogueEntry>
     {
         public static readonly TableDataManipulator<PartCatalogueEntry> Manipulator = new TableDataManipulator<PartCatalogueEntry>();
-        public string Make { get; set; }
-        public string Model { get; set; }
-        public int Year { get; set; }
-        public string PartId { get; set; }
-        public string PartName { get; set; }
 
-        public int Id { get; set; }
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string Make;
+
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string Model;
+
+        [SqlTableMember("int")]
+        public int Year = -1;
+
+        [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
+        public string PartId;
+
+        [SqlTableMember("varchar(256)", MySqlDataFormatString = "\"{0}\"")]
+        public string PartName;
+
         public PartCatalogueEntry()
         {
 
@@ -29,25 +39,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             PartName = partName;
         }
 
-        public ISqlSerializable Copy()
+        public override ISqlSerializable Copy()
         {
             return new PartCatalogueEntry(Make, Model, Year, PartId, PartName);
-        }
-
-        public void Deserialize(MySqlDataReader reader)
-        {
-            Make = (string)reader["Make"];
-            Model = (string)reader["Model"];
-            Year = (int)reader["Year"];
-            PartId = (string)reader["PartId"];
-            PartName = (string)reader["PartName"];
-            Id = (int)reader["id"];
-        }
-
-        public string Serialize(string tableName)
-        {
-            return "insert into " + tableName + " (Make, Model, Year, PartId, PartName) values (\"" +
-                Make + "\",\"" + Model + "\"," + Year + ",\"" + PartId + "\",\"" + PartName + "\");";
         }
 
         public override bool Equals(object obj)
@@ -64,6 +58,16 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public override int GetHashCode()
         {
             return PartId.GetHashCode();
+        }
+
+        protected override void ApplyDefaults()
+        {
+            Year = -1;
+        }
+
+        public override string ToString()
+        {
+            return PartId ?? "";
         }
     }
 }
