@@ -7,9 +7,18 @@ using System.Net;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Data.MySql;
 using OldManInTheShopServer.Util;
+using OldManInTheShopServer.Models.KeywordPrediction;
+using OldManInTheShopServer.Models.POSTagger;
+using OMISSortingLib;
 
 namespace OldManInTheShopServer.Net.Api
 {
+    class EntrySimilarity
+    {
+        public float Difference { get; set; }
+        public JobDataEntry Entry { get; set; }
+    }
+
     [DataContract]
     class RepairJobApiFullRequest
     {
@@ -27,6 +36,9 @@ namespace OldManInTheShopServer.Net.Api
 
         [DataMember]
         public string AuthToken;
+
+        [DataMember]
+        public int Duplicate;
     }
 
     class RepairJobApi : ApiDefinition
@@ -113,14 +125,64 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
 
-                    //Now that we know the user is good, actually do the addition.
-                    res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
-                    if (!res)
+                    if (!(entry.Duplicate == 0))
                     {
-                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                        return;
+                        //Now that we know the user is good, actually do the addition.
+                        res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
+                        if (!res)
+                        {
+                            WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                            return;
+                        }
+                        WriteBodylessResponse(ctx, 200, "OK");
                     }
-                    WriteBodylessResponse(ctx, 200, "OK");
+                    else
+                    {
+                        //test if there exists similar
+                        string whereString = "Make =\"" + entry.ContainedEntry.Make + "\" AND " + "Model =\"" + entry.ContainedEntry.Model+"\"";
+                        //whereString += "AND"+entry.ContainedEntry.Year+">="+(entry.ContainedEntry.Year-2)+"AND"+entry.ContainedEntry.Year+"<="+(entry.ContainedEntry.Year+2);
+                        List<JobDataEntry> dataCollectionsWhere = connection.GetDataEntriesWhere(mappedUser.Company, whereString, true);
+                        List<JobDataEntry> data2 = connection.GetDataEntriesWhere(mappedUser.Company, whereString, false);
+                        foreach(JobDataEntry x in data2)
+                        {
+                            dataCollectionsWhere.Add(x);
+                        }
+                        //if none force through
+                        if (dataCollectionsWhere == null)
+                        {
+                            res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
+                            if (!res)
+                            {
+                                WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                                return;
+                            }
+                            WriteBodylessResponse(ctx, 200, "OK");
+                        }
+                        //if yes 409 with similar jobs
+                        else
+                        {
+                            JsonListStringConstructor retConstructor = new JsonListStringConstructor();
+                            List<EntrySimilarity> ret = getSimilar(entry.ContainedEntry, dataCollectionsWhere, 3);
+
+                            ret.ForEach(obj => retConstructor.AddElement(ConvertEntrySimilarity(obj)));
+                            WriteBodyResponse(ctx, 409, "Conflict" ,retConstructor.ToString(), "application/json");
+                            
+                            JsonDictionaryStringConstructor ConvertEntrySimilarity(EntrySimilarity e)
+                            {
+                                JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
+                                r.SetMapping("Make", e.Entry.Make);
+                                r.SetMapping("Model", e.Entry.Model);
+                                r.SetMapping("Complaint", e.Entry.Complaint);
+                                r.SetMapping("Problem", e.Entry.Problem);
+                                if (e.Entry.Year == -1)
+                                    r.SetMapping("Year", "Unknown");
+                                else
+                                    r.SetMapping("Year", e.Entry.Year);
+                                r.SetMapping("Id", e.Entry.Id);
+                                return r;
+                            }
+                        }
+                    }
                 }
             }
             catch (HttpListenerException)
@@ -132,6 +194,71 @@ namespace OldManInTheShopServer.Net.Api
                 WriteBodyResponse(ctx, 500, "Internal Server Error", e.Message);
             }
         }
+
+
+        private static float CalcSimilarity(JobDataEntry query, JobDataEntry other)
+        {
+            IKeywordPredictor keyPred = NaiveBayesKeywordPredictor.GetGlobalModel();
+            AveragedPerceptronTagger tagger = AveragedPerceptronTagger.GetTagger();
+            List<String> tokened = SentenceTokenizer.TokenizeSentence(query.Complaint);
+            List<List<String>> tagged = tagger.Tag(tokened);
+            List<String> InputComplaintKeywords = keyPred.PredictKeywords(tagged);
+            tokened = SentenceTokenizer.TokenizeSentence(query.Problem);
+            tagged = tagger.Tag(tokened);
+            List<String> InputProblemKeywords = keyPred.PredictKeywords(tagged);
+            float score = 0;
+            tokened = SentenceTokenizer.TokenizeSentence(other.Complaint);
+            tagged = tagger.Tag(tokened);
+            List<String> JobComplaintKeywords = keyPred.PredictKeywords(tagged);
+            tokened = SentenceTokenizer.TokenizeSentence(other.Problem);
+            tagged = tagger.Tag(tokened);
+            List<String> JobProblemKeywords = keyPred.PredictKeywords(tagged);
+            foreach (String keyword in JobComplaintKeywords)
+            {
+                if (InputComplaintKeywords.Contains(keyword))
+                {
+                    score++;
+                }
+            }
+            foreach (String keyword in JobProblemKeywords)
+            {
+                if (InputProblemKeywords.Contains(keyword))
+                {
+                    score++;
+                }
+            }
+            return (score / (JobComplaintKeywords.Count + JobProblemKeywords.Count));
+        }
+
+        private List<EntrySimilarity> getSimilar(JobDataEntry Query, List<JobDataEntry> potentials, int maxRet)
+        {
+            Dictionary<float, List<EntrySimilarity>> distanceMappings = new Dictionary<float, List<EntrySimilarity>>();
+            HashSet<float> keys = new HashSet<float>();
+            List<EntrySimilarity> ret = new List<EntrySimilarity>();
+            foreach (JobDataEntry other in potentials)
+            {
+                float dist = CalcSimilarity(Query, other);
+                if (!distanceMappings.ContainsKey(dist))
+                {
+                    keys.Add(dist);
+                    distanceMappings.Add(dist, new List<EntrySimilarity>());
+                }
+                distanceMappings[dist].Add(new EntrySimilarity() { Entry = other, Difference = dist });
+            }
+            float[] sortedKeys = new float[keys.Count];
+            keys.CopyTo(sortedKeys);
+            sortedKeys.RadixSort();
+            int keyIndex = 0;
+            while (ret.Count <= maxRet && keyIndex < sortedKeys.Length)
+            {
+                ret.AddRange(distanceMappings[sortedKeys[keyIndex]]);
+                keyIndex++;
+            }
+            if (ret.Count < maxRet)
+                return ret;
+            return ret.GetRange(0, maxRet);
+        }
+
 
         private bool ValidateJobDataEntry(JobDataEntry entryIn)
         {
