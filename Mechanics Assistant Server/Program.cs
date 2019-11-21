@@ -151,8 +151,8 @@ namespace OldManInTheShopServer
                 throw new NullReferenceException("One or more global models failed to load. Server cannot start.");
             else if(AveragedPerceptronTagger.GetTagger() == null)
                 throw new NullReferenceException("Failed to load the Averaged Perceptron Tagger");
-            Logger.Global.Log(Logger.LogLevel.INFO, "Server is starting up");
-            using (Logger.Global)
+            Logger.GetLogger(Logger.LoggerDefaultFileLocations.DEFAULT).Log(Logger.LogLevel.INFO, "Server is starting up");
+            using (Logger.Disposer)
             {
                 Thread t = new Thread(RenewCertificate);
                 t.Start();

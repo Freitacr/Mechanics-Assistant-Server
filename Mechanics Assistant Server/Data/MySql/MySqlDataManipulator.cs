@@ -1492,7 +1492,7 @@ namespace OldManInTheShopServer.Data.MySql
                 if (!ExecuteNonQuery(cmd))
                 {
                     if (LastException != null)
-                        Logger.Global.Log(Logger.LogLevel.WARNING, "Forum Table " + companyId + "," + toSwitch.Id + " was not deleted successfully");
+                        Logger.GetLogger(Logger.LoggerDefaultFileLocations.DEFAULT).Log(Logger.LogLevel.WARNING, "Forum Table " + companyId + "," + toSwitch.Id + " was not deleted successfully");
                 }
             }
             return res == 1;

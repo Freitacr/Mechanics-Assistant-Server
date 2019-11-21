@@ -67,7 +67,8 @@ namespace OldManInTheShopServer.Data.MySql
                     f.Field.SetValue(this, dbRet);
                 } catch(TargetException)
                 {
-                    Logger.Global.Log(Logger.LogLevel.WARNING, "Invalid casting of type " + dbRet.GetType().FullName + " to " + f.Field.FieldType.FullName);
+                    Logger.GetLogger(Logger.LoggerDefaultFileLocations.DEFAULT)
+                        .Log(Logger.LogLevel.WARNING, "Invalid casting of type " + dbRet.GetType().FullName + " to " + f.Field.FieldType.FullName);
                 }
             }
         }

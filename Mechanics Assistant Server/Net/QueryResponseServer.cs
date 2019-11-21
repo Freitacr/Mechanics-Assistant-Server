@@ -92,7 +92,8 @@ namespace OldManInTheShopServer.Net
                                 ThreadPool.QueueUserWorkItem((context) => ApiDefinition.NotSupported(context as HttpListenerContext), ctx);
                             } catch (Exception e)
                             {
-                                Logger.Global.Log(Logger.LogLevel.ERROR, e.StackTrace);
+                                Logger.GetLogger(Logger.LoggerDefaultFileLocations.NETEXCEPTIONS)
+                                    .Log(Logger.LogLevel.ERROR, e.StackTrace);
                             }
                         }
                         else
