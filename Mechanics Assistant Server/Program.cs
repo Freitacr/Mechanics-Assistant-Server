@@ -40,8 +40,7 @@ namespace OldManInTheShopServer
                             {
                                 Console.WriteLine("Performing training for company " + company.LegalName);
                                 DatabaseQueryProcessor processor = new DatabaseQueryProcessor(DatabaseQueryProcessorSettings.RetrieveCompanySettings(manipulator, company.Id));
-                                CompanyModelUtils.TrainClusteringModel(manipulator, processor, company.Id, complaint: true);
-                                CompanyModelUtils.TrainClusteringModel(manipulator, processor, company.Id, complaint: false);
+                                CompanyModelUtils.TrainClusteringModel(manipulator, processor, company.Id, training: false);
                                 company.LastTrainedTime = DateTime.Now.ToString();
                                 manipulator.UpdateCompanyTrainingTime(company);
                                 double automatedTestingResults = CompanyModelUtils.PerformAutomatedTesting(manipulator, company.Id, processor);

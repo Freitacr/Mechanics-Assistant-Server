@@ -127,7 +127,7 @@ namespace OldManInTheShopServer.Net.Api
             if (keyHash == CompanySettingsKey.Downvotes.GetHashCode())
             {
                 return CompanySettingsOptions.Downvotes;
-            } 
+            }
             else if (keyHash == CompanySettingsKey.KeywordClusterer.GetHashCode())
             {
                 return CompanySettingsOptions.KeywordClusterer;
@@ -147,7 +147,12 @@ namespace OldManInTheShopServer.Net.Api
             else if (keyHash == CompanySettingsKey.RetrainInterval.GetHashCode())
             {
                 return CompanySettingsOptions.RetrainInterval;
-            } else
+            }
+            else if (keyHash == CompanySettingsKey.DataUploadable.GetHashCode())
+            {
+                return CompanySettingsOptions.DataUploadable;
+            }
+            else
             {
                 throw new ArgumentException("Setting with key " + settingKey + " did not have a listed set of options");
             }

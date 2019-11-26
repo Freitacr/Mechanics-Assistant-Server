@@ -94,7 +94,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
-                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\"Is Public\"")[0];
+                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\"" + CompanySettingsKey.Public + "\"")[0];
                     bool isPublic = bool.Parse(isPublicSetting.SettingValue);
                     if (!isPublic && mappedUser.Company != req.CompanyId)
                     {
@@ -154,7 +154,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
-                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\"Is Public\"")[0];
+                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\""+ CompanySettingsKey.Public + "\"")[0];
                     bool isPublic = bool.Parse(isPublicSetting.SettingValue);
                     if(!isPublic && mappedUser.Company != req.CompanyId)
                     {

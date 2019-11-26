@@ -109,11 +109,6 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
                         return;
                     }
-                    if (entry.ContainedEntry.JobId.Contains('<'))
-                    {
-                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
-                        return;
-                    }
                     if (entry.ContainedEntry.Make.Contains('<'))
                     {
                         WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");

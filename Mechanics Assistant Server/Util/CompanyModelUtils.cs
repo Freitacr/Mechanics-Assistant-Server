@@ -49,25 +49,23 @@ namespace OldManInTheShopServer.Util
     class CompanyModelUtils
     {
 
-        public static void TrainClusteringModel(MySqlDataManipulator manipulator, DatabaseQueryProcessor processor, int companyId, bool complaint = true)
+        public static void TrainClusteringModel(MySqlDataManipulator manipulator, DatabaseQueryProcessor processor, int companyId, bool training = false)
         {
             List<JobDataEntry> validatedData = manipulator.GetDataEntriesWhere(companyId, "id > 0", validated: true);
             List<string> sentences;
             sentences = validatedData.Select(entry => entry.Complaint).ToList();
-            if (!processor.TrainClusteringModels(manipulator, companyId, sentences, complaint))
+            if (!processor.TrainClusteringModels(manipulator, companyId, sentences, training))
             {
                 Console.WriteLine("Failed to train problem prediction models for company " + companyId);
                 return;
             }
-            foreach (JobDataEntry entry in validatedData)
-            {
-                string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, companyId, manipulator, complaint));
-                if (complaint)
+            if(!training)
+                foreach (JobDataEntry entry in validatedData)
+                {
+                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, companyId, manipulator));
                     entry.ComplaintGroups = groups;
-                else
-                    entry.ProblemGroups = groups;
-                manipulator.UpdateDataEntryGroups(companyId, entry, complaint: complaint);
-            }
+                    manipulator.UpdateDataEntryGroups(companyId, entry, complaint: true);
+                }
         }
 
         public static double PerformAutomatedTesting(MySqlDataManipulator manipulator, int companyId, DatabaseQueryProcessor processor)
@@ -88,6 +86,7 @@ namespace OldManInTheShopServer.Util
                     Year = entry.Year,
                     Complaint = entry.Complaint
                 };
+                
                 List<string> entryProblemKeywords = processor.PredictKeywordsInJobData(entry, false);
                 int startingNumKeywords = entryProblemKeywords.Count;
                 string complaintGroupsJson = processor.ProcessQueryForComplaintGroups(testEntryCopy, manipulator, companyId);
@@ -125,6 +124,7 @@ namespace OldManInTheShopServer.Util
                 {
                     List<JobDataEntry> testGroup = new List<JobDataEntry>(validatedData);
                     testGroup.AddRange(currentTestGroup.Select(mapping => mapping.Entry));
+                    processor.TrainClusteringModels(manipulator, companyId, testGroup.Select(entry => entry.Complaint).ToList(), training: true);
                     double accuracy = 100 - PerformAutomatedTestingWithData(manipulator, companyId, processor, testGroup);
                     double vote = (accuracy - currCompanyAccuracy) / currCompanyAccuracy;
                     foreach (NonValidatedMapping mapping in currentTestGroup)
@@ -146,7 +146,6 @@ namespace OldManInTheShopServer.Util
             }
             if(changed)
             {
-                TrainClusteringModel(manipulator, processor, companyId, true);
                 TrainClusteringModel(manipulator, processor, companyId, false);
             }
         }

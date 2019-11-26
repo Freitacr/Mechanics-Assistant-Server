@@ -10,11 +10,12 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     public static class CompanySettingsKey
     {
         public static string RetrainInterval { get; } = "Retrain Interval";
-        public static string Public { get; } = "Is Public";
+        public static string Public { get; } = "Is Data Public";
         public static string KeywordPredictor { get; } = "Keyword Prediction Model";
         public static string KeywordClusterer { get; } = "Keyword Clusterer Model";
         public static string ProblemPredictor { get; } = "Problem Prediction Model";
         public static string Downvotes { get; } = "Downvotes before Requirement Deletion";
+        public static string DataUploadable { get; } = "Can Mechanics Upload Data";
     }
 
     public static class CompanySettingsOptions
@@ -25,6 +26,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public static JsonListStringConstructor KeywordPredictor { get; } = ConstructOptionsString(new[] { "Bayesian" });
         public static JsonListStringConstructor ProblemPredictor { get; } = ConstructOptionsString(new[] { "Database" });
         public static JsonListStringConstructor KeywordClusterer { get; } = ConstructOptionsString(new[] { "Similiarity" });
+        public static JsonListStringConstructor DataUploadable { get; } = ConstructOptionsString(new[] { true.ToString(), false.ToString() });
 
         private static JsonListStringConstructor ConstructOptionsString(IEnumerable<string> options)
         {

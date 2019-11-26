@@ -157,82 +157,45 @@ namespace OldManInTheShopServer.Models.KeywordClustering
             return currMax;
         }
 
-        public bool Load(MySqlDataManipulator manipulator, int companyId, bool complaint=true)
+        public bool Load(MySqlDataManipulator manipulator, int companyId)
         {
             if (ContainedGroups.Count > 0)
                 ContainedGroups.Clear();
-            if(complaint)
+            List<KeywordGroupEntry> toLoad = manipulator.GetCompanyComplaintGroups(companyId);
+            if (toLoad == null)
+                return false;
+            foreach(KeywordGroupEntry entry in toLoad)
             {
-                List<KeywordGroupEntry> toLoad = manipulator.GetCompanyComplaintGroups(companyId);
-                if (toLoad == null)
-                    return false;
-                foreach(KeywordGroupEntry entry in toLoad)
-                {
-                    string def = entry.GroupDefinition;
-                    string[] definition = def.Split(" ");
-                    KeywordGroup g = new KeywordGroup(definition[0]);
-                    for(int i = 1; i < definition.Length; i++)
-                        g.SelectedKeywords.AddKeyword(definition[i]);
-                    ContainedGroups.Add(g);
-                }
-            } else
-            {
-                List<KeywordGroupEntry> toLoad = manipulator.GetCompanyProblemGroups(companyId);
-                if (toLoad == null)
-                    return false;
-                foreach (KeywordGroupEntry entry in toLoad)
-                {
-                    string def = entry.GroupDefinition;
-                    string[] definition = def.Split(" ");
-                    KeywordGroup g = new KeywordGroup(definition[0]);
-                    for (int i = 1; i < definition.Length; i++)
-                        g.SelectedKeywords.AddKeyword(definition[i]);
-                    ContainedGroups.Add(g);
-                }
+                string def = entry.GroupDefinition;
+                string[] definition = def.Split(" ");
+                KeywordGroup g = new KeywordGroup(definition[0]);
+                for(int i = 1; i < definition.Length; i++)
+                    g.SelectedKeywords.AddKeyword(definition[i]);
+                ContainedGroups.Add(g);
             }
             return true;
         }
 
-        public bool Save(MySqlDataManipulator manipulator, int companyId, bool complaint = true)
+        public bool Save(MySqlDataManipulator manipulator, int companyId)
         {
             List<KeywordGroupEntry> toUpload = new List<KeywordGroupEntry>();
             foreach (KeywordGroup group in ContainedGroups)
                 toUpload.Add(new KeywordGroupEntry(group.SelectedKeywords.ToString()));
             List<KeywordGroupEntry> previous;
-            if (complaint)
+            previous = manipulator.GetCompanyComplaintGroups(companyId);
+            bool res = manipulator.DeleteCompanyComplaintGroups(companyId);
+            if(!res)
+                return false;
+            res = manipulator.AddCompanyComplaintGroups(companyId, toUpload);
+            if (!res)
             {
-                previous = manipulator.GetCompanyComplaintGroups(companyId);
-                bool res = manipulator.DeleteCompanyComplaintGroups(companyId);
+                res = manipulator.AddCompanyComplaintGroups(companyId, previous);
                 if(!res)
-                    return false;
-                res = manipulator.AddCompanyComplaintGroups(companyId, toUpload);
-                if (!res)
-                {
-                    res = manipulator.AddCompanyComplaintGroups(companyId, previous);
-                    if(!res)
-                        throw new Exception("Company " + companyId + " keyword clusterer failed to add previous" +
-                            " groups back after deletion. This is really bad.");
-                    return false;
-                }
-                return true;
+                    throw new Exception("Company " + companyId + " keyword clusterer failed to add previous" +
+                        " groups back after deletion. This is really bad.");
+                return false;
             }
-            else
-            {
-                previous = manipulator.GetCompanyProblemGroups(companyId);
-                bool res = manipulator.DeleteCompanyProblemGroups(companyId);
-                if (!res)
-                    return false;
-                res = manipulator.AddCompanyProblemGroups(companyId, toUpload);
-                if (!res)
-                {
-                    res = manipulator.AddCompanyProblemGroups(companyId, previous);
-                    if (!res)
-                        throw new Exception("Company " + companyId + " keyword clusterer failed to add previous" +
-                            " groups back after deletion. This is really bad.");
-                    return false;
-                }
-                return true;
-            }
+            return true;
         }
 
         /**<summary>Calculates the similarity for the provided example to every one of the groups contained in this clusterer.</summary>*/

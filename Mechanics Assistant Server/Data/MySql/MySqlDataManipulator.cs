@@ -141,7 +141,7 @@ namespace OldManInTheShopServer.Data.MySql
         /// </summary>
         /// <param name="companyId">The id of the company to retrieve problem groups for</param>
         /// <returns>List of KeywordGroupEntry objects representing the problem groups</returns>
-        public List<KeywordGroupEntry> GetCompanyProblemGroups(int companyId)
+        public List<KeywordGroupEntry> GetCompanyTrainingGroups(int companyId)
         {
             string tableName = TableNameStorage.CompanyProblemKeywordGroupsTable.Replace
                 ("(n)", companyId.ToString());
@@ -177,7 +177,7 @@ namespace OldManInTheShopServer.Data.MySql
         /// </summary>
         /// <param name="companyId">id of the company to remove the problem groups from</param>
         /// <returns>true if the operation was successful, false otherwise</returns>
-        public bool DeleteCompanyProblemGroups(int companyId)
+        public bool DeleteCompanyTrainingGroups(int companyId)
         {
             string tableName = TableNameStorage.CompanyProblemKeywordGroupsTable.Replace
                 ("(n)", companyId.ToString());
@@ -1314,7 +1314,7 @@ namespace OldManInTheShopServer.Data.MySql
             string tokens = Encoding.UTF8.GetString(tokensData);
             tokens = tokens.Replace("\"", "\\\"");
             var cmd = Connection.CreateCommand();
-            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set LoggedToken=\"" + tokens + "\" where Email = \"" + toUpdate.Email + "\";";
+            cmd.CommandText = "update " + TableNameStorage.OverallUserTable + " set LoggedTokens=\"" + tokens + "\" where Email = \"" + toUpdate.Email + "\";";
             int res;
             try
             {
@@ -1574,12 +1574,12 @@ namespace OldManInTheShopServer.Data.MySql
             if (!complaint)
             {
                 toWrite = entryToUpdate.ProblemGroups.Replace("\"", "\\\"");
-                fieldName = "ProblemGroupings";
+                fieldName = "ProblemGroups";
             }
             else
             {
                 toWrite = entryToUpdate.ComplaintGroups.Replace("\"", "\\\"");
-                fieldName = "ComplaintGroupings";
+                fieldName = "ComplaintGroups";
             }
             string tableName;
             if (validated)
@@ -1593,7 +1593,7 @@ namespace OldManInTheShopServer.Data.MySql
 
         public List<JobDataEntry> GetDataEntriesByProblemGroup(int companyId, int problemGroupId, bool validated=true)
         {
-            string where = " ProblemGroupings like \"%" + problemGroupId + "%\";";
+            string where = " ProblemGroups like \"%" + problemGroupId + "%\";";
             List<JobDataEntry> ret = GetDataEntriesWhere(companyId, where, validated);
             return ret;
         }
@@ -1607,7 +1607,7 @@ namespace OldManInTheShopServer.Data.MySql
         /// <returns>A list of JobDataEntries that match the specified complaint group, or null if an error occurs</returns>
         public List<JobDataEntry> GetDataEntriesByComplaintGroup(int companyId, int complaintGroupId, bool validated = true)
         {
-            string where = " ComplaintGroupings like \"%"+ complaintGroupId+"%\";";
+            string where = " ComplaintGroups like \"%"+ complaintGroupId+"%\";";
             List<JobDataEntry> ret = GetDataEntriesWhere(companyId, where, validated);
             return ret;
         }
@@ -1731,7 +1731,7 @@ namespace OldManInTheShopServer.Data.MySql
             if (!CompanySettingsEntry.Manipulator.CreateTable(Connection, companySettingsTable))
                 return false;
 
-            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.Public, true.ToString())) != 1)
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.Public, false.ToString())) != 1)
                 return false;
 
             if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.Downvotes, 5.ToString())) != 1)
@@ -1745,6 +1745,8 @@ namespace OldManInTheShopServer.Data.MySql
             if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.KeywordClusterer, "Similarity")) != 1)
                 return false;
             if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.KeywordPredictor, "Bayesian")) != 1)
+                return false;
+            if (CompanySettingsEntry.Manipulator.InsertDataInto(Connection, companySettingsTable, new CompanySettingsEntry(CompanySettingsKey.DataUploadable, true.ToString())) != 1)
                 return false;
 
             return true;

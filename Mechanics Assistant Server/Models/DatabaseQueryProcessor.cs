@@ -126,7 +126,7 @@ namespace OldManInTheShopServer.Models
                 throw new InvalidCastException("Loaded class could not be cast to IDatabaseQueryProblemPredictor");
         }
 
-        public bool TrainClusteringModels(MySqlDataManipulator manipulator, int companyId, List<string> examplesIn, bool complaint = true)
+        public bool TrainClusteringModels(MySqlDataManipulator manipulator, int companyId, List<string> examplesIn, bool training = false)
         {
             List<KeywordExample> trainingData = new List<KeywordExample>();
             foreach(string sentence in examplesIn)
@@ -140,7 +140,10 @@ namespace OldManInTheShopServer.Models
                 trainingData.Add(example);
             }
             KeywordClusterer.Train(trainingData);
-            return KeywordClusterer.Save(manipulator, companyId, complaint);
+            if (!training)
+                return KeywordClusterer.Save(manipulator, companyId);
+            else
+                return true;
         }
 
         public List<string> PredictKeywordsInJobData(JobDataEntry entry, bool complaint = true)
@@ -154,9 +157,9 @@ namespace OldManInTheShopServer.Models
             return KeywordPredictor.PredictKeywords(taggedTokens);
         }
 
-        public List<int> PredictGroupsInJobData(JobDataEntry entry, int companyId, MySqlDataManipulator manipulator, bool complaint = true)
+        public List<int> PredictGroupsInJobData(JobDataEntry entry, int companyId, MySqlDataManipulator manipulator)
         {
-            List<string> keywords = PredictKeywordsInJobData(entry, complaint);
+            List<string> keywords = PredictKeywordsInJobData(entry, true);
             KeywordExample example = new KeywordExample();
             foreach (string keyword in keywords)
                 example.AddKeyword(keyword);
@@ -188,47 +191,6 @@ namespace OldManInTheShopServer.Models
             List<KeywordGroupEntry> ret = new List<KeywordGroupEntry>();
             bool uncategorizedAdded = false;
             foreach(int i in groups)
-            {
-                if (i == 0 && !uncategorizedAdded)
-                {
-                    ret.Add(new KeywordGroupEntry("Uncategorized") { Id = 0 });
-                    uncategorizedAdded = true;
-                }
-                else if (i != 0)
-                {
-                    companyComplaintGroups[i - 1].Id = i;
-                    ret.Add(companyComplaintGroups[i - 1]);
-                }
-            }
-            JsonListStringConstructor constructor = new JsonListStringConstructor();
-            ret.ForEach(obj => constructor.AddElement(ConvertKeywordGroupEntry(obj)));
-            return constructor.ToString();
-
-            JsonDictionaryStringConstructor ConvertKeywordGroupEntry(KeywordGroupEntry e)
-            {
-                JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
-                r.SetMapping("GroupDefinition", e.GroupDefinition);
-                r.SetMapping("Id", e.Id);
-                return r;
-            }
-        }
-
-        public string ProcessQueryForProblemGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int numGroupsRequested=3)
-        {
-            List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Problem);
-            List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
-            List<string> keywords = KeywordPredictor.PredictKeywords(taggedTokens);
-            KeywordExample example = new KeywordExample();
-            foreach (string keyword in keywords)
-                example.AddKeyword(keyword);
-            KeywordClusterer.Load(manipulator, companyId, complaint: false);
-            List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, numGroupsRequested);
-            List<KeywordGroupEntry> companyComplaintGroups = manipulator.GetCompanyProblemGroups(companyId);
-            if (companyComplaintGroups == null)
-                throw new NullReferenceException("Company " + companyId + " complaint groups were not available in database");
-            List<KeywordGroupEntry> ret = new List<KeywordGroupEntry>();
-            bool uncategorizedAdded = false;
-            foreach (int i in groups)
             {
                 if (i == 0 && !uncategorizedAdded)
                 {
@@ -308,7 +270,7 @@ namespace OldManInTheShopServer.Models
             KeywordExample example = new KeywordExample();
             foreach (string keyword in keywords)
                 example.AddKeyword(keyword);
-            KeywordClusterer.Load(manipulator, companyId, complaint: false);
+            KeywordClusterer.Load(manipulator, companyId);
             List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
             entryIn.ComplaintGroups = "[" + string.Join(',', groups) + "]";
             List<JobDataEntry> potentials = manipulator.GetDataEntriesByProblemGroup(companyId, problemGroupId);

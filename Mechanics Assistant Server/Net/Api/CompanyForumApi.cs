@@ -22,8 +22,6 @@ namespace OldManInTheShopServer.Net.Api
         public int CompanyId;
         [DataMember]
         public int JobEntryId;
-        [DataMember]
-        public string AuthToken;
     }
 
     [DataContract]
@@ -37,6 +35,9 @@ namespace OldManInTheShopServer.Net.Api
 
         [DataMember]
         public int JobEntryId;
+
+        [DataMember]
+        public int CompanyId;
     }
 
     [DataContract]
@@ -67,7 +68,7 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             POST += HandlePostRequest;
-            GET += HandleGetRequest;
+            PUT += HandleGetRequest;
             DELETE += HandleDeleteRequest;
         }
 
@@ -109,8 +110,15 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
                     return;
                 }
+                CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(entry.CompanyId, "SettingKey=\"" + CompanySettingsKey.Public + "\"")[0];
+                bool isPublic = bool.Parse(isPublicSetting.SettingValue);
+                if (!isPublic && mappedUser.Company != entry.CompanyId)
+                {
+                    WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
+                    return;
+                }
                 //user is good, add post text
-                res = connection.AddForumPost(entry.CompanyId, entry.UserId, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserId });
+                res = connection.AddForumPost(entry.CompanyId, entry.JobEntryId, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserId });
                 if (!res)
                 {
                     WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
@@ -153,11 +161,11 @@ namespace OldManInTheShopServer.Net.Api
                 return false;
             if (req.LoginToken == null || req.LoginToken.Equals(""))
                 return false;
-            if (req.PostText == null || req.LoginToken.Equals(""))
+            if (req.PostText == null || req.PostText.Equals(""))
                 return false;
-            if (req.CompanyId == -1)
+            if (req.CompanyId <= 0)
                 return false;
-            if (req.JobEntryId == -1)
+            if (req.JobEntryId <= 0)
                 return false;
             return true;
         }
@@ -204,8 +212,14 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
-
-                    JobDataEntry forumEntry = connection.GetDataEntryById(mappedUser.Company, entry.JobEntryId);
+                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(entry.CompanyId, "SettingKey=\"" + CompanySettingsKey.Public + "\"")[0];
+                    bool isPublic = bool.Parse(isPublicSetting.SettingValue);
+                    if (!isPublic && mappedUser.Company != entry.CompanyId)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
+                        return;
+                    }
+                    JobDataEntry forumEntry = connection.GetDataEntryById(entry.CompanyId, entry.JobEntryId);
                     if(forumEntry == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Job Data Entry was not found on the server");
@@ -349,6 +363,8 @@ namespace OldManInTheShopServer.Net.Api
             if (request.UserId <= 0)
                 return false;
             if (request.JobEntryId <= 0)
+                return false;
+            if (request.CompanyId <= 0)
                 return false;
             return true;
         }

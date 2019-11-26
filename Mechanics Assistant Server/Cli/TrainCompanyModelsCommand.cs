@@ -30,30 +30,16 @@ namespace OldManInTheShopServer.Cli
             if (Flag.ToLower().Equals("complaint"))
             {
                 sentences = validatedData.Select(entry => entry.Complaint).ToList();
-                if (!processor.TrainClusteringModels(manipulator, CompanyId, sentences, true))
+                if (!processor.TrainClusteringModels(manipulator, CompanyId, sentences, false))
                 {
                     Console.WriteLine("Failed to train problem prediction models for company " + CompanyId);
                     return;
                 }
                 foreach (JobDataEntry entry in validatedData)
                 {
-                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, CompanyId, manipulator, true));
+                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, CompanyId, manipulator));
                     entry.ComplaintGroups = groups;
                     manipulator.UpdateDataEntryGroups(CompanyId, entry, complaint: true);
-                }
-            } else if (Flag.ToLower().Equals("problem"))
-            {
-                sentences = validatedData.Select(entry => entry.Problem).ToList();
-                if (!processor.TrainClusteringModels(manipulator, CompanyId, sentences, false))
-                {
-                    Console.WriteLine("Failed to train problem prediction models for company " + CompanyId);
-                    return;
-                }
-                foreach(JobDataEntry entry in validatedData)
-                {
-                    string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, CompanyId, manipulator, false));
-                    entry.ProblemGroups = groups;
-                    manipulator.UpdateDataEntryGroups(CompanyId, entry, complaint: false);
                 }
             }
             Console.WriteLine("Trained clustering models for company " + CompanyId);

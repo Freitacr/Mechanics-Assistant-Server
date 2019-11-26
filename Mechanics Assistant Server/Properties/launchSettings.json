@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Mechanic's Assistant Server": {
-      "commandName": "Project",
-      "commandLineArgs": "-i repairjob \"../validatedJobs.json\" 1"
+      "commandName": "Project"
     }
   }
 }
