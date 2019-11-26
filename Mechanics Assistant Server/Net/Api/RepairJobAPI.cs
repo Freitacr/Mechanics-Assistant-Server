@@ -148,7 +148,7 @@ namespace OldManInTheShopServer.Net.Api
                             dataCollectionsWhere.Add(x);
                         }
                         //if none force through
-                        if (dataCollectionsWhere == null)
+                        if (dataCollectionsWhere.Count==0)
                         {
                             res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
                             if (!res)
@@ -163,7 +163,16 @@ namespace OldManInTheShopServer.Net.Api
                         {
                             JsonListStringConstructor retConstructor = new JsonListStringConstructor();
                             List<EntrySimilarity> ret = getSimilar(entry.ContainedEntry, dataCollectionsWhere, 3);
-
+                            if (ret.Count == 0)
+                            {
+                                res = connection.AddDataEntry(mappedUser.Company, entry.ContainedEntry);
+                                if (!res)
+                                {
+                                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                                    return;
+                                }
+                                WriteBodylessResponse(ctx, 200, "OK");
+                            }
                             ret.ForEach(obj => retConstructor.AddElement(ConvertEntrySimilarity(obj)));
                             WriteBodyResponse(ctx, 409, "Conflict" ,retConstructor.ToString(), "application/json");
                             
