@@ -8,11 +8,22 @@ using OldManInTheShopServer.Util;
 
 namespace OldManInTheShopServer.Cli
 {
+    /// <summary>
+    /// <see cref="CommandLineCommand"/> used to provide the format of all <see cref="CommandLineCommand"/>
+    /// classes supported by this program
+    /// </summary>
     class HelpCommand : CommandLineCommand
     {
+        /// <summary>
+        /// Flag used to differentiate this command from the other commands in this package
+        /// </summary>
         [KeyedArgument("-h")]
         public string Flag = default;
 
+        /// <summary>
+        /// Constructs and prints out a help string for all <see cref="CommandLineCommand"/> classes supported by this program
+        /// </summary>
+        /// <param name="manipulator">Unused parameter</param>
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {
             var commands = ReflectionHelper.GetAllCommands();
@@ -20,6 +31,8 @@ namespace OldManInTheShopServer.Cli
             int index = 1;
             foreach(CommandLineMapping mapping in commands)
             {
+                //Determine all keyed and positional arguments required by the current command
+                //these arguments are determined by the attributes applied to the fields of the current command
                 List<string> keyedArguments = new List<string>();
                 List<string> positionalArguments = new List<string>();
                 foreach(FieldInfo f in mapping.KeyedFields)
@@ -44,6 +57,7 @@ namespace OldManInTheShopServer.Cli
 
                     positionalArguments[arg.Position] = "\"%" + f.Name + "%\": " + f.FieldType.Name;
                 }
+                //Display the formatted help string
                 string toPrint = string.Format(format, index, string.Join(' ', keyedArguments), string.Join(' ', positionalArguments));
                 Console.WriteLine(toPrint);
                 index++;
