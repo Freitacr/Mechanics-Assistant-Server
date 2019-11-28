@@ -16,14 +16,14 @@ namespace OldManInTheShopServer.Net.Api
     class EntrySimilarity
     {
         public float Difference { get; set; }
-        public JobDataEntry Entry { get; set; }
+        public RepairJobEntry Entry { get; set; }
     }
 
     [DataContract]
     class RepairJobApiFullRequest
     {
         [DataMember]
-        public JobDataEntry ContainedEntry = default;
+        public RepairJobEntry ContainedEntry = default;
 
         [DataMember]
         public int UserId = default;
@@ -136,9 +136,9 @@ namespace OldManInTheShopServer.Net.Api
                         //test if there exists similar
                         string whereString = "Make =\"" + entry.ContainedEntry.Make + "\" AND " + "Model =\"" + entry.ContainedEntry.Model+"\"";
                         //whereString += "AND"+entry.ContainedEntry.Year+">="+(entry.ContainedEntry.Year-2)+"AND"+entry.ContainedEntry.Year+"<="+(entry.ContainedEntry.Year+2);
-                        List<JobDataEntry> dataCollectionsWhere = connection.GetDataEntriesWhere(mappedUser.Company, whereString, true);
-                        List<JobDataEntry> data2 = connection.GetDataEntriesWhere(mappedUser.Company, whereString, false);
-                        foreach(JobDataEntry x in data2)
+                        List<RepairJobEntry> dataCollectionsWhere = connection.GetDataEntriesWhere(mappedUser.Company, whereString, true);
+                        List<RepairJobEntry> data2 = connection.GetDataEntriesWhere(mappedUser.Company, whereString, false);
+                        foreach(RepairJobEntry x in data2)
                         {
                             dataCollectionsWhere.Add(x);
                         }
@@ -200,7 +200,7 @@ namespace OldManInTheShopServer.Net.Api
         }
 
 
-        private static float CalcSimilarity(JobDataEntry query, JobDataEntry other)
+        private static float CalcSimilarity(RepairJobEntry query, RepairJobEntry other)
         {
             IKeywordPredictor keyPred = NaiveBayesKeywordPredictor.GetGlobalModel();
             AveragedPerceptronTagger tagger = AveragedPerceptronTagger.GetTagger();
@@ -234,12 +234,12 @@ namespace OldManInTheShopServer.Net.Api
             return (score / (JobComplaintKeywords.Count + JobProblemKeywords.Count));
         }
 
-        private List<EntrySimilarity> getSimilar(JobDataEntry Query, List<JobDataEntry> potentials, int maxRet)
+        private List<EntrySimilarity> getSimilar(RepairJobEntry Query, List<RepairJobEntry> potentials, int maxRet)
         {
             Dictionary<float, List<EntrySimilarity>> distanceMappings = new Dictionary<float, List<EntrySimilarity>>();
             HashSet<float> keys = new HashSet<float>();
             List<EntrySimilarity> ret = new List<EntrySimilarity>();
-            foreach (JobDataEntry other in potentials)
+            foreach (RepairJobEntry other in potentials)
             {
                 float dist = CalcSimilarity(Query, other);
                 if (!distanceMappings.ContainsKey(dist))
@@ -264,7 +264,7 @@ namespace OldManInTheShopServer.Net.Api
         }
 
 
-        private bool ValidateJobDataEntry(JobDataEntry entryIn)
+        private bool ValidateRepairJobEntry(RepairJobEntry entryIn)
         {
             if (entryIn == null)
                 return false;
@@ -283,7 +283,7 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateFullRequest(RepairJobApiFullRequest req)
         {
-            if (!ValidateJobDataEntry(req.ContainedEntry))
+            if (!ValidateRepairJobEntry(req.ContainedEntry))
                 return false;
             if (req.LoginToken == "")
                 return false;

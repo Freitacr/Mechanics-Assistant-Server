@@ -62,9 +62,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
     }
 
     [DataContract]
-    public class JobDataEntry : MySqlTableDataMember<JobDataEntry>
+    public class RepairJobEntry : MySqlTableDataMember<RepairJobEntry>
     {
-        public static TableDataManipulator<JobDataEntry> Manipulator = new TableDataManipulator<JobDataEntry>();
+        public static TableDataManipulator<RepairJobEntry> Manipulator = new TableDataManipulator<RepairJobEntry>();
 
         [DataMember]
         [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
@@ -102,12 +102,12 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         [SqlTableMember("int")]
         public int Year = -1;
 
-        public JobDataEntry()
+        public RepairJobEntry()
         {
 
         }
 
-        public JobDataEntry(string jobId, string make, string model, string complaint, string problem, string complaintGroups, string problemGroups, string requirements, int year)
+        public RepairJobEntry(string jobId, string make, string model, string complaint, string problem, string complaintGroups, string problemGroups, string requirements, int year)
         {
             JobId = jobId;
             Make = make;
@@ -134,7 +134,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 
         public override ISqlSerializable Copy()
         {
-            return new JobDataEntry(JobId, Make, Model, Complaint, Problem, ComplaintGroups, ProblemGroups, Requirements, Year);
+            return new RepairJobEntry(JobId, Make, Model, Complaint, Problem, ComplaintGroups, ProblemGroups, Requirements, Year);
         }
 
         public override bool Equals(object obj)
@@ -143,7 +143,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             {
                 return false;
             }
-            var other = obj as JobDataEntry;
+            var other = obj as RepairJobEntry;
             return Make.Equals(other.Make) && Model.Equals(other.Model) &&
                 Complaint.Equals(other.Complaint) && Problem.Equals(other.Problem);
         }

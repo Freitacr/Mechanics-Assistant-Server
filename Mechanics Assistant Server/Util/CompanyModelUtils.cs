@@ -36,7 +36,7 @@ namespace OldManInTheShopServer.Util
 
     class NonValidatedMapping
     {
-        public JobDataEntry Entry;
+        public RepairJobEntry Entry;
         public double Vote;
     }
 
@@ -51,7 +51,7 @@ namespace OldManInTheShopServer.Util
 
         public static void TrainClusteringModel(MySqlDataManipulator manipulator, DatabaseQueryProcessor processor, int companyId, bool training = false)
         {
-            List<JobDataEntry> validatedData = manipulator.GetDataEntriesWhere(companyId, "id > 0", validated: true);
+            List<RepairJobEntry> validatedData = manipulator.GetDataEntriesWhere(companyId, "id > 0", validated: true);
             List<string> sentences;
             sentences = validatedData.Select(entry => entry.Complaint).ToList();
             if (!processor.TrainClusteringModels(manipulator, companyId, sentences, training))
@@ -60,7 +60,7 @@ namespace OldManInTheShopServer.Util
                 return;
             }
             if(!training)
-                foreach (JobDataEntry entry in validatedData)
+                foreach (RepairJobEntry entry in validatedData)
                 {
                     string groups = JsonDataObjectUtil<List<int>>.ConvertObject(processor.PredictGroupsInJobData(entry, companyId, manipulator));
                     entry.ComplaintGroups = groups;
@@ -70,16 +70,16 @@ namespace OldManInTheShopServer.Util
 
         public static double PerformAutomatedTesting(MySqlDataManipulator manipulator, int companyId, DatabaseQueryProcessor processor)
         {
-            List<JobDataEntry> validatedData = manipulator.GetDataEntriesWhere(companyId, "id > 0", validated: true);
+            List<RepairJobEntry> validatedData = manipulator.GetDataEntriesWhere(companyId, "id > 0", validated: true);
             return PerformAutomatedTestingWithData(manipulator, companyId, processor, validatedData);
         }
 
-        public static double PerformAutomatedTestingWithData(MySqlDataManipulator manipulator, int companyId, DatabaseQueryProcessor processor, List<JobDataEntry> entries)
+        public static double PerformAutomatedTestingWithData(MySqlDataManipulator manipulator, int companyId, DatabaseQueryProcessor processor, List<RepairJobEntry> entries)
         {
             double currentDifference = 0;
-            foreach (JobDataEntry entry in entries)
+            foreach (RepairJobEntry entry in entries)
             {
-                JobDataEntry testEntryCopy = new JobDataEntry()
+                RepairJobEntry testEntryCopy = new RepairJobEntry()
                 {
                     Make = entry.Make,
                     Model = entry.Model,
@@ -96,8 +96,8 @@ namespace OldManInTheShopServer.Util
                 {
                     string dataEntryJson = processor.ProcessQueryForSimilarQueries(testEntryCopy, manipulator, companyId, complaintGroupId, 5);
                     List<SimilarQueryJson> jobDataEntries = JsonDataObjectUtil<List<SimilarQueryJson>>.ParseObject(dataEntryJson);
-                    List<JobDataEntry> dataEntries = jobDataEntries.Select(query => new JobDataEntry() { Make = query.Make, Model = query.Model, Problem = query.Problem, Complaint = query.Complaint }).ToList();
-                    foreach (JobDataEntry currEntry in dataEntries)
+                    List<RepairJobEntry> dataEntries = jobDataEntries.Select(query => new RepairJobEntry() { Make = query.Make, Model = query.Model, Problem = query.Problem, Complaint = query.Complaint }).ToList();
+                    foreach (RepairJobEntry currEntry in dataEntries)
                     {
                         List<string> currEntryKeywords = processor.PredictKeywordsInJobData(currEntry, false);
                         List<string> toRemove = entryProblemKeywords.Where(keyword => currEntryKeywords.Contains(keyword)).ToList();
@@ -112,8 +112,8 @@ namespace OldManInTheShopServer.Util
 
         public static void PerformDataValidation(MySqlDataManipulator manipulator, int companyId, DatabaseQueryProcessor processor, int numShuffleTests = 5, int numGroups = 3)
         {
-            List<JobDataEntry> validatedData = manipulator.GetDataEntriesWhere(companyId, "id>0", validated: true);
-            List<JobDataEntry> nonValidatedData = manipulator.GetDataEntriesWhere(companyId, "id>0", validated: false);
+            List<RepairJobEntry> validatedData = manipulator.GetDataEntriesWhere(companyId, "id>0", validated: true);
+            List<RepairJobEntry> nonValidatedData = manipulator.GetDataEntriesWhere(companyId, "id>0", validated: false);
             List<NonValidatedMapping> mappings = nonValidatedData.Select(entry => new NonValidatedMapping() { Entry = entry, Vote = 0 }).ToList();
             double currCompanyAccuracy = manipulator.GetCompanyAccuracy(companyId);
             for(int i = 0; i < numShuffleTests; i++)
@@ -122,7 +122,7 @@ namespace OldManInTheShopServer.Util
                 List<List<NonValidatedMapping>> nonValidatedTestingGroups = mappings.Split(numGroups);
                 foreach(List<NonValidatedMapping> currentTestGroup in nonValidatedTestingGroups)
                 {
-                    List<JobDataEntry> testGroup = new List<JobDataEntry>(validatedData);
+                    List<RepairJobEntry> testGroup = new List<RepairJobEntry>(validatedData);
                     testGroup.AddRange(currentTestGroup.Select(mapping => mapping.Entry));
                     processor.TrainClusteringModels(manipulator, companyId, testGroup.Select(entry => entry.Complaint).ToList(), training: true);
                     double accuracy = 100 - PerformAutomatedTestingWithData(manipulator, companyId, processor, testGroup);

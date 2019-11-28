@@ -9,13 +9,13 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
     class EntrySimilarity
     {
         public float Difference { get; set; }
-        public JobDataEntry Entry { get; set; }
+        public RepairJobEntry Entry { get; set; }
     }
 
     class DatabaseQueryProblemPredictor : IDatabaseQueryProblemPredictor
     {
 
-        private static float CalcSimilarity(JobDataEntry query, JobDataEntry other)
+        private static float CalcSimilarity(RepairJobEntry query, RepairJobEntry other)
         {
             float dist = 0.0f;
             if (!query.Make.Equals(other.Make))
@@ -27,7 +27,7 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
             return dist + CalcDistance(queryComplaintGroups, otherComplaintGroups);
         }
 
-        private static List<int> ExtractComplaintGroups(JobDataEntry entry)
+        private static List<int> ExtractComplaintGroups(RepairJobEntry entry)
         {
             string entryComplaintGroups = entry.ComplaintGroups.Substring(1, entry.ComplaintGroups.Length - 2);
             string[] complaintGroups = entryComplaintGroups.Split(',');
@@ -48,13 +48,13 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
             return (float) Math.Sqrt(ret);
         }
     
-        public List<EntrySimilarity> GetQueryResults(JobDataEntry query, List<JobDataEntry> potentials, int numRequested, int offset = 0)
+        public List<EntrySimilarity> GetQueryResults(RepairJobEntry query, List<RepairJobEntry> potentials, int numRequested, int offset = 0)
         {
             Dictionary<float, List<EntrySimilarity>> distanceMappings = new Dictionary<float, List<EntrySimilarity>>();
             HashSet<float> keys = new HashSet<float>();
             List<EntrySimilarity> ret = new List<EntrySimilarity>();
             int requiredNum = numRequested;
-            foreach (JobDataEntry other in potentials)
+            foreach (RepairJobEntry other in potentials)
             {
                 float dist = CalcSimilarity(query, other);
                 if (!distanceMappings.ContainsKey(dist))

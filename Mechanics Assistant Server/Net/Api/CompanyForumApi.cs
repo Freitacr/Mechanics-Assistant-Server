@@ -219,7 +219,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
                         return;
                     }
-                    JobDataEntry forumEntry = connection.GetDataEntryById(entry.CompanyId, entry.JobEntryId);
+                    RepairJobEntry forumEntry = connection.GetDataEntryById(entry.CompanyId, entry.JobEntryId);
                     if(forumEntry == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Job Data Entry was not found on the server");

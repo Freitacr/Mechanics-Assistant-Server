@@ -93,7 +93,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartCatalogue
             AuthToken5 = GetAuthToken(5, LoginToken5);
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+                new RepairJobEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
             Manipulator.AddPartEntry(1, new PartCatalogueEntry("autocar", "xpeditor", 1986, "abc", "blowback valve"));
         }
 

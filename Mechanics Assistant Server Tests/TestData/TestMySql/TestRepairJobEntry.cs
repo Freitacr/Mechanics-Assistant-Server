@@ -9,13 +9,13 @@ using OldManInTheShopServer.Data.MySql;
 namespace MechanicsAssistantServerTests.TestData.TestMySql
 {
     [TestClass]
-    public class TestJobDataEntry
+    public class TestRepairJobEntry
     {
 
         private static MySqlConnection TestConnection;
         private static readonly string TableName = "test_job_entry_table";
 
-        private JobDataEntry Id1, Id2, Id3;
+        private RepairJobEntry Id1, Id2, Id3;
 
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
@@ -39,7 +39,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
 
             try
             {
-                cmd.CommandText = new JobDataEntry().GetCreateTableString(TableName);
+                cmd.CommandText = new RepairJobEntry().GetCreateTableString(TableName);
                 cmd.ExecuteNonQuery();
             }
             catch (MySqlException e)
@@ -65,9 +65,9 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [TestInitialize]
         public void Init()
         {
-            Id1 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
-            Id2 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "cracked piston", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
-            Id3 = new JobDataEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
+            Id1 = new RepairJobEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
+            Id2 = new RepairJobEntry("AX567", "autocar", "xpeditor", "Runs Rough", "cracked piston", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
+            Id3 = new RepairJobEntry("AX567", "autocar", "xpeditor", "Runs Rough", "bad icm", "{0, 1, 2}", "{1, 2, 3}", "Pass-Code: ICM-OVERRIDE", -1);
         }
 
         [TestMethod]
@@ -80,17 +80,17 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [TestMethod]
         public void TestSerialize()
         {
-            Assert.AreEqual(1, JobDataEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
-            Assert.AreEqual(1, JobDataEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "JobId=\"" + Id1.JobId + "\""));
+            Assert.AreEqual(1, RepairJobEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
+            Assert.AreEqual(1, RepairJobEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "JobId=\"" + Id1.JobId + "\""));
         }
 
         [TestMethod]
         public void TestDeserialize()
         {
-            Assert.AreEqual(1, JobDataEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
-            JobDataEntry toTest = JobDataEntry.Manipulator.RetrieveDataWhere(TestConnection, TableName, "JobId=\"" + Id1.JobId + "\"")[0];
+            Assert.AreEqual(1, RepairJobEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
+            RepairJobEntry toTest = RepairJobEntry.Manipulator.RetrieveDataWhere(TestConnection, TableName, "JobId=\"" + Id1.JobId + "\"")[0];
             Assert.AreEqual(Id1, toTest);
-            Assert.AreEqual(1, JobDataEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "JobId=\"" + Id1.JobId + "\""));
+            Assert.AreEqual(1, RepairJobEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "JobId=\"" + Id1.JobId + "\""));
         }
 
     }

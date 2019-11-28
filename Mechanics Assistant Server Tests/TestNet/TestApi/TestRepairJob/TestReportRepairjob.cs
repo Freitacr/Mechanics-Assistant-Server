@@ -87,7 +87,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestRepairJob
             Assert.IsTrue(response.IsSuccessStatusCode);
             AuthToken = response.Content.ReadAsStringAsync().Result;
             Manipulator.AddCompany("Testing Company LLC");
-            Manipulator.AddDataEntry(1, new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "", "", "", 1986), true);
+            Manipulator.AddDataEntry(1, new RepairJobEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "", "", "", 1986), true);
         }
 
         [TestInitialize]

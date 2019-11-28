@@ -126,7 +126,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
-                    JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
+                    RepairJobEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
                     if (repairEntry == null && connection.LastException == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
@@ -206,7 +206,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
-                    JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
+                    RepairJobEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
                     if (repairEntry == null && connection.LastException == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");
@@ -300,7 +300,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
-                    JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
+                    RepairJobEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
                     if (repairEntry == null && connection.LastException == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");

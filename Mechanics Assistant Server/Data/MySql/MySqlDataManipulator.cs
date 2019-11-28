@@ -964,7 +964,7 @@ namespace OldManInTheShopServer.Data.MySql
         /// <param name="companyId">Database id of the company to remove the request from</param>
         /// <param name="requestId">Database id of the request to remove</param>
         /// <param name="accept">Whether to accept the changes proposed by the request</param>
-        /// <remarks>If the request is accepted, the user is notified and the JobDataEntry the request is proposing changes to
+        /// <remarks>If the request is accepted, the user is notified and the RepairJobEntry the request is proposing changes to
         /// will be have its safety requirements updated
         /// if it is not accpeted, the user will simply be notified</remarks>
         /// <returns>True if the removal was successful, or false if an error occurred</returns>
@@ -1446,13 +1446,13 @@ namespace OldManInTheShopServer.Data.MySql
         }
 
         /// <summary>
-        /// Updates the storage location of the JobDataEntry specified, moving it into the validated data if it was not previously validated, or vice versa
+        /// Updates the storage location of the RepairJobEntry specified, moving it into the validated data if it was not previously validated, or vice versa
         /// </summary>
         /// <param name="companyId">Id of the company to perform the update to</param>
-        /// <param name="toSwitch">The JobDataEntry to switch the validation status of</param>
-        /// <param name="wasValidated">Whether the JobDataEntry is currently in the validated data set</param>
+        /// <param name="toSwitch">The RepairJobEntry to switch the validation status of</param>
+        /// <param name="wasValidated">Whether the RepairJobEntry is currently in the validated data set</param>
         /// <returns>True if the swap was successful, false otherwise</returns>
-        public bool UpdateValidationStatus(int companyId, JobDataEntry toSwitch, bool wasValidated)
+        public bool UpdateValidationStatus(int companyId, RepairJobEntry toSwitch, bool wasValidated)
         {
             string previousTableName;
             string newTableName;
@@ -1471,17 +1471,17 @@ namespace OldManInTheShopServer.Data.MySql
             {
                 return false; //Deletion was unsuccessful, just stop
             }
-            int res = JobDataEntry.Manipulator.InsertDataInto(Connection, newTableName, toSwitch);
+            int res = RepairJobEntry.Manipulator.InsertDataInto(Connection, newTableName, toSwitch);
             if(res != 1)
             {
                 //Something went horribly wrong, so attempt insertion back into original table
-                JobDataEntry.Manipulator.InsertDataInto(Connection, previousTableName, toSwitch);
+                RepairJobEntry.Manipulator.InsertDataInto(Connection, previousTableName, toSwitch);
                 return false;
             }
 
             if(!wasValidated)
             {
-                JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + toSwitch.Complaint + "\";", wasValidated).Where(entry => entry.Equals(toSwitch)).First();
+                RepairJobEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + toSwitch.Complaint + "\";", wasValidated).Where(entry => entry.Equals(toSwitch)).First();
                 UserToTextEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
                     .Replace("(m)", added.Id.ToString()));
             } else
@@ -1499,24 +1499,24 @@ namespace OldManInTheShopServer.Data.MySql
         }
 
         /// <summary>
-        /// Retrieves a JobDataEntry by its database id
+        /// Retrieves a RepairJobEntry by its database id
         /// </summary>
-        /// <param name="companyId">Id of the company to retrieve the JobDataEntry from</param>
-        /// <param name="repairEntryId">Database id of the JobDataEntry</param>
+        /// <param name="companyId">Id of the company to retrieve the RepairJobEntry from</param>
+        /// <param name="repairEntryId">Database id of the RepairJobEntry</param>
         /// <param name="validated">Whether to perform the search in the company's validated data set</param>
-        /// <returns>A JobDataEntry object with the specified id, or null if an error occurred</returns>
-        public JobDataEntry GetDataEntryById(int companyId, int repairEntryId, bool validated=true)
+        /// <returns>A RepairJobEntry object with the specified id, or null if an error occurred</returns>
+        public RepairJobEntry GetDataEntryById(int companyId, int repairEntryId, bool validated=true)
         {
             string tableName;
             if(validated)
                 tableName = TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString());
             else
                 tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
-            JobDataEntry entry = JobDataEntry.Manipulator.RetrieveDataWithId(
+            RepairJobEntry entry = RepairJobEntry.Manipulator.RetrieveDataWithId(
                 Connection, tableName, repairEntryId.ToString());
             if(entry == null)
             {
-                LastException = JobDataEntry.Manipulator.LastException;
+                LastException = RepairJobEntry.Manipulator.LastException;
                 return null;
             }
             return entry;
@@ -1529,7 +1529,7 @@ namespace OldManInTheShopServer.Data.MySql
         /// <param name="where">The conditional the JobDataEntries must match. Must end with a semicolon</param>
         /// <param name="validated">Whether the search should be performed in the company's validated data set</param>
         /// <returns>A list of JobDataEntires that match the where conditional, or null if an error occurred</returns>
-        public List<JobDataEntry> GetDataEntriesWhere(int companyId, string where, bool validated=false)
+        public List<RepairJobEntry> GetDataEntriesWhere(int companyId, string where, bool validated=false)
         {
             string tableName;
             if(validated)
@@ -1539,7 +1539,7 @@ namespace OldManInTheShopServer.Data.MySql
             {
                 tableName = TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString());
             }
-            List<JobDataEntry> ret = JobDataEntry.Manipulator.RetrieveDataWhere(Connection, tableName, where);
+            List<RepairJobEntry> ret = RepairJobEntry.Manipulator.RetrieveDataWhere(Connection, tableName, where);
             if (ret == null)
             {
                 LastException = OverallUser.Manipulator.LastException;
@@ -1548,13 +1548,13 @@ namespace OldManInTheShopServer.Data.MySql
         }
 
         /// <summary>
-        /// Updates the requirements of the JobDataEntry in the database with the one passed in, matched via ids
+        /// Updates the requirements of the RepairJobEntry in the database with the one passed in, matched via ids
         /// </summary>
         /// <param name="companyId">Id of the company to perform the update on</param>
         /// <param name="entryToUpdate">The entry to update the database version with</param>
         /// <param name="validated">Whether the database entry to update exists in the company's validated data set or not</param>
         /// <returns>True if the update was successful, or false if an error occurred</returns>
-        public bool UpdateDataEntryRequirements(int companyId, JobDataEntry entryToUpdate, bool validated=true)
+        public bool UpdateDataEntryRequirements(int companyId, RepairJobEntry entryToUpdate, bool validated=true)
         {
             string toWrite = entryToUpdate.Requirements.Replace("\"", "\\\"");
             string tableName;
@@ -1567,7 +1567,7 @@ namespace OldManInTheShopServer.Data.MySql
             return ExecuteNonQuery(cmd);
         }
 
-        public bool UpdateDataEntryGroups(int companyId, JobDataEntry entryToUpdate, bool validated=true, bool complaint = true)
+        public bool UpdateDataEntryGroups(int companyId, RepairJobEntry entryToUpdate, bool validated=true, bool complaint = true)
         {
             string toWrite;
             string fieldName;
@@ -1591,10 +1591,10 @@ namespace OldManInTheShopServer.Data.MySql
             return ExecuteNonQuery(cmd);
         }
 
-        public List<JobDataEntry> GetDataEntriesByProblemGroup(int companyId, int problemGroupId, bool validated=true)
+        public List<RepairJobEntry> GetDataEntriesByProblemGroup(int companyId, int problemGroupId, bool validated=true)
         {
             string where = " ProblemGroups like \"%" + problemGroupId + "%\";";
-            List<JobDataEntry> ret = GetDataEntriesWhere(companyId, where, validated);
+            List<RepairJobEntry> ret = GetDataEntriesWhere(companyId, where, validated);
             return ret;
         }
 
@@ -1605,10 +1605,10 @@ namespace OldManInTheShopServer.Data.MySql
         /// <param name="complaintGroupId">Database id of complaint group the JobDataEntries are compared against</param>
         /// <param name="validated">Whether the JobDataEntries returned should be from the company's Validated data set</param>
         /// <returns>A list of JobDataEntries that match the specified complaint group, or null if an error occurs</returns>
-        public List<JobDataEntry> GetDataEntriesByComplaintGroup(int companyId, int complaintGroupId, bool validated = true)
+        public List<RepairJobEntry> GetDataEntriesByComplaintGroup(int companyId, int complaintGroupId, bool validated = true)
         {
             string where = " ComplaintGroups like \"%"+ complaintGroupId+"%\";";
-            List<JobDataEntry> ret = GetDataEntriesWhere(companyId, where, validated);
+            List<RepairJobEntry> ret = GetDataEntriesWhere(companyId, where, validated);
             return ret;
         }
 
@@ -1619,7 +1619,7 @@ namespace OldManInTheShopServer.Data.MySql
          * <returns>true if insertion was successful, false if an exception was encountered</returns>
          * <seealso cref="LastException"/>
          */
-        public bool AddDataEntry(int companyId, JobDataEntry entryToAdd, bool validated=false)
+        public bool AddDataEntry(int companyId, RepairJobEntry entryToAdd, bool validated=false)
         {
             string tableName;
             if (validated)
@@ -1639,7 +1639,7 @@ namespace OldManInTheShopServer.Data.MySql
             int res;
             try
             {
-                res = JobDataEntry.Manipulator.InsertDataInto(
+                res = RepairJobEntry.Manipulator.InsertDataInto(
                     Connection, 
                     tableName, 
                     entryToAdd);
@@ -1650,13 +1650,13 @@ namespace OldManInTheShopServer.Data.MySql
             }
             if (res < 1)
             {
-                LastException = JobDataEntry.Manipulator.LastException;
+                LastException = RepairJobEntry.Manipulator.LastException;
                 return false;
             }
 
             if(validated)
             {
-                JobDataEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + entryToAdd.Complaint + "\";", validated).Where(entry => entry.Equals(entryToAdd)).First();
+                RepairJobEntry added = GetDataEntriesWhere(companyId, " Complaint=\"" + entryToAdd.Complaint + "\";", validated).Where(entry => entry.Equals(entryToAdd)).First();
                 UserToTextEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyForumTable.Replace("(n)", companyId.ToString())
                     .Replace("(m)", added.Id.ToString()));
             }
@@ -1709,10 +1709,10 @@ namespace OldManInTheShopServer.Data.MySql
             if (!JoinRequest.Manipulator.CreateTable(Connection, TableNameStorage.CompanyJoinRequestsTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            if (!JobDataEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString())))
+            if (!RepairJobEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyNonValidatedRepairJobTable.Replace("(n)", companyId.ToString())))
                 return false;
 
-            if (!JobDataEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString())))
+            if (!RepairJobEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyValidatedRepairJobTable.Replace("(n)", companyId.ToString())))
                 return false;
 
             if (!PartCatalogueEntry.Manipulator.CreateTable(Connection, TableNameStorage.CompanyPartsCatalogueTable.Replace("(n)", companyId.ToString())))

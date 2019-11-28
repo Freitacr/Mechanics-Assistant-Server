@@ -93,7 +93,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             AuthToken5 = GetAuthToken(5, LoginToken5);
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
+                new RepairJobEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", RequirementsEntry.GenerateEmptyJson(), 1986), true);
             Manipulator.AddPartsListAdditionRequest(1, new RequirementAdditionRequest(1, 1, "[1]"));
         }
 
@@ -217,7 +217,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             List<RequirementAdditionRequest> partRequests = Manipulator.GetPartsListAdditionRequests(1);
             Assert.AreEqual(0, partRequests.Count);
 
-            JobDataEntry entry = Manipulator.GetDataEntryById(1, 1);
+            RepairJobEntry entry = Manipulator.GetDataEntryById(1, 1);
             byte[] requirementBytes = Encoding.UTF8.GetBytes(entry.Requirements);
             MemoryStream streamIn = new MemoryStream(requirementBytes);
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RequirementsEntry));

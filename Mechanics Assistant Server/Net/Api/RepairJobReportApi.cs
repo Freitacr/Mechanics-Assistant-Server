@@ -92,7 +92,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
-                    JobDataEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, true);
+                    RepairJobEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, true);
                     if (repairEntry == null && connection.LastException == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Referenced Repair Job Was Not Found");

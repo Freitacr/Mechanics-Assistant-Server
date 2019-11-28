@@ -21,7 +21,7 @@ namespace OldManInTheShopServer.Net.Api
         public string LoginToken = default;
 
         [DataMember]
-        public JobDataEntry Entry = default;
+        public RepairJobEntry Entry = default;
 
         [DataMember]
         public int ComplaintGroupId = default;
@@ -40,7 +40,7 @@ namespace OldManInTheShopServer.Net.Api
         public string LoginToken = default;
 
         [DataMember]
-        public JobDataEntry Entry = default;
+        public RepairJobEntry Entry = default;
 
         [DataMember]
         public int CompanyId = default;

@@ -94,7 +94,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestCompanyPartsListRequ
             AuthToken = response.Content.ReadAsStringAsync().Result;
             Manipulator.AddCompany("Testing Company LLC");
             Manipulator.AddDataEntry(1,
-                new JobDataEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
+                new RepairJobEntry("abc", "autocar", "xpeditor", "runs rough", "bad icm", "[]", "[]", "", 1986), true);
         }
 
         [TestInitialize]

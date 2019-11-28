@@ -10,6 +10,6 @@ namespace OldManInTheShopServer.Models.QueryProblemPrediction
     /// </summary>
     interface IDatabaseQueryProblemPredictor
     {
-        List<EntrySimilarity> GetQueryResults(JobDataEntry query, List<JobDataEntry> potentials, int numRequested, int offset = 0);
+        List<EntrySimilarity> GetQueryResults(RepairJobEntry query, List<RepairJobEntry> potentials, int numRequested, int offset = 0);
     }
 }

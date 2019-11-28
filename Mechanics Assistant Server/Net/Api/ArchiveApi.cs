@@ -21,7 +21,7 @@ namespace OldManInTheShopServer.Net.Api
         public string LoginToken = null;
 
         [DataMember]
-        public JobDataEntry Entry = null;
+        public RepairJobEntry Entry = null;
 
         [DataMember]
         public int ProblemGroupId = 0;
@@ -40,7 +40,7 @@ namespace OldManInTheShopServer.Net.Api
         public string LoginToken = null;
 
         [DataMember]
-        public JobDataEntry Entry = null;
+        public RepairJobEntry Entry = null;
 
         [DataMember]
         public int CompanyId = 0;
@@ -152,7 +152,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 400, "Bad Request", "No fields in the request's entry were filled");
                         return;
                     }
-                    List<JobDataEntry> entries = connection.GetDataEntriesWhere(req.CompanyId, whereString, true);
+                    List<RepairJobEntry> entries = connection.GetDataEntriesWhere(req.CompanyId, whereString, true);
                     JsonListStringConstructor retConstructor = new JsonListStringConstructor();
                     try
                     {
@@ -185,7 +185,7 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
-        private JsonDictionaryStringConstructor ConvertEntry(JobDataEntry e)
+        private JsonDictionaryStringConstructor ConvertEntry(RepairJobEntry e)
         {
             JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
             r.SetMapping("Make", e.Make);

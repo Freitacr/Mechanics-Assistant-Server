@@ -146,7 +146,7 @@ namespace OldManInTheShopServer.Models
                 return true;
         }
 
-        public List<string> PredictKeywordsInJobData(JobDataEntry entry, bool complaint = true)
+        public List<string> PredictKeywordsInJobData(RepairJobEntry entry, bool complaint = true)
         {
             List<string> tokens;
             if (complaint)
@@ -157,7 +157,7 @@ namespace OldManInTheShopServer.Models
             return KeywordPredictor.PredictKeywords(taggedTokens);
         }
 
-        public List<int> PredictGroupsInJobData(JobDataEntry entry, int companyId, MySqlDataManipulator manipulator)
+        public List<int> PredictGroupsInJobData(RepairJobEntry entry, int companyId, MySqlDataManipulator manipulator)
         {
             List<string> keywords = PredictKeywordsInJobData(entry, true);
             KeywordExample example = new KeywordExample();
@@ -175,7 +175,7 @@ namespace OldManInTheShopServer.Models
         /// <param name="manipulator">The object to use to access the database</param>
         /// <param name="companyId">The id of the company the request is being made for. Determines which tables to use in the database</param>
         /// <returns>Json formatted string that contains the top 3 complaint groups that are most similar to the query made, and their database ids</returns>
-        public string ProcessQueryForComplaintGroups(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int numGroupsRequested=3)
+        public string ProcessQueryForComplaintGroups(RepairJobEntry entryIn, MySqlDataManipulator manipulator, int companyId, int numGroupsRequested=3)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);
             List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
@@ -227,7 +227,7 @@ namespace OldManInTheShopServer.Models
         /// <param name="offset">Number to offset the list of returned JobDataEntries by.
         /// So with an offset of 5 and 10 JobDataEntires requested, the top 5-15 JobDataEntries would instead be returned</param>
         /// <returns>Json string containing the requested similar JobDataEntries</returns>
-        public string ProcessQueryForSimilarQueries(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int complaintGroupId, int numRequested, int offset=0)
+        public string ProcessQueryForSimilarQueries(RepairJobEntry entryIn, MySqlDataManipulator manipulator, int companyId, int complaintGroupId, int numRequested, int offset=0)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Complaint);
             List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
@@ -238,7 +238,7 @@ namespace OldManInTheShopServer.Models
             KeywordClusterer.Load(manipulator, companyId);
             List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
             entryIn.ComplaintGroups = "[" + string.Join(',', groups) + "]";
-            List<JobDataEntry> potentials = manipulator.GetDataEntriesByComplaintGroup(companyId, complaintGroupId);
+            List<RepairJobEntry> potentials = manipulator.GetDataEntriesByComplaintGroup(companyId, complaintGroupId);
             List<EntrySimilarity> ret = ProblemPredictor.GetQueryResults(entryIn, potentials, numRequested, offset);
             JsonListStringConstructor retConstructor = new JsonListStringConstructor();
             ret.ForEach(obj => retConstructor.AddElement(ConvertEntrySimilarity(obj)));
@@ -262,7 +262,7 @@ namespace OldManInTheShopServer.Models
             }
         }
 
-        public string ProcessQueryForSimilarQueriesArchive(JobDataEntry entryIn, MySqlDataManipulator manipulator, int companyId, int problemGroupId, int numRequested, int offset = 0)
+        public string ProcessQueryForSimilarQueriesArchive(RepairJobEntry entryIn, MySqlDataManipulator manipulator, int companyId, int problemGroupId, int numRequested, int offset = 0)
         {
             List<string> tokens = SentenceTokenizer.TokenizeSentence(entryIn.Problem);
             List<List<string>> taggedTokens = KeywordTagger.Tag(tokens);
@@ -273,7 +273,7 @@ namespace OldManInTheShopServer.Models
             KeywordClusterer.Load(manipulator, companyId);
             List<int> groups = KeywordClusterer.PredictTopNSimilarGroups(example, 3);
             entryIn.ComplaintGroups = "[" + string.Join(',', groups) + "]";
-            List<JobDataEntry> potentials = manipulator.GetDataEntriesByProblemGroup(companyId, problemGroupId);
+            List<RepairJobEntry> potentials = manipulator.GetDataEntriesByProblemGroup(companyId, problemGroupId);
             List<EntrySimilarity> ret = ProblemPredictor.GetQueryResults(entryIn, potentials, numRequested, offset);
             JsonListStringConstructor retConstructor = new JsonListStringConstructor();
             ret.ForEach(obj => retConstructor.AddElement(ConvertEntrySimilarity(obj)));
