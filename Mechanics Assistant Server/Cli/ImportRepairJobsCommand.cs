@@ -12,13 +12,13 @@ namespace OldManInTheShopServer.Cli
     class ImportRepairJobsCommand : CommandLineCommand
     {
         [KeyedArgument("-i", true, "repairjob")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public string FilePath;
+        public string FilePath = default;
 
         [PositionalArgument(1)]
-        public int CompanyId;
+        public int CompanyId = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

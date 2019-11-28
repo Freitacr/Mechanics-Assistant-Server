@@ -15,10 +15,10 @@ namespace OldManInTheShopServer.Net.Api
     class UserRequestsGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
     }
 
     class UserRequestsApi : ApiDefinition

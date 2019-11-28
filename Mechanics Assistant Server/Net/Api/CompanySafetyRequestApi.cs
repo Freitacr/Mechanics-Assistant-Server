@@ -15,30 +15,30 @@ namespace OldManInTheShopServer.Net.Api
     class CompanySafetyRequestApiFullPostRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
         [DataMember]
-        public int RepairJobId;
+        public int RepairJobId = default;
         [DataMember]
-        public string SafetyRequirements;
+        public string SafetyRequirements = default;
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = default;
     }
 
     [DataContract]
     class CompanySafetyRequestApiGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
     }
 
@@ -46,51 +46,51 @@ namespace OldManInTheShopServer.Net.Api
     class CompanySafetyRequestApiPutRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
     }
 
     [DataContract]
     class CompanySafetyRequestApiDeleteRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
     }
 
     [DataContract]
     class CompanySafetyRequestApiPatchRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
 
         [DataMember]
-        public string SafetyRequirementsString;
+        public string SafetyRequirementsString = default;
     }
 
     class CompanySafetyRequestApi : ApiDefinition

@@ -9,13 +9,13 @@ namespace OldManInTheShopServer.Cli
     class ChangeUserCompanyCommand : CommandLineCommand
     {
         [KeyedArgument("-u", true, "company")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public int UserId;
+        public int UserId = default;
 
         [PositionalArgument(1)]
-        public int NewCompanyId;
+        public int NewCompanyId = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

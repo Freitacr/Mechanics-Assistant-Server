@@ -16,29 +16,29 @@ namespace OldManInTheShopServer.Net.Api
     class UserSettingsEditRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public string Key;
+        public string Key = default;
 
         [DataMember]
-        public string Value;
+        public string Value = default;
     }
 
     [DataContract]
     class UserSettingsGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
     }
 
     class UserSettingsApi : ApiDefinition

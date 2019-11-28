@@ -14,60 +14,60 @@ namespace OldManInTheShopServer.Net.Api
     class RequirementsPostRequest
     {
         [DataMember]
-        public string RequirementString;
+        public string RequirementString = default;
 
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RepairJobId;
+        public int RepairJobId = default;
     }
 
     [DataContract]
     class RequirementsDownvoteRequest
     {
         [DataMember]
-        public int RepairJobId;
+        public int RepairJobId = default;
 
         [DataMember]
-        public int RequirementId;
+        public int RequirementId = default;
 
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
     }
 
     [DataContract]
     class RequirementsEditRequest
     {
         [DataMember]
-        public int RepairJobId;
+        public int RepairJobId = default;
 
         [DataMember]
-        public int RequirementId;
+        public int RequirementId = default;
 
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public string NewRequirementValue;
+        public string NewRequirementValue = default;
     }
 
     class RepairJobRequirementApi : ApiDefinition

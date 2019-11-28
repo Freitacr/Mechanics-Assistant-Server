@@ -15,16 +15,16 @@ namespace OldManInTheShopServer.Net.Api
     class UserReportRequest
     {
         [DataMember(Name="UserId")]
-        public int ReportingUserId;
+        public int ReportingUserId = default;
 
         [DataMember(Name="DisplayName")]
-        public string ReportedDisplayName;
+        public string ReportedDisplayName = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
     }
 
     class ReportUserApi : ApiDefinition

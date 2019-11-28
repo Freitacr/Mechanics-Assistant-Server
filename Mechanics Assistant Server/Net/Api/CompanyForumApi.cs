@@ -13,50 +13,50 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyForumApiFullPostRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = 0;
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = null;
         [DataMember]
-        public string PostText;
+        public string PostText = null;
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = 0;
         [DataMember]
-        public int JobEntryId;
+        public int JobEntryId = 0;
     }
 
     [DataContract]
     class CompanyForumApiGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = 0;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = null;
 
         [DataMember]
-        public int JobEntryId;
+        public int JobEntryId = 0;
 
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = 0;
     }
 
     [DataContract]
     class CompanyForumApiDeleteRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = 0;
 
         [DataMember]
-        public int JobEntryId;
+        public int JobEntryId = 0;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = null;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = null;
 
         [DataMember]
-        public int ForumPostId;
+        public int ForumPostId = 0;
     }
 
     class CompanyForumApi : ApiDefinition

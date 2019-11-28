@@ -14,10 +14,10 @@ namespace OldManInTheShopServer.Cli
     {
 
         [KeyedArgument("-t")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public int CompanyId;
+        public int CompanyId = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

@@ -14,9 +14,9 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyAccuracyApiPutRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = 0;
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = null;
     }
     class CompanyAccuracyApi : ApiDefinition
     { 

@@ -9,9 +9,9 @@ namespace OldManInTheShopServer.Cli
     class AddCompanyCommand : CommandLineCommand
     {
         [KeyedArgument("-c", true, "company")]
-        public string Flag;
+        public string Flag = default;
         [PositionalArgument(0)]
-        public string LegalName;
+        public string LegalName = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

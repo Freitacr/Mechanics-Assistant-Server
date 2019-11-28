@@ -12,26 +12,26 @@ namespace OldManInTheShopServer.Util
     class ComplaintGroupJson
     {
         [DataMember]
-        public string GroupDefinition;
+        public string GroupDefinition = default;
 
         [DataMember]
-        public int Id;
+        public int Id = default;
     }
 
     [DataContract]
     class SimilarQueryJson
     {
         [DataMember]
-        public string Make;
+        public string Make = default;
 
         [DataMember]
-        public string Model;
+        public string Model = default;
 
         [DataMember]
-        public string Problem;
+        public string Problem = default;
 
         [DataMember]
-        public string Complaint;
+        public string Complaint = default;
     }
 
     class NonValidatedMapping
@@ -42,8 +42,8 @@ namespace OldManInTheShopServer.Util
 
     class AccuracyMapping
     {
-        public List<NonValidatedMapping> Mapping;
-        public double Accuracy;
+        public List<NonValidatedMapping> Mapping = default;
+        public double Accuracy = default;
     }
 
     class CompanyModelUtils

@@ -15,35 +15,35 @@ namespace OldManInTheShopServer.Net.Api
     class ArchiveApiPostRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = 0;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = null;
 
         [DataMember]
-        public JobDataEntry Entry;
+        public JobDataEntry Entry = null;
 
         [DataMember]
-        public int ProblemGroupId;
+        public int ProblemGroupId = 0;
 
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = 0;
     }
 
     [DataContract]
     class ArchiveApiPutRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = 0;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = null;
 
         [DataMember]
-        public JobDataEntry Entry;
+        public JobDataEntry Entry = null;
 
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = 0;
     }
 
     class ArchiveApi : ApiDefinition

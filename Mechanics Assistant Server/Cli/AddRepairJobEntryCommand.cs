@@ -11,28 +11,28 @@ namespace OldManInTheShopServer.Cli
     class AddRepairJobEntryCommand : CommandLineCommand
     {
         [KeyedArgument("-c", true, "repairjob")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public string Make;
+        public string Make = default;
 
         [PositionalArgument(1)]
-        public string Model;
+        public string Model = default;
 
         [PositionalArgument(2)]
-        public string Complaint;
+        public string Complaint = default;
         
         [PositionalArgument(3)]
-        public string Problem;
+        public string Problem = default;
 
         [PositionalArgument(4)]
-        public string JobId;
+        public string JobId = default;
 
         [PositionalArgument(5)]
-        public int CompanyId;
+        public int CompanyId = default;
 
         [PositionalArgument(6)]
-        public bool IsValidated;
+        public bool IsValidated = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

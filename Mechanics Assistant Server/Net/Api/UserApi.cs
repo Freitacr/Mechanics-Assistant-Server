@@ -15,36 +15,36 @@ namespace OldManInTheShopServer.Net.Api
     class UserCreationRequest
     {
         [DataMember]
-        public string Email;
+        public string Email = default;
 
         [DataMember]
-        public string SecurityQuestion;
+        public string SecurityQuestion = default;
         
         [DataMember]
-        public string Password;
+        public string Password = default;
         
         [DataMember]
-        public string SecurityAnswer;
+        public string SecurityAnswer = default;
     }
 
     [DataContract]
     class UserLoginRequest
     {
         [DataMember]
-        public string Email;
+        public string Email = default;
 
         [DataMember]
-        public string Password;
+        public string Password = default;
     }
 
     [DataContract]
     class UserCheckLoginStatusRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
     }
 
     class UserApi : ApiDefinition

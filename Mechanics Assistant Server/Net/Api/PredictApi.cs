@@ -15,35 +15,35 @@ namespace OldManInTheShopServer.Net.Api
     class PredictApiPostRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public JobDataEntry Entry;
+        public JobDataEntry Entry = default;
 
         [DataMember]
-        public int ComplaintGroupId;
+        public int ComplaintGroupId = default;
 
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = default;
     }
 
     [DataContract]
     class PredictApiPutRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public JobDataEntry Entry;
+        public JobDataEntry Entry = default;
 
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = default;
     }
 
 

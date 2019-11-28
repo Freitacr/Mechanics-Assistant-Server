@@ -10,16 +10,16 @@ namespace OldManInTheShopServer.Cli
     class ChangeRepairJobValidationStatus : CommandLineCommand
     {
         [KeyedArgument("-u", true, "validation")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public int RepairEntryId;
+        public int RepairEntryId = default;
 
         [PositionalArgument(1)]
-        public int CompanyId;
+        public int CompanyId = default;
 
         [PositionalArgument(2)]
-        public bool CurrentlyValidated;
+        public bool CurrentlyValidated = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

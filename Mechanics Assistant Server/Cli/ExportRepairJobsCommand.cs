@@ -13,10 +13,10 @@ namespace OldManInTheShopServer.Cli
     class ExportRepairJobsCommand : CommandLineCommand
     {
         [KeyedArgument("-e", true, "repairjob")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public string FilePath;
+        public string FilePath = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

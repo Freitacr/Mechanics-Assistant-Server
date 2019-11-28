@@ -9,13 +9,13 @@ namespace OldManInTheShopServer.Cli
     class ChangeUserAccessLevelCommand : CommandLineCommand
     {
         [KeyedArgument("-u", true, "access")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public int UserId;
+        public int UserId = default;
 
         [PositionalArgument(1)]
-        public int NewAccessLevel;
+        public int NewAccessLevel = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

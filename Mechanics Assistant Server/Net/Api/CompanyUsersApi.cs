@@ -14,32 +14,32 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyUsersApiGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
     }
 
     [DataContract]
     class CompanyUsersApiPatchRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int CompanyUserId;
+        public int CompanyUserId = default;
 
         [DataMember]
-        public int AccessLevel;
+        public int AccessLevel = default;
     }
 
     class CompanyUsersApi : ApiDefinition

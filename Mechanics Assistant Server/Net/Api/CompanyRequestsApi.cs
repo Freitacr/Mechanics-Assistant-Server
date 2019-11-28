@@ -15,58 +15,58 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyRequestsApiFullPostRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = default;
     }
 
     [DataContract]
     class CompanyRequestsGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
     }
 
     [DataContract]
     class CompanyRequestsPutRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
     }
 
     [DataContract]
     class CompanyRequestsPatchRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
     }
 
     class CompanyRequestsApi : ApiDefinition

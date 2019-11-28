@@ -15,23 +15,23 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyListRetrieveRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string NamePortion;
+        public string NamePortion = default;
     }
 
     [DataContract]
     class UsableCompanyListRetrieveRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
     }
 
     class CompanyListApi : ApiDefinition

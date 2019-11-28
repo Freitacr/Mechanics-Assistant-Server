@@ -11,7 +11,7 @@ namespace OldManInTheShopServer.Cli
     class HelpCommand : CommandLineCommand
     {
         [KeyedArgument("-h")]
-        public string Flag;
+        public string Flag = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

@@ -23,22 +23,22 @@ namespace OldManInTheShopServer.Net.Api
     class RepairJobApiFullRequest
     {
         [DataMember]
-        public JobDataEntry ContainedEntry;
+        public JobDataEntry ContainedEntry = default;
 
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         /**
          * <summary>JSON String. Format provided in LoggedTokens</summary>
          */
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int Duplicate;
+        public int Duplicate = default;
     }
 
     class RepairJobApi : ApiDefinition

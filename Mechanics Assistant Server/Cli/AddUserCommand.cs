@@ -9,25 +9,25 @@ namespace OldManInTheShopServer.Cli
     class AddUserCommand : CommandLineCommand
     {
         [KeyedArgument("-c", true, "user")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public string Email;
+        public string Email = default;
         
         [PositionalArgument(1)]
-        public string Password;
+        public string Password = default;
         
         [PositionalArgument(2)]
-        public string SecurityQuestion;
+        public string SecurityQuestion = default;
         
         [PositionalArgument(3)]
-        public string SecurityAnswer;
+        public string SecurityAnswer = default;
         
         [PositionalArgument(4)]
-        public int AccessLevel;
+        public int AccessLevel = default;
 
         [PositionalArgument(5)]
-        public int CompanyId;
+        public int CompanyId = default;
 
 
         public override void PerformFunction(MySqlDataManipulator manipulator)

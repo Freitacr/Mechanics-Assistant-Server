@@ -15,19 +15,19 @@ namespace OldManInTheShopServer.Net.Api
     class RepairJobVoteRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public int Upvote;
+        public int Upvote = default;
 
         [DataMember]
-        public int RepairJobId;
+        public int RepairJobId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
     }
 
     class RepairJobReportApi : ApiDefinition

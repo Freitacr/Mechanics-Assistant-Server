@@ -14,80 +14,80 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyPartsApiFullPostRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
         [DataMember]
-        public string Make;
+        public string Make = default;
         [DataMember]
-        public string Model;
+        public string Model = default;
         [DataMember]
-        public int Year;
+        public int Year = default;
         [DataMember]
-        public string PartId;
+        public string PartId = default;
         [DataMember]
-        public string PartName;
+        public string PartName = default;
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = default;
     }
 
     [DataContract]
     class CompanyPartsApiGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int StartRange;
+        public int StartRange = default;
 
         [DataMember]
-        public int EndRange;
+        public int EndRange = default;
     }
 
     [DataContract]
     class CompanyPartsApiDeleteRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int PartEntryId;
+        public int PartEntryId = default;
     }
 
     [DataContract]
     class CompanyPartsApiPatchRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public string FieldName;
+        public string FieldName = default;
 
         [DataMember]
-        public string FieldValue;
+        public string FieldValue = default;
 
         [DataMember]
-        public int PartEntryId;
+        public int PartEntryId = default;
     }
 
     class CompanyPartsApi : ApiDefinition

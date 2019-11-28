@@ -11,16 +11,16 @@ namespace OldManInTheShopServer.Cli
     class AddSettingsCommand : CommandLineCommand
     {
         [KeyedArgument("-a", true, "setting")]
-        public string Flag;
+        public string Flag = default;
 
         [PositionalArgument(0)]
-        public string Target;
+        public string Target = default;
 
         [PositionalArgument(1)]
-        public string Key;
+        public string Key = default;
 
         [PositionalArgument(2)]
-        public string Value;
+        public string Value = default;
 
         public override void PerformFunction(MySqlDataManipulator manipulator)
         {

@@ -15,30 +15,30 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyPartslistsRequestApiFullPostRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
         [DataMember]
-        public int RepairJobId;
+        public int RepairJobId = default;
         [DataMember]
-        public string RequiredPartsList;
+        public string RequiredPartsList = default;
         [DataMember]
-        public int CompanyId;
+        public int CompanyId = default;
     }
 
     [DataContract]
     class CompanyPartsListsRequestApiGetRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
     }
 
@@ -46,54 +46,54 @@ namespace OldManInTheShopServer.Net.Api
     class CompanyPartsListsRequestApiPutRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
     }
 
     [DataContract]
     class CompanyPartsListsRequestApiDeleteRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
     }
 
     [DataContract]
     class CompanyPartsListsRequestApiPatchRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
 
         [DataMember]
-        public int RequestId;
+        public int RequestId = default;
 
         [DataMember]
-        public int RequirementId;
+        public int RequirementId = default;
 
         [DataMember]
-        public int PartsRequirement;
+        public int PartsRequirement = default;
     }
 
 

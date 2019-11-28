@@ -15,35 +15,35 @@ namespace OldManInTheShopServer.Net.Api
     class SecurityQuestionRequest
     {
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
         [DataMember]
-        public int UserId;
+        public int UserId = default;
     }
 
     [DataContract]
     class AuthenticationRequest
     {
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
         [DataMember]
-        public int UserId;
+        public int UserId = default;
         [DataMember]
-        public string SecurityQuestion;
+        public string SecurityQuestion = default;
         [DataMember]
-        public string SecurityAnswer;
+        public string SecurityAnswer = default;
     }
 
     [DataContract]
     class AuthenticationCheckRequest
     {
         [DataMember]
-        public int UserId;
+        public int UserId = default;
 
         [DataMember]
-        public string LoginToken;
+        public string LoginToken = default;
 
         [DataMember]
-        public string AuthToken;
+        public string AuthToken = default;
     }
 
     class UserAuthApi : ApiDefinition
