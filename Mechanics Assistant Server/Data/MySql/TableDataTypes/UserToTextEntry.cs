@@ -6,13 +6,22 @@ using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
+    /// <summary>
+    /// Class that represents a user's forum posting, and how that is stored in the MySql database
+    /// </summary>
     public class UserToTextEntry : MySqlTableDataMember<UserToTextEntry>
     {
         public static readonly TableDataManipulator<UserToTextEntry> Manipulator = new TableDataManipulator<UserToTextEntry>();
 
+        /// <summary>
+        /// Text that the user posted to the forum
+        /// </summary>
         [SqlTableMember("varchar(512)", MySqlDataFormatString = "\"{0}\"")]
         public string Text;
 
+        /// <summary>
+        /// Database id of the user that posted to the forum
+        /// </summary>
         [SqlTableMember("int")]
         public int UserId;
 

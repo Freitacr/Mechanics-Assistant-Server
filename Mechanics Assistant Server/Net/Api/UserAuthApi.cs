@@ -173,7 +173,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Unauthorized", "Security Answer was incorrect");
                         return;
                     }
-                    LoggedTokens tokens = ExtractLoggedTokens(user);
+                    LoginStatusTokens tokens = ExtractLoggedTokens(user);
                     GenerateNewAuthToken(tokens);
                     if (!connection.UpdateUsersLoginToken(user, tokens))
                     {
@@ -181,7 +181,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     JsonDictionaryStringConstructor retConstructor = new JsonDictionaryStringConstructor();
-                    retConstructor.SetMapping("token", tokens.AuthLoggedInToken);
+                    retConstructor.SetMapping("token", tokens.AuthToken);
                     WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
                 }
             }
@@ -213,26 +213,26 @@ namespace OldManInTheShopServer.Net.Api
             return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
         }
 
-        private LoggedTokens ExtractLoggedTokens(OverallUser userIn)
+        private LoginStatusTokens ExtractLoggedTokens(OverallUser userIn)
         {
-            string loggedTokensJson = userIn.LoggedTokens;
+            string loggedTokensJson = userIn.LoginStatusTokens;
             loggedTokensJson = loggedTokensJson.Replace("\\\"", "\"");
             byte[] tokens = Encoding.UTF8.GetBytes(loggedTokensJson);
             MemoryStream stream = new MemoryStream(tokens);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
-            LoggedTokens ret = serializer.ReadObject(stream) as LoggedTokens;
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
+            LoginStatusTokens ret = serializer.ReadObject(stream) as LoginStatusTokens;
             return ret;
         }
 
-        private void GenerateNewAuthToken(LoggedTokens tokens)
+        private void GenerateNewAuthToken(LoginStatusTokens tokens)
         {
             Random rand = new Random();
             byte[] loginToken = new byte[64];
             rand.NextBytes(loginToken);
-            tokens.AuthLoggedInToken = MysqlDataConvertingUtil.ConvertToHexString(loginToken);
+            tokens.AuthToken = MysqlDataConvertingUtil.ConvertToHexString(loginToken);
             DateTime now = DateTime.UtcNow;
             now = now.AddHours(.5);
-            tokens.AuthLoggedInTokenExpiration = now.ToString();
+            tokens.AuthTokenExpiration = now.ToString();
         }
 
         private void HandleAuthCheckRequest(HttpListenerContext ctx, AuthenticationCheckRequest req)

@@ -18,27 +18,27 @@ namespace OldManInTheShopServer.Util
     {
         public static bool LoginTokenValid(OverallUser databaseUser, string loginToken)
         {
-            byte[] convertedText = Encoding.UTF8.GetBytes(databaseUser.LoggedTokens);
-            DataContractJsonSerializer loggedTokenSerializer = new DataContractJsonSerializer(typeof(LoggedTokens));
-            LoggedTokens dbTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoggedTokens;
+            byte[] convertedText = Encoding.UTF8.GetBytes(databaseUser.LoginStatusTokens);
+            DataContractJsonSerializer loggedTokenSerializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
+            LoginStatusTokens dbTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoginStatusTokens;
             if (dbTokens == null)
                 throw new ArgumentException("database user had an invalid entry for logged tokens");
-            if (!loginToken.Equals(dbTokens.BaseLoggedInToken))
+            if (!loginToken.Equals(dbTokens.LoginToken))
                 return false;
-            DateTime dbExpiration = DateTime.Parse(dbTokens.BaseLoggedInTokenExpiration);
+            DateTime dbExpiration = DateTime.Parse(dbTokens.LoginTokenExpiration);
             return DateTime.UtcNow.CompareTo(dbExpiration) < 0;
         }
 
         public static bool AuthTokenValid(OverallUser databaseUser, string authToken)
         {
-            byte[] convertedText = Encoding.UTF8.GetBytes(databaseUser.LoggedTokens);
-            DataContractJsonSerializer loggedTokenSerializer = new DataContractJsonSerializer(typeof(LoggedTokens));
-            LoggedTokens dbTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoggedTokens;
+            byte[] convertedText = Encoding.UTF8.GetBytes(databaseUser.LoginStatusTokens);
+            DataContractJsonSerializer loggedTokenSerializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
+            LoginStatusTokens dbTokens = loggedTokenSerializer.ReadObject(new MemoryStream(convertedText)) as LoginStatusTokens;
             if (dbTokens == null)
                 throw new ArgumentException("database user had an invalid entry for logged tokens");
-            if (!authToken.Equals(dbTokens.AuthLoggedInToken))
+            if (!authToken.Equals(dbTokens.AuthToken))
                 return false;
-            DateTime dbExpiration = DateTime.Parse(dbTokens.AuthLoggedInTokenExpiration);
+            DateTime dbExpiration = DateTime.Parse(dbTokens.AuthTokenExpiration);
             return DateTime.UtcNow.CompareTo(dbExpiration) < 0;
         }
 
@@ -72,7 +72,7 @@ namespace OldManInTheShopServer.Util
                 var decrypt = aes.CreateDecryptor(key, iv);
                 try
                 {
-                    byte[] pass = decrypt.TransformFinalBlock(databaseUser.AuthToken, 0, databaseUser.AuthToken.Length);
+                    byte[] pass = decrypt.TransformFinalBlock(databaseUser.AuthTestString, 0, databaseUser.AuthTestString.Length);
                     toTest = Encoding.UTF8.GetString(pass);
                 }
                 catch (CryptographicException)

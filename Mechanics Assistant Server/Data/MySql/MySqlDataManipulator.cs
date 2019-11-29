@@ -1305,9 +1305,9 @@ namespace OldManInTheShopServer.Data.MySql
         /// <param name="toUpdate">The user to modify, exclusively used to find the database entry to update</param>
         /// <param name="update">The login and authentication tokens to update</param>
         /// <returns>true if the operation occurred successfully, or false if an error occurred</returns>
-        public bool UpdateUsersLoginToken(OverallUser toUpdate, LoggedTokens update)
+        public bool UpdateUsersLoginToken(OverallUser toUpdate, LoginStatusTokens update)
         {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
             MemoryStream writer = new MemoryStream();
             serializer.WriteObject(writer, update);
             byte[] tokensData = writer.ToArray();
@@ -1370,13 +1370,13 @@ namespace OldManInTheShopServer.Data.MySql
                 AccessLevel = accessLevel,
                 Company = companyId
             };
-            LoggedTokens defaultTokens = new LoggedTokens();
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoggedTokens));
+            LoginStatusTokens defaultTokens = new LoginStatusTokens();
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
             var writer = new MemoryStream();
             serializer.WriteObject(writer, defaultTokens);
             writer.Close();
-            toAdd.LoggedTokens = Encoding.UTF8.GetString(writer.ToArray());
-            toAdd.LoggedTokens = toAdd.LoggedTokens.Replace("\"", "\\\"");
+            toAdd.LoginStatusTokens = Encoding.UTF8.GetString(writer.ToArray());
+            toAdd.LoginStatusTokens = toAdd.LoginStatusTokens.Replace("\"", "\\\"");
             toAdd.Settings = OverallUser.GenerateDefaultSettings().Replace("\"", "\\\"");
             byte[] key, iv;
             key = new byte[32];
@@ -1392,7 +1392,7 @@ namespace OldManInTheShopServer.Data.MySql
             aes.Key = key;
             aes.IV = iv;
             byte[] toEncode = Encoding.UTF8.GetBytes("pass");
-            toAdd.AuthToken = aes.CreateEncryptor().TransformFinalBlock(toEncode, 0, toEncode.Length);
+            toAdd.AuthTestString = aes.CreateEncryptor().TransformFinalBlock(toEncode, 0, toEncode.Length);
             aes.Dispose();
             toAdd.EncodeRequests(new List<PreviousUserRequest>());
             int rowsAffected = OverallUser.Manipulator.InsertDataInto(Connection, TableNameStorage.OverallUserTable, toAdd);

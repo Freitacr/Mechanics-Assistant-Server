@@ -7,6 +7,9 @@ using OldManInTheShopServer.Attribute;
 
 namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 {
+    /// <summary>
+    /// Static class containing the keys for any valid Company Setting
+    /// </summary>
     public static class CompanySettingsKey
     {
         public static string RetrainInterval { get; } = "Retrain Interval";
@@ -18,6 +21,9 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         public static string DataUploadable { get; } = "Can Mechanics Upload Data";
     }
 
+    /// <summary>
+    /// Static class containing the valid options a Company Setting may be. Based on the same naming as CompanySettingsKey
+    /// </summary>
     public static class CompanySettingsOptions
     {
         public static JsonListStringConstructor RetrainInterval { get; } = ConstructOptionsString(new[] { "5", "6", "7", "8", "9" });
@@ -38,21 +44,38 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
 
     }
 
+    /// <summary>
+    /// Class that represents a setting that applies on the company-wide scope, and is stored in the company's settings table
+    /// </summary>
     public class CompanySettingsEntry : MySqlTableDataMember<CompanySettingsEntry>
     {
         public static readonly TableDataManipulator<CompanySettingsEntry> Manipulator = new TableDataManipulator<CompanySettingsEntry>();
 
+        /// <summary>
+        /// The unique key used to identify this setting
+        /// </summary>
         [SqlTableMember("varchar(64)", MySqlDataFormatString = "\"{0}\"")]
         public string SettingKey;
 
+        /// <summary>
+        /// The value of this setting
+        /// </summary>
         [SqlTableMember("varchar(128)", MySqlDataFormatString = "\"{0}\"")]
         public string SettingValue;
 
+        /// <summary>
+        /// Default constructor, required by <see cref="TableDataManipulator{T}"/>
+        /// </summary>
         public CompanySettingsEntry()
         {
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key">Unique key used to identify this setting</param>
+        /// <param name="value">The value of this setting</param>
         public CompanySettingsEntry(string key, string value)
         {
             SettingKey = key;
