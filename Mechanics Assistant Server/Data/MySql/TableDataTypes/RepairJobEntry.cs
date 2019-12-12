@@ -195,6 +195,8 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
                 ComplaintGroups = "[]";
             if (Year == 0)
                 Year = -1;
+            if (JobId == null)
+                JobId = "";
         }
 
         public override ISqlSerializable Copy()
