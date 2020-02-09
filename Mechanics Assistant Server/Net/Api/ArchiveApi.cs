@@ -185,6 +185,24 @@ namespace OldManInTheShopServer.Net.Api
             }
         }
 
+        /// <summary>
+        /// Converts the current RepairJobEntry into a JSON formatted representation of the object
+        /// </summary>
+        /// <remarks>
+        /// <para>Format:</para>
+        /// <code>
+        /// {
+        ///     Make : string,
+        ///     Model : string,
+        ///     Complaint : string,
+        ///     Problem : string,
+        ///     Year : string,
+        ///     Id : int
+        /// }
+        /// </code>
+        /// </remarks>
+        /// <param name="e"></param>
+        /// <returns><see cref="JsonDictionaryStringConstructor"/> storing the JSON data in the format displayed in the <c>remarks</c> section</returns>
         private JsonDictionaryStringConstructor ConvertEntry(RepairJobEntry e)
         {
             JsonDictionaryStringConstructor r = new JsonDictionaryStringConstructor();
@@ -200,6 +218,18 @@ namespace OldManInTheShopServer.Net.Api
             return r;
         }
 
+        /// <summary>
+        /// Validates that the <see cref="ArchiveApiPutRequest"/> is in the proper format, and contains valid values
+        /// </summary>
+        /// <remarks>
+        /// Invalid values are as follows:
+        ///     An empty LoginToken field
+        ///     An empty Entry field
+        ///     A value of 0 or less in the CompanyId field
+        ///     A value of 0 or less in the UserId field
+        /// </remarks>
+        /// <param name="req">The <see cref="ArchiveApiPutRequest"/> to validate</param>
+        /// <returns>True if all values are valid, false otherwise</returns>
         private bool ValidatePutRequest(ArchiveApiPutRequest req)
         {
             if (req.Entry == null)

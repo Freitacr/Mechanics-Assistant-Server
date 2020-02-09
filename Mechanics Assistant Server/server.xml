@@ -1,0 +1,2306 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>server</name>
+    </assembly>
+    <members>
+        <member name="T:OldManInTheShopServer.Attribute.KeyedArgument">
+            <summary>
+            <para>Attribute to mark a CommandLineCommand's Field as a Keyed Argument</para>
+            <para>A KeyedArgument's Key field is used to specify the flag that must be present for a keyed argument on the command line to
+            match the field marked with this attribute. An example is provided in the remarks section</para>s
+            <para>The ValueRequired and RequiredValue field work in tandem with one another, with the ValueRequired field is used to specify
+            whether the value of RequiredValue is necessary for a keyed argument to match a field marked with this attribute. As before, an
+            example is provided in the remarks section</para>
+            <para>For examples of how keys are interpreted in command line arguments see <see cref="M:OldManInTheShopServer.Util.CommandLineArgumentParser.#ctor(System.String[])"/></para>
+            </summary>
+            <remarks>
+            In this context, a keyed argument is one that is passed in the command line in the following way (assume the program executable is foo.exe:
+                <code>foo -c command</code>
+            In the above case, the command line argument would match a fields marked with
+                [KeyedArgument(Key="-c", ValueRequired=true, RequiredValue="command")] and
+                [KeyedArgument(Key="-c"]
+            but would not match a field marked with
+                [KeyedArgument(Key="-d")]
+                [KeyedArgument(Key="-c", ValueRequired=true, RequiredValue="command2")]
+            </remarks>
+        </member>
+        <member name="M:OldManInTheShopServer.Attribute.KeyedArgument.#ctor(System.String,System.Boolean,System.String)">
+            <summary>
+            <para>Constructs a KeyedArgument Attribute for marking a Field as being a recepticle for a keyed command line argument</para>
+            <para>For examples of the usage of this class see <see cref="T:OldManInTheShopServer.Attribute.KeyedArgument"/></para>
+            <para>For examples of how keys are interpreted in command line arguments see <see cref="T:OldManInTheShopServer.Util.CommandLineArgumentParser"/></para>
+            </summary>
+            <param name="requiredKey"></param>
+            <param name="valueRequired"></param>
+            <param name="requiredValue"></param>
+        </member>
+        <member name="T:OldManInTheShopServer.Attribute.KeywordPredictor">
+            <summary>
+            <para>Class for marking Keyword Predictors for global loading from and saving to a default file location</para>
+            <para>The field DefaultLocation is used to mark the file path that a IKeywordPredictor should be located at</para>
+            </summary>
+            <remarks>
+            An example of marking a class with this attribute follows:
+                [KeywordPredictor("Models/predictor.nbmdl")]
+            This would mark a class as a KeywordPredictor that should be saved and loaded from the relative path
+            "Models/predictor.nbmdl"
+            </remarks>
+        </member>
+        <member name="T:OldManInTheShopServer.Attribute.PositionalArgument">
+            <summary>
+            <para>Attribute to used to mark a field as being a recepticle for a positional command line argument</para>
+            <para>For information on how a positional argument is defined in this context see <see cref="M:OldManInTheShopServer.Util.CommandLineArgumentParser.#ctor(System.String[])"/></para>
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Attribute.PositionalArgument.Position">
+            <summary>
+            Zero-based index of the CommandLineArgumentParser's PositionalArguments to retrieve the value of
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Attribute.PositionalArgument.#ctor(System.Int32)">
+            <summary>
+            Marks a field as being the recepticle of a positional argument from a <see cref="T:OldManInTheShopServer.Util.CommandLineArgumentParser"/>
+            </summary>
+            <param name="position">Zero-based index of the CommandLineArgumentParser's PositionalArguments to retrieve the value of</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Attribute.SqlTableMember">
+            <summary>
+            <para>Attribute used to mark a field or property as being a column in a corresponding MySql Table in the database</para>
+            <para>For information how this marking is used, see <see cref="T:OldManInTheShopServer.Data.MySql.MySqlTableDataMember`1"/></para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Attribute.SqlTableMember.MySqlDataType">
+            <summary>
+            <para>MySql data type that the column corresponding to the marked field or attribute should be</para>
+            <para>A few examples would be "varchar(256)", "float", "int"</para>
+            </summary>
+            <remarks>The reason why this is a required field is that the name of fields in the backend of C# almost never
+            line up with the names of the same data types in MySql
+            
+            For example: the data type "int" in C#'s name is actually "Int32" in most scenarios, which is not a valid
+            data type for MySql tables</remarks>
+        </member>
+        <member name="F:OldManInTheShopServer.Attribute.SqlTableMember.MySqlDataTypeFlags">
+            <summary>
+            <para>String containing any additional flags that should be added to the column corresponding to the field or property
+            in the MySql Table</para>
+            <para>An example of this would be "primary key auto_increment"</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Attribute.SqlTableMember.MySqlDataFormatString">
+            <summary>
+            <para>format string to insert the toString result from the object into
+            If this is null, then the toString result from the field is used raw</para>
+            An example: \"{0}\", which would be used for string typed fields, so the string literal gets wrapped in double quotes
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Attribute.SqlTableMember.#ctor(System.String)">
+            <summary>
+            <para>Attribute used to mark a field or property as being a column in a corresponding MySql Table in the database</para>
+            <para>For information how this marking is used, see <see cref="T:OldManInTheShopServer.Data.MySql.MySqlTableDataMember`1"/></para>
+            </summary>
+            <param name="mySqlDataType">
+            <para>MySql data type that the column corresponding to the marked field or attribute should be</para>
+            <para>A few examples would be "varchar(256)", "float", "int"</para>
+            </param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.AddCompanyCommand">
+            <summary>
+            <para><see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> to add a company to the database</para>
+            <para>An example of this command, assuming the executable's name was foo is as follows:</para>
+            <para><code>foo -c company "Test Company"</code></para>
+            <para>This would add the company Test Company to the database, along with all the tables needed for
+            company functionality</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddCompanyCommand.Flag">
+            <summary>
+            <para>Flag to differentiate this command from other command line commands</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddCompanyCommand.LegalName">
+            <summary>
+            <para>Legal name of the company to add to the database</para>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.AddCompanyCommand.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            Function to add the company specified by LegalName to the database, along with all the
+            tables required for basic company functionality
+            </summary>
+            <param name="manipulator"><see cref="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator"/> used to add the company to the database</param>
+            <remarks>As this is a command to be used by the developers on the project, error output is minimal</remarks>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.AddRepairJobEntryCommand">
+            <summary>
+            <para><see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> used to add a <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> to the database</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.Flag">
+            <summary>
+            <para>Flag used to differentiate this command from other CommandLineCommands</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.Make">
+            <summary>
+            <para>Make of the machine the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> is about</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.Model">
+            <summary>
+            <para>Model of the machine the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> is about</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.Complaint">
+            <summary>
+            <para>Customer's complaint about the machine the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> is about</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.Problem">
+            <summary>
+            <para>The problem the mechanic found with the machine the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> is about</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.JobId">
+            <summary>
+            <para>The shop-assigned job id of the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/></para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.CompanyId">
+            <summary>
+            <para>Database id of the company to add the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> to</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.IsValidated">
+            <summary>
+            <para>Flag to sepcify whether the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> should be added to the company's validated data set 
+            or non validated data set</para>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.AddRepairJobEntryCommand.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            Constructs a <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> from the fields of this object 
+            and adds it to the database in the specified location
+            </summary>
+            <param name="manipulator"><see cref="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator"/> used to add the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> to the database</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.AddSettingsCommand">
+            <summary>
+            <para><see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> used to add a setting to either all users or all companies in the database</para>
+            <para>If a user or company already has the new setting, then they are simply skipped, and their setting's value is
+            NOT modified</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddSettingsCommand.Flag">
+            <summary>
+            Flag used to differentiate this command from other command line commands in this package
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddSettingsCommand.Target">
+            <summary>
+            <para>Target of the setting addition. Only two targets are valid, "user" and "company"</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddSettingsCommand.Key">
+            <summary>
+            <para>The key of the setting to add</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddSettingsCommand.Value">
+            <summary>
+            <para>The value of the setting to add</para>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.AddSettingsCommand.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            <para>Uses the supplied <see cref="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator"/> to add the setting to all of the specified targets</para>
+            </summary>
+            <param name="manipulator"></param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.AddUserCommand">
+            <summary>
+            <see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> used to add a user to the database
+            </summary>
+            <remarks>One of the fields that is a part of this command is the AccessLevel
+            This is particularly useful for creating admins on the fly</remarks>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddUserCommand.Flag">
+            <summary>
+            <para>Flag to differentiate this command from other commands in this package</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddUserCommand.Email">
+            <summary>
+            <para>Email of the user to add to the database</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddUserCommand.Password">
+            <summary>
+            <para>Password of the user to add to the database</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddUserCommand.SecurityQuestion">
+            <summary>
+            <para>Question the user must answer to be authenticated after creation</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddUserCommand.SecurityAnswer">
+            <summary>
+            <para>Answer to the SecurityQuestion</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddUserCommand.AccessLevel">
+            <summary>
+            <para>AccessLevel of the user to add to the database.</para>
+            For more information on access levels see <see cref="T:OldManInTheShopServer.Util.AccessLevelMasks"/>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.AddUserCommand.CompanyId">
+            <summary>
+            <para>Database id of the company to register the user with</para>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.AddUserCommand.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            Function to create and add the user specified by the command to the database
+            </summary>
+            <param name="manipulator"><see cref="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator"/> used to add the user to the database</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.ChangeRepairJobValidationStatus">
+            <summary>
+            <para><see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> used to change the validation status of a <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>
+            in the company's data tables</para>
+            </summary>
+            
+            <remarks>
+            A change in the validation status means that the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> will change tables
+            
+            So if a particular entry is currently in the non validated data table, it will be moved to the validated
+            one, and have a forum page created for it, and vice versa if it is currently in the validated data table
+            </remarks>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeRepairJobValidationStatus.Flag">
+            <summary>
+            Flag used to differentiate this command from other commands in this package
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeRepairJobValidationStatus.RepairEntryId">
+            <summary>
+            Database id of the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> to update the validation status of
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeRepairJobValidationStatus.CompanyId">
+            <summary>
+            Database id of the company to look through the data of
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeRepairJobValidationStatus.CurrentlyValidated">
+            <summary>
+            Flag specifying whether to look in the company's validated or non validated data table for
+            the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> to update
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.ChangeRepairJobValidationStatus.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            Function to perform the update of the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>'s validation status
+            </summary>
+            <param name="manipulator"><see cref="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator"/> used to update the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>'s 
+            validation status</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.ChangeUserAccessLevelCommand">
+            <summary>
+            <see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> used to change a user's access level
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeUserAccessLevelCommand.Flag">
+            <summary>
+            Flag used to differentiate this command from the other commands in this package
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeUserAccessLevelCommand.UserId">
+            <summary>
+            Database id of the user to update the access level of
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeUserAccessLevelCommand.NewAccessLevel">
+            <summary>
+            <para>Int representing the new access level of the user with the specified id</para>
+            <para>For more information on access levels see <see cref="T:OldManInTheShopServer.Util.AccessLevelMasks"/></para>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.ChangeUserAccessLevelCommand.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            Updates the user specified by this object's fields to have the specified access level
+            </summary>
+            <param name="manipulator"><see cref="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator"/> used to update the user's access level</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.ChangeUserCompanyCommand">
+            <summary>
+            <see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> to change the company a user is registered with
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeUserCompanyCommand.Flag">
+            <summary>
+            Flag used to differentiate this command from the other commands in this package
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeUserCompanyCommand.UserId">
+            <summary>
+            Database id of the user to update
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ChangeUserCompanyCommand.NewCompanyId">
+            <summary>
+            Database id of the company to register the specified user to
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.CommandLineCommand">
+            <summary>
+            <para>Abstract class to mark a class as a command that should be run if the command line arguments match its fields</para>
+            <para>As all commands in this package are intended to only be run by developers with knowledge of the database structure
+            and the commands themselves, the error reporting of the commands is minimal.</para>
+            <para>If a more detailed error reporting is desired, a developer can instead use the website to perform many of the same
+            functions these commands can do</para>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.CommandLineCommand.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            Performs the function the command was set up to do, such as adding a user or company.
+            </summary>
+            <param name="manipulator"><see cref="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator"/> used to access the database</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.ExportRepairJobsCommand">
+            <summary>
+            Exports all stored <see cref="T:OldManInTheShopServer.Data.MechanicQuery"/> objects from the default <see cref="T:OldManInTheShopServer.Data.FileSystemDataSource"/> to the specified filePath
+            in the new <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> format.
+            </summary>
+            <remarks>As the <see cref="T:OldManInTheShopServer.Data.FileSystemDataSource"/> and <see cref="T:OldManInTheShopServer.Data.MechanicQuery"/> classes are deprecated, this command
+            is kept only for legacy purposes</remarks>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ExportRepairJobsCommand.Flag">
+            <summary>
+            Flag used to differentiate this command from the other commands in this package
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ExportRepairJobsCommand.FilePath">
+            <summary>
+            File path (relative or absolute) used to specify the file the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> objects should be written to
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.HelpCommand">
+            <summary>
+            <see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> used to provide the format of all <see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/>
+            classes supported by this program
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.HelpCommand.Flag">
+            <summary>
+            Flag used to differentiate this command from the other commands in this package
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Cli.HelpCommand.PerformFunction(OldManInTheShopServer.Data.MySql.MySqlDataManipulator)">
+            <summary>
+            Constructs and prints out a help string for all <see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> classes supported by this program
+            </summary>
+            <param name="manipulator">Unused parameter</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.ImportRepairJobsCommand">
+            <summary>
+            Command used to import a file containing a list of <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> objects in JSON format
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ImportRepairJobsCommand.Flag">
+            <summary>
+            Flag used to differentiate this command from the other commands in this package
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ImportRepairJobsCommand.FilePath">
+            <summary>
+            File path of the file to import
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.ImportRepairJobsCommand.CompanyId">
+            <summary>
+            Database id of the company to add the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> objects to. These objects
+            will be stored in the validated data of the company specified
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Cli.TrainCompanyModelsCommand">
+            <summary>
+            <see cref="T:OldManInTheShopServer.Cli.CommandLineCommand"/> used to train the <see cref="T:OldManInTheShopServer.Models.KeywordClustering.IDatabaseKeywordClusterer"/> for the company
+            specified by <see cref="F:OldManInTheShopServer.Cli.TrainCompanyModelsCommand.CompanyId"/>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.TrainCompanyModelsCommand.Flag">
+            <summary>
+            <para>Flag used to differentiate this command from the other commands in this package</para>
+            The only valid flag value for this command is "complaint"
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Cli.TrainCompanyModelsCommand.CompanyId">
+            <summary>
+            Database id of the company to train the clustering models for
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.DataSource">
+            <summary>Interface-like class that has the responsibility of loading Mechanic Queries and KeywordTrainingExamples
+            from a source of data as well as adding Mechanic Queries to that source </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.FileSystemDataSource">
+            <summary>Data Source that gets its backing data from Asymmetric Numeric System encoded files on the hard drive.</summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.FileSystemDataSource.KeywordDataFilePath">
+            <summary>Current Keyword data file path. Will default to DEFAULT_KEYWORD_DATA_FILE_PATH if not set externally</summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.FileSystemDataSource.MechanicQueryFilePath">
+            <summary>Current Mechanic Query Data file path. Will default to DEFAULT_KEYWORD_DATA_FILE_PATH if not set externally</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.FileSystemDataSource.LoadKeywordTrainingExamples">
+            <summary>Loads Stored KeywordTrainingExamples from the file specified by KeywordDataFilePath</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.FileSystemDataSource.LoadMechanicQueries">
+            <summary>Loads Mechanic Queries from the file specified by MechanicQueryFilePath</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.FileSystemDataSource.AddData(OldManInTheShopServer.Data.MechanicQuery)">
+            <summary>Attempts to add the MechanicQuery specified by toAdd to the file MechanicQueryFilePath</summary>
+            <param name="toAdd">Mechanic Query to add</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.FileSystemDataSource.AddKeywordExample(OldManInTheShopServer.Data.KeywordTrainingExample)">
+            <summary>Attempts to add the KeywordTrainingExample specified by toAdd to the file KeywordDataFilePath</summary>
+            <param name="ex">KeywordTrainingExample to add</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.HttpUri">
+            <summary>Class that represents an Http protocol URI with support for the prefixes required by an HttpListener</summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.HttpUri.Hostname">
+            <summary>Hostname portion of the uri</summary> 
+        </member>
+        <member name="P:OldManInTheShopServer.Data.HttpUri.Port">
+            <summary>Port portion of the uri</summary> 
+        </member>
+        <member name="P:OldManInTheShopServer.Data.HttpUri.Location">
+            <summary>Location portion of the uri, aka the portion after the first hostname:port part of the screen</summary> 
+        </member>
+        <member name="P:OldManInTheShopServer.Data.HttpUri.Protocol">
+            <summary>Protocol portion of the uri</summary> 
+        </member>
+        <member name="P:OldManInTheShopServer.Data.HttpUri.UsedDefaultPort">
+            <summary>Boolean of whether the default port for the protocol was used as a fallback</summary> 
+        </member>
+        <member name="P:OldManInTheShopServer.Data.HttpUri.Prefix">
+            <summary>Returns a prefix representation of the URI for use with an HttpListener</summary> 
+        </member>
+        <member name="M:OldManInTheShopServer.Data.HttpUri.#ctor(System.String)">
+            <summary>Constructs an HttpUri from the provided string</summary>
+            <param name="uriString">String to convert into an HttpUri</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.HttpUri.IsPrefixOf(OldManInTheShopServer.Data.HttpUri)">
+            <summary>Returns true if this uri is a prefix for the specified uri</summary>
+            <param name="other">The specified uri</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.KeywordTrainingExample">
+            <summary>Representation of a keyword training example for the Keyword Prediction Models</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.KeywordTrainingExample.KeywordPair">
+            <summary>Representation of a keyword and its part of speech</summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.KeywordTrainingExample.KeywordPairs">
+            <summary>List of KeywordPairs that make up the example</summary> 
+        </member>
+        <member name="P:OldManInTheShopServer.Data.KeywordTrainingExample.IsCorrect">
+            <summary>Whether the keyword pair in the centre of the List of KeywordPairs is supposed to be a keyword</summary> 
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MechanicQuery">
+            <summary>Representation of a query that would be made by a mechanic</summary> 
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.MySqlConnectionString">
+            <summary>
+            Class for constructing a MySqlConnection's ConnectionString
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.MySqlDataManipulator">
+            <summary>
+            Class that holds the responsibility of manipulating the data in a standardized and easy to use way
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.LastException">
+            <summary>Stores the last MySqlException encountered</summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GlobalConfiguration">
+            <summary>
+            Global Instance that should remain closed after initial assignment, connection, and closing.
+            It is responsible for storing the connection string for use by other MySqlDataManipulators
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.ExecuteNonQuery(MySql.Data.MySqlClient.MySqlCommand)">
+            <summary>
+            Executes the command stored in cmd, and returns whether the call succeeded
+            </summary>
+            <param name="cmd">The MySqlCommand to execute</param>
+            <returns>true if the command succeeded, false if there was an exception</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.Close">
+            <summary>
+            Closes the connection with the database
+            </summary>
+            <returns>true if the connection was closed, false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.Connect(System.String)">
+            <summary>Connects the MySqlDataManipulator object to the database</summary>
+            <param name="connectionString">The MySql connection string to use for connection</param>
+            <returns>true if connection was successful, false if an exception was encountered</returns>
+            <seealso cref="P:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.LastException"/>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.CreateDatabase(System.String)">
+            <summary>
+            Attempts to create a schema with the specified name
+            </summary>
+            <param name="databaseName">The name of the schema to create</param>
+            <returns>true if creation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetConnectionString">
+            <summary>
+            Returns the connection string that is currently bound to this object's connection with the database
+            </summary>
+            <returns>See summary</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.Dispose">
+            <summary>
+            Disposes of the current Manipulator
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.ValidateDatabaseIntegrity(System.String,System.String)">
+            <summary>Validates whether the database is in the correct format to be worked with by this class</summary>
+            <param name="connectionString">MySql Connection String WITHOUT the database field</param>
+            <param name="databaseName">The name of the database to verify integrity of</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddCompany(System.String)">
+            <summary>
+            Attempts to add the company specified to the database, along with all the tables that are required to be set up for addition
+            </summary>
+            <param name="companyLegalName">Legal name of the company to add</param>
+            <returns>true if company addition was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddCompanyComplaintGroups(System.Int32,System.Collections.Generic.List{OldManInTheShopServer.Data.MySql.TableDataTypes.KeywordGroupEntry})">
+            <summary>
+            Attempts to add all KeywordGroupEntries passed in into the company's storage
+            </summary>
+            <param name="companyId">id of the company to upload complaint groups for</param>
+            <param name="entries">list of KeywordGroupEntries to upload into the database</param>
+            <returns>true if the operation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddCompanyProblemGroups(System.Int32,System.Collections.Generic.List{OldManInTheShopServer.Data.MySql.TableDataTypes.KeywordGroupEntry})">
+            <summary>
+            Attempts to add all KeywordGroupEntries passed in to the Company's Problem Group Storage
+            </summary>
+            <param name="companyId">Id of the company to insert data for</param>
+            <param name="entries">List of KeywordGroupEntries to upload into the database</param>
+            <returns>True if the action was successful, false if there was an error</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddDataEntry(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry,System.Boolean)">
+            <summary>Adds the repair data to the database</summary>
+            <param name="companyId">The id of the company to add the part data to</param>
+            <param name="entryToAdd">The make of the machinery in question.</param>
+            <returns>true if insertion was successful, false if an exception was encountered</returns>
+            <seealso cref="P:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.LastException"/>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddForumPost(System.Int32,System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.UserToTextEntry)">
+            <summary>
+            Adds a user's forum post to the forum specified by companyId and repairJobId
+            </summary>
+            <param name="companyId">Id of the company to add the forum post to</param>
+            <param name="repairJobId">Id of the repair job. Used to find the forum to add the post to</param>
+            <param name="userForumPost">The post to upload into the database</param>
+            <returns>true if the operation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddJoinRequest(System.Int32,System.Int32)">
+            <summary>
+            Adds a join request to the company's pending join request storage
+            </summary>
+            <param name="companyId">id of the company to add the request to</param>
+            <param name="userId">id of the user requesting to join the company</param>
+            <returns>true if the operation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddPartEntry(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry)">
+            <summary>
+            Attempts to add the PartCatalogueEntry specified by <paramref name="toAdd"/> to the company's storage
+            </summary>
+            <param name="companyId">database id of the company to add the PartCatalogueEntry to</param>
+            <param name="toAdd">The PartCatalogueEntry to add to the company's storage</param>
+            <returns>true if the addition was successful, false if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddPartsListAdditionRequest(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest)">
+            <summary>
+            Attempts to add the parts list addition request represented by <paramref name="request"/> to the company's storage
+            </summary>
+            <param name="companyId">Database id of the company to add the request to</param>
+            <param name="request">RequirementAdditionRequest representing the parts list addition requst to add</param>
+            <returns>True if the addition was successful, false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddPartsRequest(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.PartsRequest)">
+            <summary>
+            Attempts to add the specified PartsRequest object to the specified company's storage
+            </summary>
+            <param name="companyId">Id of the company to add the PartsRequest to</param>
+            <param name="request">The request to add</param>
+            <returns>True if the adding was successful, or false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddSafetyAdditionRequest(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest)">
+            <summary>
+            Adds the RequirementAdditionRequest to the specified company's safety requirement addition request storage
+            </summary>
+            <param name="companyId">Database id of the company to add the request to</param>
+            <param name="request">Requset to add</param>
+            <returns>True if the addition was successful, false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddUser(System.String,System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>Adds the user to the database using the data provided</summary>
+            <param name="email">The email of the user to create</param>
+            <param name="password">The user's password</param>
+            <param name="securityAnswer">The answer to the user's custom security question</param>
+            <param name="securityQuestion">The user's custom security question</param>
+            <returns>true if connection was successful, false if an exception was encountered</returns>
+            <seealso cref="P:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.LastException"/>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.DeleteCompanyComplaintGroups(System.Int32)">
+            <summary>
+            Deletes the current company's storage of complaint groups
+            </summary>
+            <param name="companyId">id of the company to delete the storage of</param>
+            <returns>true if the operation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.DeleteCompanyTrainingGroups(System.Int32)">
+            <summary>
+            Deletes the company's current storage of problem groups from the database
+            </summary>
+            <param name="companyId">id of the company to remove the problem groups from</param>
+            <returns>true if the operation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetCompanyAccuracy(System.Int32)">
+            <summary>
+            Retrieves and returns the company's model's accuracy based on automated testings
+            </summary>
+            <param name="companyId">Id of the company to retrieve the accuracy for</param>
+            <returns>the double floating point value representing the accuracy of the company's models</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetCompanyComplaintGroups(System.Int32)">
+            <summary>
+            Retrieves and returns a list of all Complaint Group definitions that are in the company's storage
+            </summary>
+            <param name="companyId">id of the company to retrieve the complaint groups for</param>
+            <returns>List of KeywordGroupEntries that represent the complaint groups</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetCompanySettings(System.Int32)">
+            <summary>
+            Retrieves the current storage of settings for the company specified
+            </summary>
+            <param name="companyId">the id of the company to retrieve the settings for</param>
+            <returns>A list of CompanySettingsEntries that represent the company's current settings</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetCompanySettingsById(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the setting in the company's storage by the id specified
+            </summary>
+            <param name="companyId">id of the company to retrieve the setting for</param>
+            <param name="settingsId">database id of the settings entry to retrieve</param>
+            <returns>The company settings object that was specified by settingsId or null</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetCompanySettingsWhere(System.Int32,System.String)">
+            <summary>
+            Retrieves the settings in the company's storage that match the where condition
+            </summary>
+            <param name="companyId">Id of the company to retrieve the settings for</param>
+            <param name="where">The where condition to match the settings with. Must end with a semicolon.</param>
+            <returns>List of CompanySettingsEntries that match the condition, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetCompanyTrainingGroups(System.Int32)">
+            <summary>
+            Returns all Problem Group definitions from the company's storage
+            </summary>
+            <param name="companyId">The id of the company to retrieve problem groups for</param>
+            <returns>List of KeywordGroupEntry objects representing the problem groups</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetDataEntriesByComplaintGroup(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Returns a list of JobDataEntries that are matched with the specified complaint group
+            </summary>
+            <param name="companyId">Id of the company to retrieve JobDataEntries from</param>
+            <param name="complaintGroupId">Database id of complaint group the JobDataEntries are compared against</param>
+            <param name="validated">Whether the JobDataEntries returned should be from the company's Validated data set</param>
+            <returns>A list of JobDataEntries that match the specified complaint group, or null if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetDataEntryById(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Retrieves a RepairJobEntry by its database id
+            </summary>
+            <param name="companyId">Id of the company to retrieve the RepairJobEntry from</param>
+            <param name="repairEntryId">Database id of the RepairJobEntry</param>
+            <param name="validated">Whether to perform the search in the company's validated data set</param>
+            <returns>A RepairJobEntry object with the specified id, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetDataEntriesWhere(System.Int32,System.String,System.Boolean)">
+            <summary>
+            Retrieves a list of JobDataEntries that match the where conditional.
+            </summary>
+            <param name="companyId">Id of the company to retrieve JobDataEntries from</param>
+            <param name="where">The conditional the JobDataEntries must match. Must end with a semicolon</param>
+            <param name="validated">Whether the search should be performed in the company's validated data set</param>
+            <returns>A list of JobDataEntires that match the where conditional, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetForumPosts(System.Int32,System.Int32)">
+            <summary>
+            Retrieves all forum posts from the forum specified by companyId and repairJobId
+            </summary>
+            <param name="companyId">id of the company who has the forum required</param>
+            <param name="repairJobId">id of the RepairJobEntry the forum is about</param>
+            <returns>A list of UserToTextEntries that represent all user posts currently in the forum, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetForumPostById(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a forum post by its database id
+            </summary>
+            <param name="companyId">Id of the company who has the forum the post is in</param>
+            <param name="repairJobId">Id of the RepairJobEntry the forum is about</param>
+            <param name="forumPostId">Database id of the post to try and retrieve</param>
+            <returns>A UserToTextEntry object that represents the forum post requested, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetForumPostsWhere(System.Int32,System.Int32,System.String)">
+            <summary>
+            Retrives a list of forum posts matching the where conditional
+            </summary>
+            <param name="companyId">Id of the company that hosts the forum to retrieve the posts from</param>
+            <param name="repairJobId">Id of the RepairJobEntry the forum is about</param>
+            <param name="where">The condition the posts must match to be retrieved. Must end with a semicolon</param>
+            <returns>A List of UserToTextEntries that represent all posts that match the where condition. Or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetJoinRequests(System.Int32)">
+            <summary>
+            Retrieves a list of all pending join requests for the company specified
+            </summary>
+            <param name="companyId">Id of the company to retrieve requests for</param>
+            <returns>List of JoinRequest objects that represent all pending requests</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetJoinRequestById(System.Int32,System.Int32)">
+            <summary>
+            Retrieves a join request by its database id
+            </summary>
+            <param name="companyId">id of the company to retrieve the join request from storage</param>
+            <param name="requestId">database id of the request to retrieve</param>
+            <returns>A JoinRequest object representing the request specified, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetJoinRequestsByIdRange(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a list of pending join requests that match the where the database id of the request is within the range specified by idStart and idEnd
+            </summary>
+            <param name="companyId">id of the company to retrieve the requests from</param>
+            <param name="idStart">Start of the range the database ids of the join requests must be in</param>
+            <param name="idEnd">End of the range the database ids of the join requests must be in; exclusive</param>
+            <returns>List of JoinRequest objects that represent the requests in the range. Or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetJoinRequestsWhere(System.Int32,System.String)">
+            <summary>
+            Retrieves a list of pending join requests that match the where condition from the company's storage
+            </summary>
+            <param name="companyId">id of the company to retrieve the requests from</param>
+            <param name="where">where condition to make sure the requests match. Must end with a semicolon</param>
+            <returns>List of JoinRequest objects that represent the objects matching the where clause. Or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartCatalogueEntries(System.Int32)">
+            <summary>
+            Retrieves a list of all PartCatalogueEntry objects stored in the company's storage
+            </summary>
+            <param name="companyId">database id of the company to retrieve PartCatelogueEntry objects from</param>
+            <returns>A list of all PartCatalogueEntry objects in the company's storage, or null if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartCatalogueEntryById(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the PartCatelogueEntry with the specified id from the company's storage
+            </summary>
+            <param name="companyId">database id of the company to retrieve the PartCatalogueEntry from</param>
+            <param name="entryId">database id of the part catelogue entry to retrieve</param>
+            <returns>The PartCatelogueEntry with the specified database id, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartCatalogueEntriesByIdRange(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a list of PartCatelogueEntry objects that have a database id within the range of <paramref name="startId"/> to <paramref name="endId"/>
+            </summary>
+            <param name="companyId">Database id of the company to retrive the PartCatalogueEntries from</param>
+            <param name="startId">Starting database id to begin the allowed range; inclusive</param>
+            <param name="endId">Ending database id to end the allowed range; exclusive</param>
+            <returns>List of PartCatelogueEntry objects that have database ids within the specified range</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartCatalogueEntriesWhere(System.Int32,System.String)">
+            <summary>
+            Retrieves a list of PartCatelogueEntry objects that match the <paramref name="where"/> conditional string privided
+            </summary>
+            <param name="companyId">id of the company to retrieve the catelogue entries from</param>
+            <param name="where">conditional string the part catelogue entries must match to be returned. Must end with a semicolon</param>
+            <returns>A list of PartCatelogueEntry objects that match the where conditional string, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsListAdditionRequests(System.Int32)">
+            <summary>
+            Retrieves a list of RequirementAdditionRequest objects that represent all parts list addition requests in the specified company's storage
+            </summary>
+            <param name="companyId">Database id of the company to retrieve the parts list addition requests from</param>
+            <returns>List of RequirementAdditionRequest objects that represent all of the parts list addition requests in the company's storage,
+            or null if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsListAdditionRequestById(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the RequirementAdditionRequest object that represents the parts list addition request with the specified database id
+            </summary>
+            <param name="companyId">Database id of the company to retrieve the parts list addition request from</param>
+            <param name="requirementId">Database id of the parts list addition request</param>
+            <returns>The RequirementAdditionRequest object that represents the parts list addition request with the specified id</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsListAdditionRequestsByIdRange(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a list of RequirementAdditionRequest objects from the specified company's parts list addition request storage 
+            that have a database id in the range specified by <paramref name="startId"/> to <paramref name="endId"/>
+            </summary>
+            <param name="companyId">Database id of the company to retrieve the RequirementAdditionRequest objects from</param>
+            <param name="startId">Starting id of the range of database ids to find; inclusive</param>
+            <param name="endId">Ending id of the range of database ids to find; exclusive</param>
+            <returns>A list of RequirementAdditionRequest objects representing the matching parts list addition requests. Or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsListAdditionRequestsWhere(System.Int32,System.String)">
+            <summary>
+            Retrieves a list of RequirementAdditionRequest objects representing 
+            the parts list addition requests from the specified company's storage matching the where conditional string
+            </summary>
+            <param name="companyId">database id of the company who's storage should be searched</param>
+            <param name="where">The where conditional string the parts list addition requests must match. Must end with a semicolon</param>
+            <returns>A list of RequirementAdditionRequest objects representing the matching parts list addition requests, 
+            or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsRequests(System.Int32)">
+            <summary>
+            Retrieves a list of all the PartsRequest objects that are in the company's storage
+            </summary>
+            <param name="companyId">The database id of the company to retrieve the PartsRequest objects from</param>
+            <returns>A list of all the PartsRequest object that are in the specified company's storage, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsRequestById(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the PartsRequest object in the database with the specified id
+            </summary>
+            <param name="companyId">database id of the company to retrieve the PartsRequest from</param>
+            <param name="requestId">database id of the PartsRequest object to retrieve</param>
+            <returns>The PartsRequest object with the specified id, or null if an error occured</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsRequestsByIdRange(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a list of PartsRequest objects from the database that have ids in the specified range
+            </summary>
+            <param name="companyId">database id of the company to retrieve parts requests from</param>
+            <param name="startId">starting id of the range to retrieve PartsRequest objects from. Inclusive</param>
+            <param name="endId">ending id of the range to retrieve PartsRequest objects from. Exclusive</param>
+            <returns>A list of PartsRequests objects that match have ids in the specified range, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetPartsRequestsWhere(System.Int32,System.String)">
+            <summary>
+            Retrieves a list of PartsRequest objects that match the where condition
+            </summary>
+            <param name="companyId">database id of the company to retrieve parts requests from</param>
+            <param name="where">where conditional to match the PartsRequest objects with. Must end with a semicolon</param>
+            <returns>A List of PartsRequest objects that match the where conditional, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetSafetyAdditionRequests(System.Int32)">
+            <summary>
+            Retrieves all RequirementAdditionRequests from the specified company's safety addition request storage
+            </summary>
+            <param name="companyId">Database id of the company to search the safety addition request storage of</param>
+            <returns>A list of all RequirementAdditionRequests representing the contents of the company's safety addition request storage, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetSafetyAdditionRequestById(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the RequirementAdditionRequest with the specified id from the company's safety addition request storage
+            </summary>
+            <param name="companyId">The id of the company to search the storage of</param>
+            <param name="requirementId">The id of the safety addition request to find</param>
+            <returns>The RequirementAdditionRequest representing the safety addition request with the specified id, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetSafetyAdditionRequestsByIdRange(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a list of SafetyAdditionRequest objects who's database id are within the specified range
+            </summary>
+            <param name="companyId">Id of the company to retrieve the requests from</param>
+            <param name="startId">Starting id of the range to search for. Inclusive</param>
+            <param name="endId">Ending id of the range to search for. Exclusive</param>
+            <returns>A list of RequirementAdditionRequest objects that are within the specified id range, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetSafetyAdditionRequestsWhere(System.Int32,System.String)">
+            <summary>
+            Retrieves a list of RequirementAdditionRequest objects that match the where condition from the company's safety addition request storage
+            </summary>
+            <param name="companyId">Database Id of the company to retrieve the requests from</param>
+            <param name="where">Where conditional string that the safety addition requests must match. Must end with a semicolon</param>
+            <returns>A list of RequirementAdditionRequest objects from the company's safety addition request storage matching the conditional. Or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetUserById(System.Int32)">
+            <summary>
+            Retrives a the user by their database id
+            </summary>
+            <param name="id">database id of the user to retrieve</param>
+            <returns>The OverallUser object representing the user in the database, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.GetUsersWhere(System.String)">
+            <summary>
+            Retrieves a list of OverallUser objects from the database matching the where conditional
+            </summary>
+            <param name="where">The where condition that the OverallUser objects in the database must match to be retrieved. Must end with a semicolon</param>
+            <returns>A list of OverallUser objects that match the where conditional, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.RemoveForumPost(System.Int32,System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.UserToTextEntry)">
+            <summary>
+            Attempts to remove a forum post from the specified company's storage
+            </summary>
+            <param name="companyId">database id of the company to remove the forum post from</param>
+            <param name="repairJobId">database id of the repair job entry the forum post is about. Identifies the fourm</param>
+            <param name="entry">Forum Post to remove</param>
+            <returns>true if the removal is successful, false if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.RemoveJoinRequest(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Removes a join request from the company's pending join request storage, either by accepting it or denying it
+            </summary>
+            <param name="companyId">id of the company to remove the join request from</param>
+            <param name="requestId">database id of the request to remove</param>
+            <param name="accept">boolean flag of whether to accept the request or not.</param>
+            <remarks>If the request is accepted, the user who made the request that is being accepted has their company switched
+            to the company specified by companyId</remarks>
+            <returns>true if the operation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.RemovePartCatalogueEntry(System.Int32,System.Int32)">
+            <summary>
+            Attempts to remove the part catalogue entry specified by <paramref name="entryId"/>
+            </summary>
+            <param name="companyId">database id of the company to remove the part catelogue entry from</param>
+            <param name="entryId">database id of the part catelogue entry to remove</param>
+            <returns>true if the entry was removed successfully or false if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.RemovePartsListAdditionRequest(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Attempts to remove the parts list addition request with the specified id from the company's storage by accepting or denying its changes
+            </summary>
+            <param name="companyId">Database id of the company to remove the request from</param>
+            <param name="requestId">Database id of the request to remove</param>
+            <param name="accept">Whether to accept the request being removed</param>
+            <remarks>If the request is accepted, then the user is notified and the RepairJobEntry the request is proposing changes to
+            will have its requirements updated. 
+            If it is denied then the user will be notified, but the RepairJobEntry will not change
+            </remarks>
+            <returns>True if the removal was successful, false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.RemovePartsRequest(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Attempts to remove the PartsRequest with the specified id, either by accepting or denying the request
+            </summary>
+            <param name="companyId">Database id of the company to remove the request from</param>
+            <param name="requestId">Database id of the request to accept or deny</param>
+            <param name="accept">Whether to accept the request or deny it</param>
+            <remarks>Whether the request is accepted or denied has no further effect on our database beyond informing the user of the decision</remarks>
+            <returns>True if the removal was successful, or false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.RemoveSafetyAdditionRequest(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Attempts to remove the safety addition request from the specified company's safety addition request storage by accepting or denying it
+            </summary>
+            <param name="companyId">Database id of the company to remove the request from</param>
+            <param name="requestId">Database id of the request to remove</param>
+            <param name="accept">Whether to accept the changes proposed by the request</param>
+            <remarks>If the request is accepted, the user is notified and the RepairJobEntry the request is proposing changes to
+            will be have its safety requirements updated
+            if it is not accpeted, the user will simply be notified</remarks>
+            <returns>True if the removal was successful, or false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateCompanySettings(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsEntry)">
+            <summary>
+            Updates the CompanySettingsEntry in the database to match the CompanySettingsEntry passed in
+            </summary>
+            <param name="companyId">id of the company to update the setting for</param>
+            <param name="toUpdate">CompanySettingsEntry to update</param>
+            <returns>true if the operation was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateDataEntryRequirements(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry,System.Boolean)">
+            <summary>
+            Updates the requirements of the RepairJobEntry in the database with the one passed in, matched via ids
+            </summary>
+            <param name="companyId">Id of the company to perform the update on</param>
+            <param name="entryToUpdate">The entry to update the database version with</param>
+            <param name="validated">Whether the database entry to update exists in the company's validated data set or not</param>
+            <returns>True if the update was successful, or false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdatePartEntry(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry)">
+            <summary>
+            Attempts to update the PartCatalogueEntry stored in the database to match <paramref name="toUpdate"/>
+            </summary>
+            <param name="companyId">database id of the company to update the storage of</param>
+            <param name="toUpdate">the PartCatalogueEntry that represents the new state of the PartCatalogueEntry</param>
+            <returns>true if the update was successful, or false if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdatePartsListAdditionRequest(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest)">
+            <summary>
+            Attempts to update the parts list addition request represented by <paramref name="request"/> in the database
+            </summary>
+            <param name="companyId">Database id of the company to update the storage of</param>
+            <param name="request">RequirementAdditionRequest that represents the new state of the parts list addition request</param>
+            <returns>true if the update was successful, false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateSafetyAdditionRequest(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest)">
+            <summary>
+            Updates the safety addition request represented by the RequirementAdditionRequest passed in to match the RequirementAdditionRequest passed in
+            </summary>
+            <param name="companyId">Database id of the company to update the storage of</param>
+            <param name="request">The RequirementAdditionRequest that represents the new state of the safety addition request in the database</param>
+            <returns>true if the update was successful, false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateUserCompany(OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser)">
+            <summary>
+            Updates the database version of toUpdate's company to match the version passed in
+            </summary>
+            <param name="toUpdate">OverallUser object that contains the state the database version should reflect</param>
+            <returns>true if the update was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateUsersLoginToken(OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser,OldManInTheShopServer.Data.MySql.TableDataTypes.LoginStatusTokens)">
+            <summary>
+            Updates the database version of the user's authentication and login tokens to match the ones provided by <paramref name="update"/>
+            </summary>
+            <param name="toUpdate">The user to modify, exclusively used to find the database entry to update</param>
+            <param name="update">The login and authentication tokens to update</param>
+            <returns>true if the operation occurred successfully, or false if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateUserPreviousRequests(OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser)">
+            <summary>
+            Updates the database version of the user passed in's request history to match the history of the OverallUser passed in
+            </summary>
+            <param name="toUpdate">The OverallUser whose request history the database version should match</param>
+            <returns>True if the update was successful, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateUsersSettings(OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser)">
+            <summary>
+            Updates the database version of the overall user's settings to match the one passed in. Matched by id
+            </summary>
+            <param name="toUpdate">User object used to update the database version's settings</param>
+            <returns>True if the update occurred successfully, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.UpdateValidationStatus(System.Int32,OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry,System.Boolean)">
+            <summary>
+            Updates the storage location of the RepairJobEntry specified, moving it into the validated data if it was not previously validated, or vice versa
+            </summary>
+            <param name="companyId">Id of the company to perform the update to</param>
+            <param name="toSwitch">The RepairJobEntry to switch the validation status of</param>
+            <param name="wasValidated">Whether the RepairJobEntry is currently in the validated data set</param>
+            <returns>True if the swap was successful, false otherwise</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataManipulator`1">
+            <summary>
+            Class with the responsibility of performing basic database operations using the methods
+            that come with the ISqlSerializable interface
+            </summary>
+            <typeparam name="T">A type that derives itself from the ISqlSerializable interface that has a default constructor</typeparam>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.LastException">
+            <summary>
+            The last MySqlException that occurred in this object
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.RetrieveDataWhere(MySql.Data.MySqlClient.MySqlConnection,System.String,System.String)">
+            <summary>
+            Retrieves a List of the generic type object from the database that match the where conditional
+            </summary>
+            <param name="connection">Connection to the database to use when performing the request</param>
+            <param name="tableName">Name of the table to retrieve from</param>
+            <param name="where">Where conditional string that the generic objects must match</param>
+            <returns>A list of the generic objects that match the where conditional, or null if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.RetrieveDataWithId(MySql.Data.MySqlClient.MySqlConnection,System.String,System.String)">
+            <summary>
+            Retrieves a List of the generic type object from the database that match the where conditional
+            </summary>
+            <param name="connection">Connection to the database to use when performing the request</param>
+            <param name="tableName">Name of the table to retrieve from</param>
+            <param name="id">id of the object to retrieve</param>
+            <returns>The generic object that has the specified id, or null if an object returns</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.RetrieveDataFrom(MySql.Data.MySqlClient.MySqlConnection,System.String)">
+            <summary>
+            Attempts to retrieve all instances of the generic object from the specified table in the database using the specified conneciton
+            </summary>
+            <param name="connection">Connection to the database to use when performing the request</param>
+            <param name="tableName">Name of the table to retrieve from</param>
+            <returns>A list of the generic objects that are in the specified table, or null if an error occurred</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.InsertDataInto(MySql.Data.MySqlClient.MySqlConnection,System.String,`0)">
+            <summary>
+            Attempts to insert the generic object into the table specified by <paramref name="tableName"/>
+            </summary>
+            <param name="connection">Connection to the database to use when performing the request</param>
+            <param name="tableName">Name of the table to insert into</param>
+            <param name="toInsert">The generic object to insert</param>
+            <returns>The number of rows affected by the change. Will either be 1 or -1, where -1 occurs when an error does</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.RemoveDataWithId(MySql.Data.MySqlClient.MySqlConnection,System.String,System.Int32)">
+            <summary>
+            Attempts to remove the item with the specified id from the table
+            </summary>
+            <param name="connection">Connection to the database to use when performing the request</param>
+            <param name="tableName">Name of the table to remove from</param>
+            <param name="id">The id of the object to remove</param>
+            <returns>The number of rows affected by the change. Will either be 1 or -1, where -1 occurs when an error does</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.RemoveDataWhere(MySql.Data.MySqlClient.MySqlConnection,System.String,System.String)">
+            <summary>
+            Attempts to remove all objects from the table specified by <paramref name="tableName"/> that match the where conditional
+            </summary>
+            <param name="connection">Connection to the database to use when performing the request</param>
+            <param name="tableName">Name of the table to remove from</param>
+            <param name="where">The where conditional that the data must match to be removed</param>
+            <returns>The number of rows affected, or -1 if an error occurs</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataManipulator`1.ExecuteNonQuery(MySql.Data.MySqlClient.MySqlConnection,System.String)">
+            <summary>
+            Attempts to execute the command specified by <paramref name="commandString"/>
+            </summary>
+            <param name="connection">Connection to the database to use when performing the request</param>
+            <param name="commandString">String representing the MySql command to execute</param>
+            <returns>The number of rows that were affected by the command, or -1 if an error occured</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId">
+            <summary>
+            Class that represents a Company in the MySQL Database
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId.LegalName">
+            <summary>
+            Company's Legal Name
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId.ModelAccuracy">
+            <summary>
+            <para>Field representing the current accuracy of the clustering models based on automated testing</para>
+            <para>For more information on automated testing see <see cref="M:OldManInTheShopServer.Util.CompanyModelUtils.PerformAutomatedTesting(OldManInTheShopServer.Data.MySql.MySqlDataManipulator,System.Int32,OldManInTheShopServer.Models.DatabaseQueryProcessor)"/></para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId.LastTrainedTime">
+            <summary>
+            <para>UTC string that represents the last time this company had its clustering models trained</para>
+            <para>For more information on automated training see <see cref="M:OldManInTheShopServer.Util.CompanyModelUtils.TrainClusteringModel(OldManInTheShopServer.Data.MySql.MySqlDataManipulator,OldManInTheShopServer.Models.DatabaseQueryProcessor,System.Int32,System.Boolean)"/></para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId.LastValidatedTime">
+            <summary>
+            <para>UTC string that represents the last time this company had its data validated</para>
+            <para>For more information on data validation see <see cref="M:OldManInTheShopServer.Util.CompanyModelUtils.PerformDataValidation(OldManInTheShopServer.Data.MySql.MySqlDataManipulator,System.Int32,OldManInTheShopServer.Models.DatabaseQueryProcessor,System.Int32,System.Int32)"/></para>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId.#ctor">
+            <summary>
+            Default constructor, required by <see cref="T:OldManInTheShopServer.Data.MySql.TableDataManipulator`1"/>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId.#ctor(System.String,System.Single)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="legalName">Legal name of the company</param>
+            <param name="modelAccuracy">Initial accuracy of the clustering model for the company (usually is 0.0)</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanyId.Copy">
+            <summary>
+            Returns a copy of the current object. This copy is shallow
+            </summary>
+            <returns>CompanyId object containing the same data as this one</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsKey">
+            <summary>
+            Static class containing the keys for any valid Company Setting
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsOptions">
+            <summary>
+            Static class containing the valid options a Company Setting may be. Based on the same naming as CompanySettingsKey
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsEntry">
+            <summary>
+            Class that represents a setting that applies on the company-wide scope, and is stored in the company's settings table
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsEntry.SettingKey">
+            <summary>
+            The unique key used to identify this setting
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsEntry.SettingValue">
+            <summary>
+            The value of this setting
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsEntry.#ctor">
+            <summary>
+            Default constructor, required by <see cref="T:OldManInTheShopServer.Data.MySql.TableDataManipulator`1"/>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.CompanySettingsEntry.#ctor(System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="key">Unique key used to identify this setting</param>
+            <param name="value">The value of this setting</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.JoinRequest">
+            <summary>
+            <para>Class that represents a request from a user to join a company</para>
+            <para>The company is not stored as part of this request as it is stored in the data table of the company
+            the request is for</para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.JoinRequest.UserId">
+            <summary>
+            Database id of the user that is requesting to join the company
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.JoinRequest.#ctor">
+            <summary>
+            Default constructor, required by <see cref="T:OldManInTheShopServer.Data.MySql.TableDataManipulator`1"/>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.JoinRequest.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="userId">Database id of the user who is making the request</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.KeywordGroupEntry">
+            <summary>
+            Class that represents a keyword grouping in the MySQL database
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.KeywordGroupEntry.GroupDefinition">
+            <summary>
+            Definition of the keyword group (a space separated string of keywords)
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.KeywordGroupEntry.#ctor">
+            <summary>
+            Default Constructor, required by <see cref="T:OldManInTheShopServer.Data.MySql.TableDataManipulator`1"/>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.KeywordGroupEntry.#ctor(System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="groupDefinition">Definition of the keyword group (a space separated string of keywords)</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.LoginStatusTokens">
+            <summary>
+            Class that represents the JSON format of the LoginStatusTokens a user has in the database
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.LoginStatusTokens.LoginToken">
+            <summary>
+            MySql Binary Literal representing the random 64 byte token a user receives when they log in successfully
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.LoginStatusTokens.LoginTokenExpiration">
+            <summary>
+            UTC string representing when the user's LoginToken expires
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.LoginStatusTokens.AuthToken">
+            <summary>
+            MySql Binary Literal representing the random 64 byte token a user receives when they successfully authenticate themselves
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.LoginStatusTokens.AuthTokenExpiration">
+            <summary>
+            UTC string representing when the user's AuthToken expires
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.UserSettingsEntry">
+            <summary>
+            Class representing the JSON format a user's setting should take
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.UserSettingsEntry.Key">
+            <summary>
+            The unique key used to identify the setting
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.UserSettingsEntry.Value">
+            <summary>
+            The value of the setting
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.UserSettingsEntryKeys">
+            <summary>
+            A static class used to store the valid Keys for a User Setting
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RequestString">
+            <summary>
+            <para>Class used to represent the JSON format of a request in the user's request history</para>
+            This class does not contain the status of the request, only the information about the request
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.RequestString.Company">
+            <summary>
+            The company the request was made to
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.RequestString.Type">
+            <summary>
+            <para>The type of request made</para>
+            Valid values are: "join", "parts", "partslist", and "safety"
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.RequestString.MD5">
+            <summary>
+            Message digest of the request, used to identify the request quickly
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.RequestString.CalculateMD5(System.String)">
+            <summary>
+            Calculates the message digest of the request along with the extra data passe din
+            </summary>
+            <param name="extraData">Extra data to store with the request (such as the list of parts requested for a parts request)</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.PreviousUserRequest">
+            <summary>
+            Class representing the JSON format of a request that the user has made stored in their history.
+            Includes the status of the request as well.
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.PreviousUserRequest.Request">
+            <summary>
+            RequestString object representing the request made
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.PreviousUserRequest.RequestStatus">
+            <summary>
+            The current status of the request
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser">
+            <summary>
+            Class representing a user and how they are stored in the database
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.GenerateDefaultSettings">
+            <summary>
+            Generates the default settings for a user
+            </summary>
+            <returns>JSON formatted string representing the user's settings</returns>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.AccessLevel">
+            <summary>
+            <param>Int representing the access level of the user</param>
+            For more information on access levels see <see cref="T:OldManInTheShopServer.Util.AccessLevelMasks"/>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.DerivedSecurityToken">
+            <summary>
+            <para>64 byte array containing the security token used for authenticating a user</para>
+            For more information on the creation of the DST see <see cref="M:OMISSecLib.SecuritySchemaLib.ConstructDerivedSecurityToken(System.Byte[],System.Byte[])"/>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.SecurityQuestion">
+            <summary>
+            <para>Security question that a user must answer in order to successfully authenticate themselves</para>
+            For more information on the authentication process see <see cref="M:OldManInTheShopServer.Util.UserVerificationUtil.VerifyAuthentication(OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser,System.String,System.String)"/>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.PersonalData">
+            <summary>
+            A 1024 long byte array containing the user's personal data. This is currently unused, and is likely to be removed in the future
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.Settings">
+            <summary>
+            A string of maximum 512 characters representing the user's settings.
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.Company">
+            <summary>
+            Database id of the company the user is a part of
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.AuthTestString">
+            <summary>
+            <para>A byte array of maximum 64 bytes representing the string a user must construct in order to pass authentication</para>
+            <para>For more information regarding creation of this string see <see cref="M:OldManInTheShopServer.Data.MySql.MySqlDataManipulator.AddUser(System.String,System.String,System.String,System.String,System.Int32,System.Int32)"/></para>
+            <para>For more information on how a user passes authentication, see <see cref="M:OldManInTheShopServer.Util.UserVerificationUtil.VerifyAuthentication(OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser,System.String,System.String)"/></para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.LoginStatusTokens">
+            <summary>
+            <para>JSON formatted string representing the LoginStatusTokens associated with this user</para>
+            <para>For the format of this JSON string see <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.LoginStatusTokens"/></para>
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.Email">
+            <summary>
+            The email associated with the user
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.RequestHistoryBytesSize">
+            <summary>
+            The size of the RequestHistory Column in the Database. This must be the same size as the "varbinary" declaration
+            of the RequestHistory field in this class
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.RequestHistory">
+            <summary>
+            Byte array containing the ANS encoded JSON string representing the user's request history
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.UserId">
+            <summary>
+            The database id of the current user. This overrides the default Id field inheirited from the
+            <see cref="T:OldManInTheShopServer.Data.MySql.MySqlTableDataMember`1"/> class
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.UpdateSettings(System.String,System.String)">
+            <summary>
+            Updates the user's settings by changing the value of the setting with the specified key to be the specified value
+            </summary>
+            <param name="key">The key of the setting to update</param>
+            <param name="value">The value the setting should have after the update</param>
+            <returns>True if the setting was found and updated successfully, false otherwise</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.DecodeRequests">
+            <summary>
+            Decodes the requests in this user's RequestHistory and returns them
+            </summary>
+            <returns>A list containing all PreviousUserRequests stored in the user's RequestHistory</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.EncodeRequests(System.Collections.Generic.List{OldManInTheShopServer.Data.MySql.TableDataTypes.PreviousUserRequest})">
+            <summary>
+            Encodes the List of PreviousUserRequest objects, and stores them in this user's RequestHistory
+            </summary>
+            <param name="requestsIn">List of <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.PreviousUserRequest"/> objects that should become the current user's RequestHistory</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.Deserialize(MySql.Data.MySqlClient.MySqlDataReader)">
+            <summary>
+            <para>Deserializes the current user's data from the MySqlDataReader passed in</para>
+            Overrides <see cref="M:OldManInTheShopServer.Data.MySql.MySqlTableDataMember`1.Deserialize(MySql.Data.MySqlClient.MySqlDataReader)"/> due to the byte[] objects present in this class's fields
+            </summary>
+            <param name="reader">The MySqlDataReader object that contains the data to deserialize</param>
+            <remarks>This method will break if <seealso cref="M:MySql.Data.MySqlClient.MySqlDataReader.Read"/> has not been called yet or if one of the 
+            fields is of the value <seealso cref="T:System.DBNull"/></remarks>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.OverallUser.Serialize(System.String)">
+            <summary>
+            Serializes this object into a MySql command string that can be used to insert its data into the table specified
+            </summary>
+            <param name="tableName">The table to construct an insert command for</param>
+            <returns>A MySql command string used to insert this objects data into the table specified by <paramref name="tableName"/></returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry">
+            <summary>
+            Class representing the data of a Part in a company's part catalogue stored in the database
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry.Make">
+            <summary>
+            The make of the machine the part is for
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry.Model">
+            <summary>
+            The model of the machine the part is for
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry.Year">
+            <summary>
+            The year of the machine the part is for
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry.PartId">
+            <summary>
+            The real world part id string (usually looks like "ABCEF-XXX-XXX")
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartCatalogueEntry.PartName">
+            <summary>
+            The more everyday name of the part this entry represents
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.PartsRequest">
+            <summary>
+            Class that represents a Part Request in the MySql database
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartsRequest.UserId">
+            <summary>
+            Database id of the user that made the request
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartsRequest.JobId">
+            <summary>
+            The shop assigned id to the repair job that the part request is for
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.PartsRequest.ReferencedParts">
+            <summary>
+            JSON formatted string of integers representing the database ids of the parts requested as a part of this request
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.AuxillaryRequirement">
+            <summary>
+            Class representing an auxillary requirement of a <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> added by a Mechanic level user
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry">
+            <summary>
+            Class representing the requirements attached to a <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>.
+            These requirements include Safety, Parts, and Auxillary requirements
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry.Safety">
+            <summary>
+            List of safety requirements associated with the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry.Parts">
+            <summary>
+            List of Database Ids of the parts required for the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>
+            </summary>
+        </member>
+        <member name="P:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry.Auxillary">
+            <summary>
+            List of auxillary requirements associated with the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry.GenerateJsonString">
+            <summary>
+            Converts the current object to a JSON string based on its DataContract
+            </summary>
+            <returns>A JSON formatted string containing all the requirements associated with the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/></returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry.ParseJsonString(System.String)">
+            <summary>
+            Parses the string passed in an attempt to construct a RequirementsEntry object from it
+            </summary>
+            <param name="stringIn">JSON formatted string that represents a RequirementsEntry object</param>
+            <returns>The RequirementsEntry object that was stored in JSON format within the string passed in</returns>
+            <remarks>This method will break if a non-JSON formatted string is passed in</remarks>
+        </member>
+        <member name="M:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry.GenerateEmptyJson">
+            <summary>
+            Generates a JSON string that matches the format of a RequirementsEntry object containing no requirements
+            </summary>
+            <returns>A JSON string that matches the format of a RequirementsEntry object containing no requirements</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry">
+            <summary>
+            Class that represents a Repair Job that a mechanic has uploaded to the server, and how it should be stored
+            in the MySql database
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.JobId">
+            <summary>
+            The shop assigned id of the Repair Job
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.Make">
+            <summary>
+            The make of the machine the repair job was about
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.Model">
+            <summary>
+            The model of the machine the repair job was about
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.Complaint">
+            <summary>
+            The customer's complaint about the machine that lead to the repair job being ordered
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.Problem">
+            <summary>
+            The problem with the machine that the mechanic found in the process of fulfilling the
+            repair job
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.ComplaintGroups">
+            <summary>
+            A JSON formatted list of ints representing the database ids of the complaint groups that
+            match with this repair job's complaint
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.ProblemGroups">
+            <summary>
+            A JSON formatted list of ints representing the database ids of the problem groups that
+            match with this repair job's listed problem. Deprecated and unused.
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.Requirements">
+            <summary>
+            JSON string representing a <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementsEntry"/> object containing the requirements
+            for this repair job
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry.Year">
+            <summary>
+            The year of the machine this repair job is about, a value of -1 represents an unknown year
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest">
+            <summary>
+            Class that represents a user's request to a company to add a requirement to a <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>
+            and how that is stored in the MySql database
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest.UserId">
+            <summary>
+            Database id of the user that is requesting the requirement additions
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest.ValidatedDataId">
+            <summary>
+            The database id of the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/> in the user's registered company's validated data set
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.RequirementAdditionRequest.RequestedAdditions">
+            <summary>
+            JSON formatted list representing the requirement additions the user is requesting to be added to the <see cref="T:OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry"/>
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableDataTypes.UserToTextEntry">
+            <summary>
+            Class that represents a user's forum posting, and how that is stored in the MySql database
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.UserToTextEntry.Text">
+            <summary>
+            Text that the user posted to the forum
+            </summary>
+        </member>
+        <member name="F:OldManInTheShopServer.Data.MySql.TableDataTypes.UserToTextEntry.UserId">
+            <summary>
+            Database id of the user that posted to the forum
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Data.MySql.TableNameStorage">
+            <summary>
+            Class that stores either the full table name, or generic table name format for each table in the database
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.DatabaseQueryProcessor">
+            <summary>
+            Class responsible for processing Prediction Queries using the MySql Database
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.DatabaseQueryProcessor.ProcessQueryForComplaintGroups(OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry,OldManInTheShopServer.Data.MySql.MySqlDataManipulator,System.Int32,System.Int32)">
+            <summary>
+            Attempts to return a list of the top 3 most similar complaint groups from the database
+            </summary>
+            <param name="entryIn">The query to predict the most similar complaint groups of</param>
+            <param name="manipulator">The object to use to access the database</param>
+            <param name="companyId">The id of the company the request is being made for. Determines which tables to use in the database</param>
+            <returns>Json formatted string that contains the top 3 complaint groups that are most similar to the query made, and their database ids</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.DatabaseQueryProcessor.ProcessQueryForSimilarQueries(OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry,OldManInTheShopServer.Data.MySql.MySqlDataManipulator,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Attempts to retrieve the top <paramref name="numRequested"/> similar JobDataEntries from the database that are a part of the specified complaint group
+            </summary>
+            <param name="entryIn">Entry that represents the query made</param>
+            <param name="manipulator">Object to access the database with</param>
+            <param name="companyId">The id of the company to make the request of. Determines which tables to retrieve the data from</param>
+            <param name="complaintGroupId">Database id of the complaint group to match JobDataEntries by</param>
+            <param name="numRequested">Number of requested JobDataEntries to output</param>
+            <param name="offset">Number to offset the list of returned JobDataEntries by.
+            So with an offset of 5 and 10 JobDataEntires requested, the top 5-15 JobDataEntries would instead be returned</param>
+            <returns>Json string containing the requested similar JobDataEntries</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordClustering.ClaimableKeywordExample">
+            <summary>Represents a keyword example that can be claimed, and keeps tracks of the number of claims that it has</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.DatabaseKeywordSimilarityClusterer.PredictGroupSimilarity(OldManInTheShopServer.Models.KeywordClustering.KeywordExample)">
+            <summary>Calculates the similarity for the provided example to every one of the groups contained in this clusterer.</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.DatabaseKeywordSimilarityClusterer.PredictTopNSimilarGroups(OldManInTheShopServer.Models.KeywordClustering.KeywordExample,System.Int32)">
+            <summary>Calculates the similarity for the provided example to every one of the groups contained in this clusterer and returns the top n.</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordClustering.IDatabaseKeywordClusterer">
+            <summary>
+            Interface that all KeywordClusterers that work with the MySql database directly must implement from
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.IDatabaseKeywordClusterer.Train(System.Collections.Generic.List{OldManInTheShopServer.Models.KeywordClustering.KeywordExample})">
+            <summary>
+            Trains the IDatabaseKeywordClusterer based on the keyword examples passed in
+            </summary>
+            <param name="examplesIn">List of KeywordExample objects to use as training data</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.IDatabaseKeywordClusterer.Load(OldManInTheShopServer.Data.MySql.MySqlDataManipulator,System.Int32)">
+            <summary>
+            Loads the IDatabaseKeywordClusterer from the database
+            </summary>
+            <param name="manipulatorIn">Object to use for accessing the database</param>
+            <param name="companyId">Database id of the company to load the IDatabaseKeywordClusterer from</param>
+            <param name="complaint">Whether this IDatabaseKeywordClusterer is dealing with complaint keyword groupings or problem keyword groupings</param>
+            <returns>true if the model successfully loaded itself from the database, or false if it did not</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.IDatabaseKeywordClusterer.Save(OldManInTheShopServer.Data.MySql.MySqlDataManipulator,System.Int32)">
+            <summary>
+            Attempts to save the IDatabaseKeywordClusterer to the database 
+            </summary>
+            <param name="manipulatorIn">Object to use for accessing the database</param>
+            <param name="companyId">Database id of the company to save the IDatabaseKeywordClusterer to</param>
+            <param name="complaint">Whether this IDatabaseKeywordClusterer is dealing with complaint keyword groupings or problem keyword groupings</param>
+            <returns>true if the model successfully saved itself from the database, or false if it did not</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.IDatabaseKeywordClusterer.PredictTopNSimilarGroups(OldManInTheShopServer.Models.KeywordClustering.KeywordExample,System.Int32)">
+            <summary>
+            Attempts to predict the top <paramref name="numRequested"/> similar complaint groups to <paramref name="exampleIn"/>
+            </summary>
+            <param name="exampleIn">The keyword example to calculate the similarity of</param>
+            <param name="numRequested">The number of similar groups to output</param>
+            <returns>A list of sorted ints representing KeywordGroups by id based on similarity</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordClustering.IKeywordClusterer">
+            Interface representing an arbitrary keyword clustering model
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordClustering.KeywordExample">
+            <summary>Represents one keyword example. This example is made up of individual key words, and cannot contain duplicate keywords</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordClustering.KeywordGroup">
+            <summary>Class that represents a group of keyword examples. 
+            This group is defined by a set of selected keywords, 
+            and all elements of the group must contain all of the defining keywords</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.KeywordGroup.GenerateSubGroups(System.Int32,System.Double)">
+            <summary>Generates all sub groups of the current group. A sub group is created if a quarter of the keywords contained within its examples are the same. If so,
+            then those keywords are added to its definition, and it becomes a new group. As a note, its parent group still exists as well.</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.KeywordGroup.UpdateMembers(System.Collections.Generic.List{OldManInTheShopServer.Models.KeywordClustering.ClaimableKeywordExample})">
+             Updates the contained keyword examples based on the data passed in. An example is only added to this group if it contains
+             all of the keywords that are within the groups definition.
+            
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordClustering.KeywordGroupSimilaritySorter">
+            <summary>Class to sort keyword groups based on shared examples. The sorting is based on the most similar to all sorted groups, with similarity being weighted by the distance
+            from a group to the new potential sorted slot</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordClustering.KeywordSimilarityClusterer">
+            <summary>Keyword Clusterer designed to cluster keywords together into groups based on the frequency the keywords are used with one another</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.KeywordSimilarityClusterer.PredictGroupSimilarity(OldManInTheShopServer.Models.KeywordClustering.KeywordExample)">
+            <summary>Calculates the similarity for the provided example to every one of the groups contained in this clusterer.</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KeywordClustering.KeywordSimilarityClusterer.PredictTopNSimilarGroups(OldManInTheShopServer.Models.KeywordClustering.KeywordExample,System.Int32)">
+            <summary>Calculates the similarity for the provided example to every one of the groups contained in this clusterer and returns the top n.</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordPrediction.IKeywordPredictor">
+            <summary>Interface to provide use to an arbitrary keyword predictor</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordPrediction.KeywordPredictorTrainingUtils">
+            <summary>Utilities to make generating the training and target data from a list of keyword training examples easier</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KeywordPrediction.NaiveBayesKeywordPredictor">
+            <summary>NaiveBayes implementation of a keyword predictor. Uses the part of speech of the word in question and the part of speech of the words immediately before and after
+            it to make its predictions</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.KNN">
+            <summary><c>KNN</c> is a modified implementation of the K Nearest Neighbours algorithm</summary>  
+            It is modified in the sense that it returns the classes of the top K most similar data points
+            <author>Colton Freitas</author>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.KNN.SetupLabelMapping(System.Collections.Generic.List{System.Collections.Generic.List{System.Object}})">
+            <summary>Sets up a mapping for any data that is not a numeric value that converts it to a numeric value</summary>
+            This is done based on the index of the data:
+              For instance, considering data like ['a', 'b', 0, 1, 2], then only 'a' and 'b' would need mappings generated
+              However, as all data should be in the same format, 
+              this triggers a mapping dictionary to be generated for all data in that position
+            When the number of label mapping dictionaries has been established,
+              Then each data that needs to be mapped is given a number based on its order of appearance;
+              So if 'a' was seen by the mapping algorithm first, then it is assigned the value 0, etc.
+        </member>
+        <member name="T:OldManInTheShopServer.Models.NaiveBayes">
+            <summary>Naive Bayes C# implementation</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.QueryProblemPrediction.IDatabaseQueryProblemPredictor">
+            <summary>
+            Interface that all Database-based Query Problem Predictors must implement
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.QueryProblemPrediction.IQueryProblemPredictor">
+            <summary>Interface to allow arbitrary use of a query problem predictor</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Models.QueryProblemPrediction.KNNProblemPredictor">
+            KNN implementation of the IQueryProblemPredictor Interface
+        </member>
+        <member name="T:OldManInTheShopServer.Models.QueryProcessor">
+            <summary>
+            Old class for responding to queries for similar JobDataEntries. Will be deprecated as soon as newer DatabaseQueryProcessor is
+            fully completed and the web-sided part of this program is updated to use the new processor
+            
+            As such, the documentation provided is minimal to none
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Models.QueryProcessor.LoadKeywordPredictor(System.String)">
+            Summary:
+             Loads the the currently selected KeywordPredictor from the file specified
+            Note:
+             This method does not do the above currently. It is hard coded to use the NaiveBayesKeywordPredictor.
+             This is a hold out until the proper method is in place to switch between implementations
+             through a configuration file.
+        </member>
+        <member name="M:OldManInTheShopServer.Models.QueryProcessor.LoadKeywordClusterer(System.String)">
+            Summary:
+             Loads the the currently selected KeywordClusterer from the file specified
+            Note:
+             This method does not do the above currently. It is hard coded to use the KeywordSimilarityClusterer.
+             This is a hold out until the proper method is in place to switch between implementations
+             through a configuration file.
+        </member>
+        <member name="M:OldManInTheShopServer.Models.QueryProcessor.LoadProblemPredictor(System.String)">
+            Summary:
+             Loads the the currently selected ProblemPredictor from the file specified
+            Note:
+             This method does not do the above currently. It is hard coded to use the KNNProblemPredictor.
+             This is a hold out until the proper method is in place to switch between implementations
+             through a configuration file.
+        </member>
+        <member name="T:OldManInTheShopServer.Net.Api.HttpMessageHandler">
+            <summary>Definition of an HttpMessageHandler Method</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Net.Api.ApiDefinition">
+            <summary>Class that represents the definition of one part of a web api</summary> 
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.ApiDefinition.NotSupported(System.Net.HttpListenerContext)">
+            <summary>Method to reliably tell the requesting client that the method they used to request a resource is not valid</summary> 
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.ApiLoader.LoadApiAndListen(System.Int32)">
+            <summary>
+            Loads all ApiDefinitions and starts a server to listen for them
+            </summary>
+            <param name="portIn">Number of the port the server should listen on</param>
+            <returns></returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.ArchiveApi.ConvertEntry(OldManInTheShopServer.Data.MySql.TableDataTypes.RepairJobEntry)">
+            <summary>
+            <para>Converts the current RepairJobEntry into a JSON formatted representation of the object</para>
+            <para>Format:</para><list type="bullet">
+            <item>
+            <description>Make : string</description>
+            </item>
+            <item>
+            <description>Model : string</description>
+            </item>
+            <item>
+            <description>Complaint : string</description>
+            </item>
+            <item>
+            <description>Problem : string</description>
+            </item>
+            <item>
+            <description>Year : string</description>
+            </item>
+            <item>
+            <description>Id : int</description>
+            </item>
+            </list>
+            </summary>
+            <param name="e"></param>
+            <returns></returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Net.Api.CertValidationApi">
+            <summary>Api defintion for responding to the HTTP challenge made by the Lets Encrypt ACME Api</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CertValidationApi.HandleGetRequest(System.Net.HttpListenerContext)">
+            <summary>Responds to the http challenge by sending the contents of the file that was requested.
+            This is secure because the only entities that know the token (what the file is name) is our server
+            and the Let's Encrypt server</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyAccuracyApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2 google sheets document in the shared drive, 
+            under the tab Company/Accuracy, starting at row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyForumApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            POST request format located in the Web Api Enumeration v2
+            under the tab Company/Forum, starting row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyForumApi.HandleGetRequest(System.Net.HttpListenerContext)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2
+            under the tab Company/Forum, starting row 49
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyForumApi.HandleDeleteRequest(System.Net.HttpListenerContext)">
+            <summary>
+            DELETE request format located in the Web Api Enumeration v2
+            under the tab Company/Forum, starting row 26
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            POST request format located in the Web Api Enumeration v2
+            under the tab Company/Parts, starting row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsApi.HandleGetRequest(System.Net.HttpListenerContext)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2
+            under the tab Company/Parts, starting row 72
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsApi.HandleDeleteRequest(System.Net.HttpListenerContext)">
+            <summary>
+            DELETE request format located in the Web Api Enumeration v2
+            under the tab Company/Parts, starting row 51
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsApi.HandlePatchRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PATCH request format located in the Web Api Enumeration v2
+            under the tab Company/Parts, starting row 28
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartslistsRequestsApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            POST request format located in the Web Api Enumeration v2
+            under the tab Company/Partslists/Request, starting row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartslistsRequestsApi.HandleGetRequest(System.Net.HttpListenerContext,OldManInTheShopServer.Net.Api.CompanyPartsListsRequestApiGetRequest)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2
+            under the tab Company/Partslists/Request, starting row 23
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartslistsRequestsApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PULL request format located in the Web Api Enumeration v2
+            under the tab Company/Partslists/Request, starting row 49
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartslistsRequestsApi.HandleDeleteRequest(System.Net.HttpListenerContext,OldManInTheShopServer.Net.Api.CompanyPartsListsRequestApiDeleteRequest)">
+            <summary>
+            DELETE request format located in the Web Api Enumeration v2
+            under the tab Company/Partslists/Request, starting row 73
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartslistsRequestsApi.HandlePatchRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PATCH request format located in the Web Api Enumeration v2
+            under the tab Company/Partslists/Request, starting row 95
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsRequestApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            POST request format located in the Web Api Enumeration v2
+            under the tab Company/Parts/Request, starting row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsRequestApi.HandleGetRequest(System.Net.HttpListenerContext,OldManInTheShopServer.Net.Api.CompanyPartsRequestGetRequest)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2
+            under the tab Company/Parts/Request, starting row 23
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsRequestApi.HandleDeleteRequest(System.Net.HttpListenerContext)">
+            <summary>
+            DELETE request format located in the Web Api Enumeration v2
+            under the tab Company/Parts/Request, starting row 71
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyPartsRequestApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PUT request format located in the Web Api Enumeration v2
+            under the tab Company/Parts/Request, starting row 49
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyRequestsApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            POST request format located in the Web Api Enumeration v2
+            under the tab Company/Requests, starting row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyRequestsApi.HandleGetRequest(System.Net.HttpListenerContext,OldManInTheShopServer.Net.Api.CompanyRequestsGetRequest)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2
+            under the tab Company/Requests, starting row 23
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyRequestsApi.HandlePatchRequest(System.Net.HttpListenerContext)">
+            <summary>
+            DELETE request format located in the Web Api Enumeration v2
+            under the tab Company/Requests, starting row 73
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanyRequestsApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PUT request format located in the Web Api Enumeration v2
+            under the tab Company/Requests, starting row 49
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanySafetyRequestApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            POST request format located in the Web Api Enumeration v2
+            under the tab Company/Safety/Request, starting row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanySafetyRequestApi.HandleGetRequest(System.Net.HttpListenerContext,OldManInTheShopServer.Net.Api.CompanySafetyRequestApiGetRequest)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2
+            under the tab Company/Safety/Request, starting row 23
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanySafetyRequestApi.HandleDeleteRequest(System.Net.HttpListenerContext,OldManInTheShopServer.Net.Api.CompanySafetyRequestApiDeleteRequest)">
+            <summary>
+            DELETE request format located in the Web Api Enumeration v2
+            under the tab Company/Safety/Request, starting row 73
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanySafetyRequestApi.HandlePatchRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PATCH request format located in the Web Api Enumeration v2
+            under the tab Company/Safety/Request, starting row 95
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanySafetyRequestApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PUT request format located in the Web Api Enumeration v2
+            under the tab Company/Safety/Request, starting row 49
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanySettingsApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            GET request format located in the Web Api Enumeration v2
+            under the tab Company/Settings, starting row 1
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.CompanySettingsApi.HandlePatchRequest(System.Net.HttpListenerContext)">
+            <summary>
+            PATCH request format located in the Web Api Enumeration v2
+            under the tab Company/Settings, starting row 27
+            </summary>
+            <param name="ctx">HttpListenerContext to respond to</param>
+        </member>
+        <member name="F:OldManInTheShopServer.Net.Api.RepairJobApiFullRequest.LoginToken">
+            <summary>JSON String. Format provided in LoggedTokens</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.RepairJobApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for adding a repair job entry. Documention is found in the Web API Enumeration file
+            in the /RepairJob tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.RepairJobReportApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for either negatively or positively reporting a repair job entry. Documention is found in the Web API Enumeration file
+            in the /RepairJob/Report tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.RepairJobRequirementApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for adding an auxillary requirement to a repair job entry. Documention is found in the Web API Enumeration file
+            in the /RepairJob/Requirements tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.RepairJobRequirementApi.HandleDeleteRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for down voting an auxillary requirement in a repair job entry. Documention is found in the Web API Enumeration file
+            in the /RepairJob/Requirements tab, starting at row 21
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.RepairJobRequirementApi.HandlePatchRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for down editing an auxillary requirement in a repair job entry. Documention is found in the Web API Enumeration file
+            in the /RepairJob/Requirements tab, starting at row 42
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.ReportUserApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for reporting a user's display name. Documention is found in the Web API Enumeration file
+            in the /User/Report tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Net.Api.TopLevelApi">
+            <summary>Handles redirecting clients that are requesting web pages not already covered by another http api</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.UserApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for creating a base mechanic user account. Documention is found in the Web API Enumeration file
+            in the /RepairJob/Requirements tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.UserApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for a user to log in using their email and password. Documention is found in the Web API Enumeration file
+            in the /RepairJob/Requirements tab, starting at row 21
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.UserAuthApi.HandlePostRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for retrieving a user's security question. Documention is found in the Web API Enumeration file
+            in the /User/Auth tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.UserAuthApi.HandlePutRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for a user to receive authentication to make edits to content they have access to. Documention is found in the Web API Enumeration file
+            in the /RepairJob/Requirements tab, starting at row 21
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.UserRequestsApi.HandleGetRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request for retrieving a user's previous request history. Documention is found in the Web API Enumeration file
+            in the /User/Request tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.UserSettingsApi.HandleGetRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request retrieving a user's settings. Documention is found in the Web API Enumeration file
+            in the User/Settings tab, starting at row 1
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="M:OldManInTheShopServer.Net.Api.UserSettingsApi.HandlePatchRequest(System.Net.HttpListenerContext)">
+            <summary>
+            Request editing a user's setting's value. Documention is found in the Web API Enumeration file
+            in the User/Settings tab, starting at row 30
+            </summary>
+            <param name="ctx">The HttpListenerContext to respond to</param>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.AccessLevelMasks">
+            <summary>
+            Bit masks that determine what privilages and roles a user has
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.CommandLineArgumentParser">
+            <summary>
+            Utility class for parsing command line arguments and listing them in a simplistic and easy to access way
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.CustomJsonParser">
+            <summary>Custom parser for arbitrary JSON objects, designed because the part of speech tagger came in arbitrary json format and needed to be read.</summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Util.DatabaseEntityCreationUtilities.PerformRequestedCreation(OldManInTheShopServer.Data.MySql.MySqlDataManipulator,OldManInTheShopServer.Util.CommandLineArgumentParser)">
+            <summary>
+            Analyzes the command lines stored in <paramref name="argumentsIn"/> and performs any company or user creation necessary
+            </summary>
+            <param name="manipulatorIn">Object to use to access the database if needed</param>
+            <param name="argumentsIn">The command line arguments to analyze</param>
+            <returns>True if there was a creation request made (thus the program should terminate), false otherwise (the program should continue onward)</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.DefaultModelFileLocations">
+            <summary>
+            Class that holds the responsiblity of storing the default file locations of
+            the various models that this program uses.
+            
+            Will soon be deprecated when the new prediction api is fully functional and integrated
+            into the web service
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.GlobalModelHelper">
+            <summary>
+            Helper class designed to assist in loading or training and saving the global IKeywordPredictor models.
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.JsonDataObjectUtil`1">
+            <summary>
+            Helper class designed to turn working with the DataContractJsonSerializer object easier
+            </summary>
+            <typeparam name="T">Generic type that has the DataContract attribute applied to its definition.</typeparam>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.JsonDictionaryStringConstructor">
+            <summary>
+            Helper class to ease making strings that represent JSON objects
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.JsonListStringConstructor">
+            <summary>
+            Helper class to ease making lists of JSON objects
+            </summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.LoggerDisposer">
+            <summary>
+            Class designed to be a one-shot mass disposer for the active global loggers
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Util.MaskedPasswordReader.ReadPasswordMasked(System.String)">
+            <summary>
+            Retrieves a password that, unfortunately, is stored in plaintext from the user while keeping their console masked.
+            </summary>
+            <param name="prompt">Prompt to display to the user before they are asked to input values</param>
+            <returns>A string containing the password in plaintext because MySQL requires a plaintext password. For Reasons. Ugh.</returns>
+        </member>
+        <member name="M:OldManInTheShopServer.Util.MysqlDataConvertingUtil.ConvertToHexString(System.Byte[])">
+            <summary>
+            Converts the byte array into a MySql binary literal
+            </summary>
+            <param name="a">The byte array to convert</param>
+            <returns>A string representing the MySql binary literal that corresponds to the byte array passed in</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.ReflectionHelper">
+            <summary>
+            Helper class for dealing with the reflection required to retrieve all IKeywordPredictor implementing classes for global instantiation
+            </summary>
+        </member>
+        <member name="M:OldManInTheShopServer.Util.ReflectionHelper.GetAllKeywordPredictors">
+            <summary>
+            Attempts to retrieve all IKeywordPredictor implementing classes, parse their KeywordPredictor attribute for a default file location, and return
+            a mapping of the IKeywordPredictor implementing classes to their default file location
+            </summary>
+            <returns>a mapping of the IKeywordPredictor implementing classes to their default file location</returns>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.SentenceTokenizer">
+            <summary>Splits an input sentence into tokens</summary>
+        </member>
+        <member name="T:OldManInTheShopServer.Util.UserVerificationUtil">
+            <summary>
+            Utility class to ease the testing of the validity of login and auth tokens and
+            testing for a valid initial login attempt or intitial authentication attempt
+            </summary>
+        </member>
+    </members>
+</doc>
