@@ -75,13 +75,12 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         [TestMethod]
         public void LoginNonExistantUser()
         {
-            AssertFailedException toThrow = null;
-            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            try
             {
-                manipulator.Connect(TestingConstants.ConnectionString);
-                Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser2.Email));
-                try
+                using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
                 {
+                    manipulator.Connect(TestingConstants.ConnectionString);
+                    Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser2.Email));
                     object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
                     TestingUserStorage.ValidUser2.ConstructLoginRequest(),
                     "PUT");
@@ -93,23 +92,71 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                     try
                     {
                         resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
-                        Assert.Fail();
+                        Assert.Fail("Expected the response to be an error response. This was not the case.");
                     }
                     catch (WebException e)
                     {
                         resp = e.Response as HttpWebResponse;
                     }
                     Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
-                } catch(AssertFailedException rethrow)
-                {
-                    toThrow = rethrow;
-                } finally
-                {
-                    TestingDatabaseCreationUtils.InitializeUsers();
-                    if (toThrow != null)
-                        throw toThrow;
                 }
             }
+            finally
+            {
+                TestingDatabaseCreationUtils.InitializeUsers();
+            }
+        }
+
+        [TestMethod]
+        public void TestBadRequestInvalidEmail()
+        {
+            var loginMessage = TestingUserStorage.ValidUser1.ConstructLoginRequest();
+            loginMessage.SetMapping("Email", "");
+            object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                loginMessage,
+                "PUT");
+            var ctx = contextAndRequest[0] as HttpListenerContext;
+            var req = contextAndRequest[1] as HttpWebRequest;
+            TestApi.PUT(ctx);
+
+            HttpWebResponse resp;
+            try
+            {
+                resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                Assert.Fail("Expected the response to be an error response. This was not the case.");
+            }
+            catch (WebException e)
+            {
+                resp = e.Response as HttpWebResponse;
+            }
+            Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+        }
+
+        [TestMethod]
+        public void TestBadRequestInvalidPassword()
+        {
+            var loginMessage = TestingUserStorage.ValidUser1.ConstructLoginRequest();
+            loginMessage.SetMapping("Password", "");
+            object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                loginMessage,
+                "PUT");
+            var ctx = contextAndRequest[0] as HttpListenerContext;
+            var req = contextAndRequest[1] as HttpWebRequest;
+            TestApi.PUT(ctx);
+
+            HttpWebResponse resp;
+            try
+            {
+                resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                Assert.Fail("Expected the response to be an error response. This was not the case.");
+            }
+            catch (WebException e)
+            {
+                resp = e.Response as HttpWebResponse;
+            }
+            Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
         }
     }
+
+    
 }
