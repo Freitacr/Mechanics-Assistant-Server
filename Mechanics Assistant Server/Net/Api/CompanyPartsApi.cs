@@ -146,12 +146,12 @@ namespace OldManInTheShopServer.Net.Api
                     }
                     if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
                     {
-                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
                     if ((mappedUser.AccessLevel & AccessLevelMasks.PartMask) == 0)
                     {
-                        WriteBodyResponse(ctx,401,"Not Autherized","Not marked as a Parts User");
+                        WriteBodyResponse(ctx,401,"Not Authorized","Not marked as a Parts User");
                         return;
                     }
                     PartCatalogueEntry ent = new PartCatalogueEntry(entry.Make,entry.Model,entry.Year,entry.PartId,entry.PartName);

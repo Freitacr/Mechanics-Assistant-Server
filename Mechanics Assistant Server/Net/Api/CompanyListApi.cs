@@ -180,6 +180,20 @@ namespace OldManInTheShopServer.Net.Api
 
         }
         
+        /// <summary>
+        /// Converts the input <see cref="CompanyId"></see> to JSON stored in a <see cref="JsonDictionaryStringConstructor"/>
+        /// </summary>
+        /// <remarks>
+        /// JSON format is as follows:
+        /// <code>
+        /// {
+        ///     Id : int
+        ///     LegalName : string
+        /// }
+        /// </code>
+        /// </remarks>
+        /// <param name="idIn"></param>
+        /// <returns></returns>
         private JsonDictionaryStringConstructor WriteCompanyIdToOutput(CompanyId idIn)
         {
             JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
