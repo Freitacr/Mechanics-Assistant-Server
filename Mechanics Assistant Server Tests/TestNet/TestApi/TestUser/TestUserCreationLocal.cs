@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OldManInTheShopServer.Net.Api;
 using System.Net;
 using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
@@ -66,6 +67,12 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                     TestingDatabaseCreationUtils.InitializeUsers();
                     throw e;
                 }
+
+                var createdUser = manipulator.GetUsersWhere(string.Format("Email = \"{0}\"", TestingUserStorage.ValidUser1.Email));
+                Assert.IsNotNull(createdUser);
+                Assert.AreEqual(1, createdUser.Count);
+                Assert.AreEqual(TestingUserStorage.ValidUser1.Email, createdUser[0].Email);
+
             }
             
         }
@@ -73,7 +80,6 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         [TestMethod]
         public void TestConflictOnDuplicateUserCreation()
         {
-            //Create the first user.
             object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
                 TestingUserStorage.ValidUser1.ConstructCreationMessage(),
                 "POST");
@@ -92,6 +98,191 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                 resp = e.Response as HttpWebResponse;
             }
             Assert.AreEqual(HttpStatusCode.Conflict, resp.StatusCode);
+        }
+
+        [TestMethod]
+        public void TestBadRequestOnEmptyEmail()
+        {
+            try
+            {
+                MySqlDataManipulator manipulator = new MySqlDataManipulator();
+                using (manipulator)
+                {
+                    manipulator.Connect(TestingConstants.ConnectionString);
+                    Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser1.Email));
+                    var creationMessage = TestingUserStorage.ValidUser1.ConstructCreationMessage();
+                    creationMessage.SetMapping("Email", "");
+                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                       creationMessage,
+                       "POST");
+                    var ctx = contextAndRequest[0] as HttpListenerContext;
+                    var req = contextAndRequest[1] as HttpWebRequest;
+
+                    HttpWebResponse resp;
+
+                    TestApi.POST(ctx);
+                    try
+                    {
+                        resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    }
+                    catch (WebException e)
+                    {
+                        resp = e.Response as HttpWebResponse;
+                    }
+                    Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+                }
+            }
+            finally
+            {
+                TestingDatabaseCreationUtils.InitializeUsers();
+            }
+        }
+
+        [TestMethod]
+        public void TestBadRequestOnEmptyPassword()
+        {
+            try
+            {
+                MySqlDataManipulator manipulator = new MySqlDataManipulator();
+                using (manipulator)
+                {
+                    manipulator.Connect(TestingConstants.ConnectionString);
+                    Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser1.Email));
+                    var creationMessage = TestingUserStorage.ValidUser1.ConstructCreationMessage();
+                    creationMessage.SetMapping("Password", "");
+                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                       creationMessage,
+                       "POST");
+                    var ctx = contextAndRequest[0] as HttpListenerContext;
+                    var req = contextAndRequest[1] as HttpWebRequest;
+
+                    HttpWebResponse resp;
+
+                    TestApi.POST(ctx);
+                    try
+                    {
+                        resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    }
+                    catch (WebException e)
+                    {
+                        resp = e.Response as HttpWebResponse;
+                    }
+                    Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+                }
+            } finally {
+                TestingDatabaseCreationUtils.InitializeUsers();
+            }
+        }
+
+        [TestMethod]
+        public void TestBadRequestOnEmptySecurityQuestion()
+        {
+            try
+            {
+                MySqlDataManipulator manipulator = new MySqlDataManipulator();
+                using (manipulator)
+                {
+                    manipulator.Connect(TestingConstants.ConnectionString);
+                    Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser1.Email));
+                    var creationMessage = TestingUserStorage.ValidUser1.ConstructCreationMessage();
+                    creationMessage.SetMapping("SecurityQuestion", "");
+                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                       creationMessage,
+                       "POST");
+                    var ctx = contextAndRequest[0] as HttpListenerContext;
+                    var req = contextAndRequest[1] as HttpWebRequest;
+
+                    HttpWebResponse resp;
+
+                    TestApi.POST(ctx);
+                    try
+                    {
+                        resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    }
+                    catch (WebException e)
+                    {
+                        resp = e.Response as HttpWebResponse;
+                    }
+                    Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+                }
+            } finally
+            {
+                TestingDatabaseCreationUtils.InitializeUsers();
+            }
+        }
+
+        [TestMethod]
+        public void TestBadRequestOnEmptySecurityAnswer()
+        {
+            try
+            {
+                MySqlDataManipulator manipulator = new MySqlDataManipulator();
+                using (manipulator)
+                {
+                    manipulator.Connect(TestingConstants.ConnectionString);
+                    Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser1.Email));
+                    var creationMessage = TestingUserStorage.ValidUser1.ConstructCreationMessage();
+                    creationMessage.SetMapping("SecurityAnswer", "");
+                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                       creationMessage,
+                       "POST");
+                    var ctx = contextAndRequest[0] as HttpListenerContext;
+                    var req = contextAndRequest[1] as HttpWebRequest;
+
+                    HttpWebResponse resp;
+
+                    TestApi.POST(ctx);
+                    try
+                    {
+                        resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    }
+                    catch (WebException e)
+                    {
+                        resp = e.Response as HttpWebResponse;
+                    }
+                    Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+                }
+            } finally
+            {
+                TestingDatabaseCreationUtils.InitializeUsers();
+            }
+        }
+
+        [TestMethod]
+        public void TestBadRequestOnAllEmptyFields()
+        {
+            try
+            {
+                MySqlDataManipulator manipulator = new MySqlDataManipulator();
+                using (manipulator)
+                {
+                    manipulator.Connect(TestingConstants.ConnectionString);
+                    Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser1.Email));
+                    var creationMessage = new JsonDictionaryStringConstructor();
+                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                       creationMessage,
+                       "POST");
+                    var ctx = contextAndRequest[0] as HttpListenerContext;
+                    var req = contextAndRequest[1] as HttpWebRequest;
+
+                    HttpWebResponse resp;
+
+                    TestApi.POST(ctx);
+                    try
+                    {
+                        resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    }
+                    catch (WebException e)
+                    {
+                        resp = e.Response as HttpWebResponse;
+                    }
+                    Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+                }
+            }
+            finally
+            {
+                TestingDatabaseCreationUtils.InitializeUsers();
+            }
         }
     }
 }
