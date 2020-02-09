@@ -93,39 +93,41 @@ namespace OldManInTheShopServer.Net.Api
                 }
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
-                bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
-                if (!res)
+                using (connection)
                 {
-                    WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
-                    return;
+                    bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
+                        return;
+                    }
+                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
+                        return;
+                    }
+                    if (entry.PostText.Contains('<'))
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                        return;
+                    }
+                    CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(entry.CompanyId, "SettingKey=\"" + CompanySettingsKey.Public + "\"")[0];
+                    bool isPublic = bool.Parse(isPublicSetting.SettingValue);
+                    if (!isPublic && mappedUser.Company != entry.CompanyId)
+                    {
+                        WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
+                        return;
+                    }
+                    //user is good, add post text
+                    res = connection.AddForumPost(entry.CompanyId, entry.JobEntryId, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserId });
+                    if (!res)
+                    {
+                        WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
+                        return;
+                    }
+                    WriteBodylessResponse(ctx, 200, "OK");
                 }
-                OverallUser mappedUser = connection.GetUserById(entry.UserId);
-                if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
-                {
-                    WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
-                    return;
-                }
-                if(entry.PostText.Contains('<'))
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
-                    return;
-                }
-                CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(entry.CompanyId, "SettingKey=\"" + CompanySettingsKey.Public + "\"")[0];
-                bool isPublic = bool.Parse(isPublicSetting.SettingValue);
-                if (!isPublic && mappedUser.Company != entry.CompanyId)
-                {
-                    WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
-                    return;
-                }
-                //user is good, add post text
-                res = connection.AddForumPost(entry.CompanyId, entry.JobEntryId, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserId });
-                if (!res)
-                {
-                    WriteBodyResponse(ctx, 500, "Unexpected Server Error", connection.LastException.Message);
-                    return;
-                }
-                WriteBodylessResponse(ctx, 200, "OK");
-                connection.Close();
             }
             catch (HttpListenerException)
             {
