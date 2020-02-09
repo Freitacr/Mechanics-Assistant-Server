@@ -29,7 +29,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
             MySqlDataManipulator.GlobalConfiguration.Connect(ConnectionString);
             MySqlDataManipulator.GlobalConfiguration.Close();
             bool res = Manipulator.Connect(ConnectionString);
-            if (!Manipulator.ValidateDatabaseIntegrity("db_test"))
+            if (!Manipulator.ValidateDatabaseIntegrity(TestingConstants.DatabaselessConnectionString, "db_test"))
             {
                 Console.WriteLine("Encountered an error opening the global configuration connection");
                 Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);

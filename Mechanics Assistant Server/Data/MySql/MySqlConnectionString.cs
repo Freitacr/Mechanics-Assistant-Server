@@ -3,7 +3,7 @@
     /// <summary>
     /// Class for constructing a MySqlConnection's ConnectionString
     /// </summary>
-    class MySqlConnectionString
+    public class MySqlConnectionString
     {
         public string Server { get; set; }
         public string Database { get; set; }

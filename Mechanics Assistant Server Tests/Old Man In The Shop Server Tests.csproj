@@ -12,6 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TestModels\TestKeywordPrediction\**" />
+    <EmbeddedResource Remove="TestModels\TestKeywordPrediction\**" />
+    <None Remove="TestModels\TestKeywordPrediction\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
@@ -20,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TestModels\TestKeywordPrediction\" />
     <Folder Include="TestUtil\" />
   </ItemGroup>
 

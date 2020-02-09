@@ -337,8 +337,8 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             PersonalData = (byte[])reader["PersonalData"];
             Settings = (string)reader["Settings"];
             Company = (int)reader["Company"];
-            AuthTestString = (byte[])reader["AuthToken"];
-            LoginStatusTokens = (string)reader["LoggedTokens"];
+            AuthTestString = (byte[])reader["AuthTestString"];
+            LoginStatusTokens = (string)reader["LoginStatusTokens"];
             Email = (string)reader["Email"];
             RequestHistory = (byte[])reader["RequestHistory"];
             UserId = (int)reader["id"];
@@ -354,7 +354,7 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
             StringBuilder retBuilder = new StringBuilder();
             retBuilder.Append("insert into ");
             retBuilder.Append(tableName);
-            retBuilder.Append("(AccessLevel, DerivedSecurityToken, SecurityQuestion, PersonalData, Settings, Company, AuthToken, LoggedTokens, Email, RequestHistory) Values (");
+            retBuilder.Append("(AccessLevel, DerivedSecurityToken, SecurityQuestion, PersonalData, Settings, Company, AuthTestString, LoginStatusTokens, Email, RequestHistory) Values (");
             retBuilder.Append(AccessLevel);
             retBuilder.Append(",");
             retBuilder.Append(MysqlDataConvertingUtil.ConvertToHexString(DerivedSecurityToken));

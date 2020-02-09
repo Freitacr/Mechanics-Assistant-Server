@@ -71,15 +71,17 @@ namespace OldManInTheShopServer.Data.MySql
                 LastException = e;
                 return default; //So this means return the default value of T? Which in our case would be null I am assuming
             }
-            T ret = new T();
-            if (!reader.Read())
+            using (reader)
             {
-                LastException = null;
-                return default;
+                T ret = new T();
+                if (!reader.Read())
+                {
+                    LastException = null;
+                    return default;
+                }
+                ret.Deserialize(reader);
+                return ret;
             }
-            ret.Deserialize(reader);
-            reader.Close();
-            return ret;
         }
 
         /// <summary>

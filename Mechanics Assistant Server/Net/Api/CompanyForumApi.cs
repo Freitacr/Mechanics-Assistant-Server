@@ -327,7 +327,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
 
-                    UserToTextEntry forumPost = connection.GetForumPost(mappedUser.Company, entry.JobEntryId, entry.ForumPostId);
+                    UserToTextEntry forumPost = connection.GetForumPostById(mappedUser.Company, entry.JobEntryId, entry.ForumPostId);
                     if(forumPost == null)
                     {
                         WriteBodylessResponse(ctx, 404, "Not Found");
