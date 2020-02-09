@@ -41,5 +41,14 @@ namespace MechanicsAssistantServerTests
             SecurityAnswer = "Baked Beans"
         };
 
+
+        public static readonly TestingUser ValidUser2 = new TestingUser()
+        {
+            Email = "abc@bc.com",
+            Password = "12345",
+            SecurityQuestion = "Toast?",
+            SecurityAnswer = "Toast"
+        };
+
     }
 }

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OldManInTheShopServer.Net.Api;
-using System.Net;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OldManInTheShopServer.Data.MySql;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
+using OldManInTheShopServer.Net.Api;
+using System;
+using System.Net;
+using System.Text;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
@@ -60,7 +60,56 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                 Console.WriteLine(Encoding.UTF8.GetString(respData));
                 throw e;
             }
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                manipulator.UpdateUsersLoginToken(
+                    manipulator.GetUsersWhere(
+                        string.Format("Email=\"{0}\"",
+                        TestingUserStorage.ValidUser1.Email)
+                        )[0],
+                    new LoginStatusTokens());
+            }
+        }
 
+        [TestMethod]
+        public void LoginNonExistantUser()
+        {
+            AssertFailedException toThrow = null;
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser2.Email));
+                try
+                {
+                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser2.ConstructLoginRequest(),
+                    "PUT");
+                    var ctx = contextAndRequest[0] as HttpListenerContext;
+                    var req = contextAndRequest[1] as HttpWebRequest;
+                    TestApi.PUT(ctx);
+
+                    HttpWebResponse resp;
+                    try
+                    {
+                        resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                        Assert.Fail();
+                    }
+                    catch (WebException e)
+                    {
+                        resp = e.Response as HttpWebResponse;
+                    }
+                    Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
+                } catch(AssertFailedException rethrow)
+                {
+                    toThrow = rethrow;
+                } finally
+                {
+                    TestingDatabaseCreationUtils.InitializeUsers();
+                    if (toThrow != null)
+                        throw toThrow;
+                }
+            }
         }
     }
 }

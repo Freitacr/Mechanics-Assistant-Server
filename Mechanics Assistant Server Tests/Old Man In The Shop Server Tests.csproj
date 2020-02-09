@@ -13,8 +13,11 @@
 
   <ItemGroup>
     <Compile Remove="TestModels\TestKeywordPrediction\**" />
+    <Compile Remove="TestUtil\**" />
     <EmbeddedResource Remove="TestModels\TestKeywordPrediction\**" />
+    <EmbeddedResource Remove="TestUtil\**" />
     <None Remove="TestModels\TestKeywordPrediction\**" />
+    <None Remove="TestUtil\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,10 +26,6 @@
     <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
     <PackageReference Include="System.Security.Permissions" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="TestUtil\" />
   </ItemGroup>
 
   <ItemGroup>

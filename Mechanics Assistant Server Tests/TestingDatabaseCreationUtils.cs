@@ -44,10 +44,12 @@ namespace MechanicsAssistantServerTests
                         return false;
                     }
                 }
+                DatabaseInitialized = true;
+                if (!InitializeUsers())
+                    return false;
             }
             MySqlDataManipulator.GlobalConfiguration.Connect(TestingConstants.ConnectionString);
             MySqlDataManipulator.GlobalConfiguration.Close();
-            DatabaseInitialized = true;
             return true;
         }
 
@@ -75,6 +77,21 @@ namespace MechanicsAssistantServerTests
                         )
                     {
                         Console.WriteLine("Encountered an error adding the first valid user.");
+                        Console.WriteLine(initializer.LastException.Message);
+                        return false;
+                    }
+                }
+                if (initializer.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser2.Email)).Count == 0)
+                {
+                    if (!initializer.AddUser(
+                            TestingUserStorage.ValidUser2.Email,
+                            TestingUserStorage.ValidUser2.Password,
+                            TestingUserStorage.ValidUser2.SecurityQuestion,
+                            TestingUserStorage.ValidUser2.SecurityAnswer
+                            )
+                        )
+                    {
+                        Console.WriteLine("Encountered an error adding the second valid user.");
                         Console.WriteLine(initializer.LastException.Message);
                         return false;
                     }

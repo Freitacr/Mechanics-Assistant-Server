@@ -33,37 +33,41 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         [TestMethod]
         public void TestCreateValidUser1()
         {
-            object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
-                TestingUserStorage.ValidUser1.ConstructCreationMessage(),
-                "POST");
-            var ctx = contextAndRequest[0] as HttpListenerContext;
-            var req = contextAndRequest[1] as HttpWebRequest;
-            TestApi.POST(ctx);
-
-            HttpWebResponse resp;
-            try
-            {
-                resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
-            } catch (WebException e)
-            {
-                resp = e.Response as HttpWebResponse;
-            }
-            try
-            {
-                Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
-            } catch (AssertFailedException e)
-            {
-                byte[] respData = new byte[resp.ContentLength];
-                resp.GetResponseStream().Read(respData, 0, respData.Length);
-                Console.WriteLine(Encoding.UTF8.GetString(respData));
-                throw e;
-            }
             MySqlDataManipulator manipulator = new MySqlDataManipulator();
             using (manipulator)
             {
                 manipulator.Connect(TestingConstants.ConnectionString);
                 Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser1.Email));
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser1.ConstructCreationMessage(),
+                    "POST");
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                TestApi.POST(ctx);
+
+                HttpWebResponse resp;
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                }
+                try
+                {
+                    Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+                }
+                catch (AssertFailedException e)
+                {
+                    byte[] respData = new byte[resp.ContentLength];
+                    resp.GetResponseStream().Read(respData, 0, respData.Length);
+                    Console.WriteLine(Encoding.UTF8.GetString(respData));
+                    TestingDatabaseCreationUtils.InitializeUsers();
+                    throw e;
+                }
             }
+            
         }
 
         [TestMethod]
@@ -75,33 +79,9 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                 "POST");
             var ctx = contextAndRequest[0] as HttpListenerContext;
             var req = contextAndRequest[1] as HttpWebRequest;
-            TestApi.POST(ctx);
-            HttpWebResponse resp;
-            try
-            {
-                resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
-            }
-            catch (WebException e)
-            {
-                resp = e.Response as HttpWebResponse;
-            }
-            try
-            {
-                Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
-            }
-            catch (AssertFailedException e)
-            {
-                byte[] respData = new byte[resp.ContentLength];
-                resp.GetResponseStream().Read(respData, 0, respData.Length);
-                Console.WriteLine(Encoding.UTF8.GetString(respData));
-                throw e;
-            }
 
-            contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
-                TestingUserStorage.ValidUser1.ConstructCreationMessage(),
-                "POST");
-            ctx = contextAndRequest[0] as HttpListenerContext;
-            req = contextAndRequest[1] as HttpWebRequest;
+            HttpWebResponse resp;
+
             TestApi.POST(ctx);
             try
             {
@@ -112,12 +92,6 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                 resp = e.Response as HttpWebResponse;
             }
             Assert.AreEqual(HttpStatusCode.Conflict, resp.StatusCode);
-            MySqlDataManipulator manipulator = new MySqlDataManipulator();
-            using (manipulator)
-            {
-                manipulator.Connect(TestingConstants.ConnectionString);
-                Assert.IsTrue(manipulator.RemoveUserByEmail(TestingUserStorage.ValidUser1.Email));
-            }
         }
     }
 }
