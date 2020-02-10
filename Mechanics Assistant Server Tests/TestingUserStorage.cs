@@ -13,6 +13,7 @@ namespace MechanicsAssistantServerTests
             public string Password;
             public string SecurityQuestion;
             public string SecurityAnswer;
+            public string UserId;
 
             public JsonDictionaryStringConstructor ConstructCreationMessage()
             {
@@ -29,6 +30,14 @@ namespace MechanicsAssistantServerTests
                 JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
                 ret.SetMapping("Email", Email);
                 ret.SetMapping("Password", Password);
+                return ret;
+            }
+
+            public JsonDictionaryStringConstructor ConstructCheckLoginStatusRequest(int userId, string loginToken)
+            {
+                JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+                ret.SetMapping("UserId", userId);
+                ret.SetMapping("LoginToken", loginToken);
                 return ret;
             }
         }

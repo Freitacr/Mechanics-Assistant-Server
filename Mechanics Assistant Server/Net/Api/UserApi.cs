@@ -187,8 +187,8 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     OverallUser loggedInUser = users[0];
-                    LoginStatusTokens tokens = ExtractLoggedTokens(loggedInUser);
-                    GenerateNewLoginToken(tokens);
+                    LoginStatusTokens tokens = UserVerificationUtil.ExtractLoginTokens(loggedInUser);
+                    UserVerificationUtil.GenerateNewLoginToken(tokens);
                     if (!connection.UpdateUsersLoginToken(loggedInUser, tokens))
                     {
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
@@ -216,27 +216,7 @@ namespace OldManInTheShopServer.Net.Api
             return !(req.Email == null || req.Email.Equals("") || req.Password == null || req.Password.Equals(""));
         }
 
-        private LoginStatusTokens ExtractLoggedTokens(OverallUser userIn)
-        {
-            string loggedTokensJson = userIn.LoginStatusTokens;
-            loggedTokensJson = loggedTokensJson.Replace("\\\"", "\"");
-            byte[] tokens = Encoding.UTF8.GetBytes(loggedTokensJson);
-            MemoryStream stream = new MemoryStream(tokens);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
-            LoginStatusTokens ret = serializer.ReadObject(stream) as LoginStatusTokens;
-            return ret;
-        }
-
-        private void GenerateNewLoginToken(LoginStatusTokens tokens)
-        {
-            Random rand = new Random();
-            byte[] loginToken = new byte[64]; 
-            rand.NextBytes(loginToken);
-            tokens.LoginToken = MysqlDataConvertingUtil.ConvertToHexString(loginToken);
-            DateTime now = DateTime.UtcNow;
-            now = now.AddHours(3);
-            tokens.LoginTokenExpiration = now.ToString();
-        }
+        
 
         private void HandleCheckLoginRequest(HttpListenerContext ctx, UserCheckLoginStatusRequest req)
         {
@@ -277,7 +257,7 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateCheckLoginRequest(UserCheckLoginStatusRequest req)
         {
-            if (req.LoginToken == null)
+            if (req.LoginToken == null || req.LoginToken.Length == 0)
                 return false;
             if (req.UserId <= 0)
                 return false;

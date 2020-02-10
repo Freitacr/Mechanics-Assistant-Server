@@ -82,5 +82,27 @@ namespace OldManInTheShopServer.Util
             }
             return toTest.Equals("pass");
         }
+
+        public static LoginStatusTokens ExtractLoginTokens(OverallUser userIn)
+        {
+            string loggedTokensJson = userIn.LoginStatusTokens;
+            loggedTokensJson = loggedTokensJson.Replace("\\\"", "\"");
+            byte[] tokens = Encoding.UTF8.GetBytes(loggedTokensJson);
+            MemoryStream stream = new MemoryStream(tokens);
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
+            LoginStatusTokens ret = serializer.ReadObject(stream) as LoginStatusTokens;
+            return ret;
+        }
+
+        public static void GenerateNewLoginToken(LoginStatusTokens tokens)
+        {
+            Random rand = new Random();
+            byte[] loginToken = new byte[64];
+            rand.NextBytes(loginToken);
+            tokens.LoginToken = MysqlDataConvertingUtil.ConvertToHexString(loginToken);
+            DateTime now = DateTime.UtcNow;
+            now = now.AddHours(3);
+            tokens.LoginTokenExpiration = now.ToString();
+        }
     }
 }
