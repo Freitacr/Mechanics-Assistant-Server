@@ -173,8 +173,8 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Unauthorized", "Security Answer was incorrect");
                         return;
                     }
-                    LoginStatusTokens tokens = ExtractLoggedTokens(user);
-                    GenerateNewAuthToken(tokens);
+                    LoginStatusTokens tokens = UserVerificationUtil.ExtractLoginTokens(user);
+                    UserVerificationUtil.GenerateNewAuthToken(tokens);
                     if (!connection.UpdateUsersLoginToken(user, tokens))
                     {
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Failed to write login token to database");
@@ -199,40 +199,22 @@ namespace OldManInTheShopServer.Net.Api
         {
             if (req == null)
                 return false;
-            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            if (req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("x''"))
+                return false;
+            return req.UserId > 0;
         }
 
         private bool ValidateAuthenticationRequest(AuthenticationRequest req)
         {
             if (req == null)
                 return false;
+            if (req.UserId <= 0)
+                return false;
             if (req.SecurityQuestion == null || req.SecurityQuestion.Equals(""))
                 return false;
             if (req.SecurityAnswer == null || req.SecurityAnswer.Equals(""))
                 return false;
-            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
-        }
-
-        private LoginStatusTokens ExtractLoggedTokens(OverallUser userIn)
-        {
-            string loggedTokensJson = userIn.LoginStatusTokens;
-            loggedTokensJson = loggedTokensJson.Replace("\\\"", "\"");
-            byte[] tokens = Encoding.UTF8.GetBytes(loggedTokensJson);
-            MemoryStream stream = new MemoryStream(tokens);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LoginStatusTokens));
-            LoginStatusTokens ret = serializer.ReadObject(stream) as LoginStatusTokens;
-            return ret;
-        }
-
-        private void GenerateNewAuthToken(LoginStatusTokens tokens)
-        {
-            Random rand = new Random();
-            byte[] loginToken = new byte[64];
-            rand.NextBytes(loginToken);
-            tokens.AuthToken = MysqlDataConvertingUtil.ConvertToHexString(loginToken);
-            DateTime now = DateTime.UtcNow;
-            now = now.AddHours(.5);
-            tokens.AuthTokenExpiration = now.ToString();
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("x''"));
         }
 
         private void HandleAuthCheckRequest(HttpListenerContext ctx, AuthenticationCheckRequest req)
@@ -279,9 +261,9 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateAuthCheckRequest(AuthenticationCheckRequest req)
         {
-            if (req.LoginToken == null)
+            if (req.LoginToken == null || req.LoginToken.Equals("x''") || req.LoginToken.Equals(""))
                 return false;
-            if (req.AuthToken == null)
+            if (req.AuthToken == null || req.AuthToken.Equals("x''") || req.AuthToken.Equals(""))
                 return false;
             if (req.UserId <= 0)
                 return false;

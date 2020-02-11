@@ -104,5 +104,16 @@ namespace OldManInTheShopServer.Util
             now = now.AddHours(3);
             tokens.LoginTokenExpiration = now.ToString();
         }
+
+        public static void GenerateNewAuthToken(LoginStatusTokens tokens)
+        {
+            Random rand = new Random();
+            byte[] loginToken = new byte[64];
+            rand.NextBytes(loginToken);
+            tokens.AuthToken = MysqlDataConvertingUtil.ConvertToHexString(loginToken);
+            DateTime now = DateTime.UtcNow;
+            now = now.AddHours(.5);
+            tokens.AuthTokenExpiration = now.ToString();
+        }
     }
 }

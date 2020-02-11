@@ -13,7 +13,6 @@ namespace MechanicsAssistantServerTests
             public string Password;
             public string SecurityQuestion;
             public string SecurityAnswer;
-            public string UserId;
 
             public JsonDictionaryStringConstructor ConstructCreationMessage()
             {
@@ -38,6 +37,33 @@ namespace MechanicsAssistantServerTests
                 JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
                 ret.SetMapping("UserId", userId);
                 ret.SetMapping("LoginToken", loginToken);
+                return ret;
+            }
+
+            public JsonDictionaryStringConstructor ConstructAuthenticationRequest(string loginToken, int userId)
+            {
+                JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+                ret.SetMapping("LoginToken", loginToken);
+                ret.SetMapping("UserId", userId);
+                ret.SetMapping("SecurityQuestion", SecurityQuestion);
+                ret.SetMapping("SecurityAnswer", SecurityAnswer);
+                return ret;
+            }
+
+            public JsonDictionaryStringConstructor ConstructSecurityQuestionRequest(string loginToken, int userId)
+            {
+                JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+                ret.SetMapping("LoginToken", loginToken);
+                ret.SetMapping("UserId", userId);
+                return ret;
+            }
+
+            public JsonDictionaryStringConstructor ConstructCheckAuthenticationStatusRequest(string loginToken, string authToken, int userId)
+            {
+                JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+                ret.SetMapping("LoginToken", loginToken);
+                ret.SetMapping("AuthToken", authToken);
+                ret.SetMapping("UserId", userId);
                 return ret;
             }
         }

@@ -31,7 +31,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         {
             ServerTestingMessageSwitchback.CloseSwitchback();
             if (!TestingDatabaseCreationUtils.DestoryDatabase())
-                throw new Exception("Failed to destroy testing datbase. This is bad. Manual cleanup is required");
+                throw new Exception("Failed to destroy testing database. This is bad. Manual cleanup is required");
         }
 
         [TestMethod]
@@ -44,28 +44,21 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                 try
                 {
                     manipulator.Connect(TestingConstants.ConnectionString);
-                    //Log User In
-                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
-                        TestingUserStorage.ValidUser1.ConstructLoginRequest(),
-                        "PUT");
-                    var ctx = contextAndRequest[0] as HttpListenerContext;
-                    var req = contextAndRequest[1] as HttpWebRequest;
-                    TestApi.PUT(ctx);
-                    HttpWebResponse resp;
-                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
-                    Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+
+                    Assert.IsTrue(NetTestingUserUtils.LogInTestingUser(TestingUserStorage.ValidUser1));
 
                     user = manipulator.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email))[0];
                     var loginToken = UserVerificationUtil.ExtractLoginTokens(user);
 
                     //Check Login Status
-                    contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
                         TestingUserStorage.ValidUser1.ConstructCheckLoginStatusRequest(
                             user.UserId, loginToken.LoginToken),
                         "PUT");
-                    ctx = contextAndRequest[0] as HttpListenerContext;
-                    req = contextAndRequest[1] as HttpWebRequest;
+                    var ctx = contextAndRequest[0] as HttpListenerContext;
+                    var req = contextAndRequest[1] as HttpWebRequest;
                     TestApi.PUT(ctx);
+                    HttpWebResponse resp;
                     try
                     {
                         resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
