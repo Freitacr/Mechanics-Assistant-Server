@@ -10,7 +10,8 @@ using OldManInTheShopServer.Util;
 
 namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
 {
-    class TestUpdateUserSettingValue
+    [TestClass]
+    public class TestUpdateUserSettingValue
     {
 
         private static UserSettingsApi TestApi;

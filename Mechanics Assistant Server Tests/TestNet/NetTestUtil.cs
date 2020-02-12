@@ -41,10 +41,13 @@ namespace MechanicsAssistantServerTests.TestNet
             var switchbackUri = SwitchbackUri.Replace("+", "localhost");
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(switchbackUri);
             req.Method = httpRequestMethod;
-            Stream messageStream = req.GetRequestStream();
-            byte[] messageBytes = Encoding.UTF8.GetBytes(messageContentsIn.ToString());
-            req.ContentLength = messageBytes.Length;
-            messageStream.Write(messageBytes, 0, messageBytes.Length);
+            if (!req.Method.Equals("GET"))
+            {
+                Stream messageStream = req.GetRequestStream();
+                byte[] messageBytes = Encoding.UTF8.GetBytes(messageContentsIn.ToString());
+                req.ContentLength = messageBytes.Length;
+                messageStream.Write(messageBytes, 0, messageBytes.Length);
+            }
             var asyncState = req.BeginGetResponse(GetResponseCallback, null);
             return new object[] { switchback.GetContext(), req, asyncState};
         }
