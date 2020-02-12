@@ -29,7 +29,7 @@ namespace OldManInTheShopServer.Net.Api
         public UserRequestsApi(int portIn) : base("http://+:" + portIn + "/user/requests")
 #endif
         {
-            GET += HandleGetRequest;
+            PUT += HandlePutRequest;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace OldManInTheShopServer.Net.Api
         /// in the /User/Request tab, starting at row 1
         /// </summary>
         /// <param name="ctx">The HttpListenerContext to respond to</param>
-        private void HandleGetRequest(HttpListenerContext ctx)
+        private void HandlePutRequest(HttpListenerContext ctx)
         {
             try
             {
