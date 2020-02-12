@@ -40,6 +40,11 @@ namespace MechanicsAssistantServerTests
                 return ret;
             }
 
+            public JsonDictionaryStringConstructor ConstructRetrieveSettingsRequest(int userId, string loginToken)
+            {
+                return ConstructCheckLoginStatusRequest(userId, loginToken);
+            }
+
             public JsonDictionaryStringConstructor ConstructAuthenticationRequest(string loginToken, int userId)
             {
                 JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();

@@ -37,37 +37,201 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
         [TestMethod]
         public void TestRetrieveUserSettingsDefaultValues()
         {
-
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                Assert.IsTrue(NetTestingUserUtils.LogInTestingUser(TestingUserStorage.ValidUser1));
+                var user = manipulator.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email))[0];
+                var currentSettings = user.Settings;
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser1.ConstructRetrieveSettingsRequest(
+                        user.UserId,
+                        UserVerificationUtil.ExtractLoginTokens(user).LoginToken), 
+                    "PUT");
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                TestApi.PUT(ctx);
+                HttpWebResponse resp = null;
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (Exception e)
+                {
+                    Assert.Fail(e.Message);
+                }
+                using (resp)
+                {
+                    Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+                    byte[] data = new byte[resp.ContentLength];
+                    resp.GetResponseStream().Read(data, 0, data.Length);
+                    string received = Encoding.UTF8.GetString(data);
+                    Assert.AreEqual(currentSettings, received);
+                }
+            }
         }
 
         [TestMethod]
         public void TestRetrieveUserSettingsModifiedSettings()
         {
-
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                Assert.IsTrue(NetTestingUserUtils.LogInTestingUser(TestingUserStorage.ValidUser1));
+                var user = manipulator.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email))[0];
+                user.UpdateSettings(UserSettingsEntryKeys.DisplayName, "New Name!");
+                manipulator.UpdateUsersSettings(user);
+                var currentSettings = user.Settings;
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser1.ConstructRetrieveSettingsRequest(
+                        user.UserId,
+                        UserVerificationUtil.ExtractLoginTokens(user).LoginToken),
+                    "PUT");
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                TestApi.PUT(ctx);
+                HttpWebResponse resp = null;
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (Exception e)
+                {
+                    Assert.Fail(e.Message);
+                }
+                using (resp)
+                {
+                    Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+                    byte[] data = new byte[resp.ContentLength];
+                    resp.GetResponseStream().Read(data, 0, data.Length);
+                    string received = Encoding.UTF8.GetString(data);
+                    Assert.AreEqual(currentSettings, received);
+                }
+            }
         }
 
         [TestMethod]
         public void TestBadRequestOnInvalidUserId()
         {
-
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                Assert.IsTrue(NetTestingUserUtils.LogInTestingUser(TestingUserStorage.ValidUser1));
+                var user = manipulator.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email))[0];
+                var currentSettings = user.Settings;
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser1.ConstructRetrieveSettingsRequest(
+                        0,
+                        UserVerificationUtil.ExtractLoginTokens(user).LoginToken),
+                    "PUT");
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                TestApi.PUT(ctx);
+                HttpWebResponse resp = null;
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    Assert.Fail("Expected error response, but did not receive one");
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
         }
 
         [TestMethod]
         public void TestBadRequestOnEmptyLoginToken()
         {
-
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                Assert.IsTrue(NetTestingUserUtils.LogInTestingUser(TestingUserStorage.ValidUser1));
+                var user = manipulator.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email))[0];
+                var currentSettings = user.Settings;
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser1.ConstructRetrieveSettingsRequest(
+                        user.UserId,
+                        "x''"),
+                    "PUT");
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                TestApi.PUT(ctx);
+                HttpWebResponse resp = null;
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    Assert.Fail("Expected error response, but did not receive one");
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
         }
 
         [TestMethod]
         public void TestUnauthorizedOnNonLoggedInUser()
         {
-
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                Assert.IsTrue(NetTestingUserUtils.LogInTestingUser(TestingUserStorage.ValidUser1));
+                var user = manipulator.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email))[0];
+                var currentSettings = user.Settings;
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser1.ConstructRetrieveSettingsRequest(
+                        user.UserId,
+                        "x'abaabcaba'"),
+                    "PUT");
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                TestApi.PUT(ctx);
+                HttpWebResponse resp = null;
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    Assert.Fail("Expected error response, but did not receive one");
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                }
+                Assert.AreEqual(HttpStatusCode.Unauthorized, resp.StatusCode);
+            }
         }
 
         [TestMethod]
         public void TestNotFoundOnNonExistentUser()
         {
-
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                Assert.IsTrue(NetTestingUserUtils.LogInTestingUser(TestingUserStorage.ValidUser1));
+                var user = manipulator.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email))[0];
+                var currentSettings = user.Settings;
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingUserStorage.ValidUser1.ConstructRetrieveSettingsRequest(
+                        100000,
+                        UserVerificationUtil.ExtractLoginTokens(user).LoginToken),
+                    "PUT");
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                TestApi.PUT(ctx);
+                HttpWebResponse resp = null;
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    Assert.Fail("Expected error response, but did not receive one");
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                }
+                Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
+            }
         }
 
 

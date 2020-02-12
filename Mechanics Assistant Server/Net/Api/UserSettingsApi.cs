@@ -186,18 +186,22 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateGetRequest(UserSettingsGetRequest req)
         {
-            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            if (req.UserId <= 0)
+                return false;
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("x''"));
         }
 
         private bool ValidateEditRequest(UserSettingsEditRequest req)
         {
+            if (req.UserId <= 0)
+                return false;
             if (req.Key == null || req.Key.Equals(""))
                 return false;
             if (req.Value == null || req.Value.Equals(""))
                 return false;
-            if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("0x"))
+            if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("x''"))
                 return false;
-            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("x''"));
         }
     }
 }
