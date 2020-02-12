@@ -90,6 +90,8 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                 var ctx = contextAndRequest[0] as HttpListenerContext;
                 var req = contextAndRequest[1] as HttpWebRequest;
                 TestApi.PUT(ctx);
+                user.Settings = OverallUser.GenerateDefaultSettings();
+                Assert.IsTrue(manipulator.UpdateUsersSettings(user));
                 HttpWebResponse resp = null;
                 try
                 {
@@ -107,6 +109,7 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestUser
                     string received = Encoding.UTF8.GetString(data);
                     Assert.AreEqual(currentSettings, received);
                 }
+                
             }
         }
 
