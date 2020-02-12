@@ -98,7 +98,9 @@ namespace OldManInTheShopServer.Net.Api
     
         public bool ValidateRequest(UserRequestsGetRequest req)
         {
-            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"));
+            if (req.UserId <= 0)
+                return false;
+            return !(req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("x''"));
         }
     }
 

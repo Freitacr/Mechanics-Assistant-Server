@@ -113,6 +113,26 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
                 MD5 = MysqlDataConvertingUtil.ConvertToHexString(md5.ComputeHash(data));
             }
         }
+
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var other = obj as RequestString;
+
+            return other.Company == Company && other.Type == Type;
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return Company + Type.GetHashCode();
+        }
     }
 
     /// <summary>
@@ -133,6 +153,23 @@ namespace OldManInTheShopServer.Data.MySql.TableDataTypes
         /// </summary>
         [DataMember]
         public string RequestStatus { get; set; } = "";
+
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            var other = obj as PreviousUserRequest;
+            return other.Request.Equals(Request) && RequestStatus == other.RequestStatus;
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return Request.GetHashCode() + RequestStatus.GetHashCode();
+        }
     }
 
     /// <summary>
