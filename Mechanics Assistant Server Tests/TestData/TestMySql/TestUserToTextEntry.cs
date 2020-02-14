@@ -80,16 +80,16 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         public void TestSerialize()
         {
             Assert.AreEqual(1, UserToTextEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
-            Assert.AreEqual(1, UserToTextEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "MappedText=\"" + Id1.Text + "\""));
+            Assert.AreEqual(1, UserToTextEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "Text=\"" + Id1.Text + "\""));
         }
 
         [TestMethod]
         public void TestDeserialize()
         {
             Assert.AreEqual(1, UserToTextEntry.Manipulator.InsertDataInto(TestConnection, TableName, Id1));
-            UserToTextEntry toTest = UserToTextEntry.Manipulator.RetrieveDataWhere(TestConnection, TableName, "MappedText=\"" + Id1.Text + "\"")[0];
+            UserToTextEntry toTest = UserToTextEntry.Manipulator.RetrieveDataWhere(TestConnection, TableName, "Text=\"" + Id1.Text + "\"")[0];
             Assert.AreEqual(Id1, toTest);
-            Assert.AreEqual(1, UserToTextEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "MappedText=\"" + Id1.Text + "\""));
+            Assert.AreEqual(1, UserToTextEntry.Manipulator.RemoveDataWhere(TestConnection, TableName, "Text=\"" + Id1.Text + "\""));
         }
     }
 }

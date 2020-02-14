@@ -12,6 +12,7 @@
     <PackageReference Include="Certes" Version="2.3.3">
       <IncludeAssets></IncludeAssets>
     </PackageReference>
+    <PackageReference Include="OpenCover" Version="4.7.922" />
   </ItemGroup>
 
   <ItemGroup>

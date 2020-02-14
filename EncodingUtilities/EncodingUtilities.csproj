@@ -5,4 +5,8 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OpenCover" Version="4.7.922" />
+  </ItemGroup>
+
 </Project>
