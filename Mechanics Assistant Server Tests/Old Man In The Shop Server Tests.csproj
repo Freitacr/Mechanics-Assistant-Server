@@ -24,6 +24,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
+    <PackageReference Include="MySqlConnector" Version="0.61.0" />
     <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
     <PackageReference Include="System.Security.Permissions" Version="4.6.0" />
@@ -31,12 +32,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mechanics Assistant Server\Old Man In The Shop Server.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="MySql.Data">
-      <HintPath>..\..\..\..\..\Program Files (x86)\MySQL\MySQL Connector Net 8.0.17\Assemblies\v4.5.2\MySql.Data.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

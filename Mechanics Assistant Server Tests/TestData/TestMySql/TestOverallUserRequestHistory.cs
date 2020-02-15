@@ -65,7 +65,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [TestMethod]
         public void TestAddToUserRequestHistoryFromManipulator()
         {
-            var user = Manipulator.GetUserById(1);
+            var user = Manipulator.GetUsersWhere("Email=\"msn\"")[0];
             List<PreviousUserRequest> emptyRequests = new List<PreviousUserRequest>();
             Assert.AreEqual(0, emptyRequests.Count);
             List<PreviousUserRequest> appendedTo = new List<PreviousUserRequest>();
@@ -75,7 +75,7 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
             byte[] requestHistory = user.RequestHistory;
             user.DecodeRequests();
             Manipulator.UpdateUserPreviousRequests(user);
-            user = Manipulator.GetUserById(1);
+            user = Manipulator.GetUsersWhere("Email=\"msn\"")[0];
             Assert.AreEqual(requestHistory.Length, user.RequestHistory.Length);
             for(int i = 0; i < requestHistory.Length; i++)
                 Assert.AreEqual(requestHistory[i], user.RequestHistory[i]);

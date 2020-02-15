@@ -12,7 +12,6 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
-    <DocumentationFile>C:\Users\colto\source\repos\Mechanics Assistant\Mechanics Assistant Server\server.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -24,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.17" />
+    <PackageReference Include="MySqlConnector" Version="0.61.0" />
     <PackageReference Include="OpenCover" Version="4.7.922" />
   </ItemGroup>
 
