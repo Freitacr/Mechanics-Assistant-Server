@@ -115,9 +115,11 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateRequest(UserReportRequest req)
         {
-            if (req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("0x"))
+            if(req.ReportingUserId <= 0)
                 return false;
-            if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("0x"))
+            if (req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("x''"))
+                return false;
+            if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("x''"))
                 return false;
             return !(req.ReportedDisplayName == null || req.ReportedDisplayName.Equals(""));
         }

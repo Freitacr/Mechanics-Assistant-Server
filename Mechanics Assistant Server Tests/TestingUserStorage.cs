@@ -24,6 +24,15 @@ namespace MechanicsAssistantServerTests
                 return ret;
             }
 
+            public JsonDictionaryStringConstructor ConstructReportMessage(int userId, string loginToken, string authToken, string reportedName) {
+                JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+                ret.SetMapping("UserId", userId);
+                ret.SetMapping("LoginToken", loginToken);
+                ret.SetMapping("AuthToken", authToken);
+                ret.SetMapping("DisplayName", reportedName);
+                return ret;
+            }
+
             public JsonDictionaryStringConstructor ConstructLoginRequest()
             {
                 JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
