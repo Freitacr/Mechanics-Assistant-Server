@@ -25,40 +25,18 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         [ClassInitialize]
         public static void SetupTestSuite(TestContext ctx)
         {
+            if(!TestingDatabaseCreationUtils.InitializeDatabaseSchema())
+                throw new Exception("Failed to initialize database schema. See logged error");
             Manipulator = new MySqlDataManipulator();
-            MySqlDataManipulator.GlobalConfiguration.Connect(ConnectionString);
-            MySqlDataManipulator.GlobalConfiguration.Close();
-            bool res = Manipulator.Connect(ConnectionString);
-            if (!Manipulator.ValidateDatabaseIntegrity(TestingConstants.DatabaselessConnectionString, "db_test"))
-            {
-                Console.WriteLine("Encountered an error opening the global configuration connection");
-                Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
-                return;
-            }
-            if (!res)
-            {
-                if (!Manipulator.Connect(ConnectionString))
-                {
-                    Console.WriteLine("Encountered an error opening the global configuration connection");
-                    Console.WriteLine(MySqlDataManipulator.GlobalConfiguration.LastException.Message);
-                    return;
-                }
-            }
+            bool res = Manipulator.Connect(TestingConstants.ConnectionString);
             Manipulator.AddUser("msn", "1234", "red", "blue");
         }
 
         [ClassCleanup]
         public static void CleanupTestSuite()
         {
-            MySqlConnection connection = new MySqlConnection();
-            connection.ConnectionString = ConnectionString;
-            connection.Open();
-            using (connection)
-            {
-                var cmd = connection.CreateCommand();
-                cmd.CommandText = "drop schema db_test;";
-                cmd.ExecuteNonQuery();
-            }
+            if(!TestingDatabaseCreationUtils.DestoryDatabase())
+                throw new Exception("Failed to destroy database. This is bad. Manual deletion required");
             Manipulator.Close();
         }
 

@@ -20,44 +20,17 @@ namespace MechanicsAssistantServerTests.TestData.TestMySql
         public static void ClassInit(TestContext ctx)
         {
             TestConnection = new MySqlConnection();
-            TestConnection.ConnectionString = "SERVER=localhost;UID=testUser;PASSWORD=";
-            TestConnection.Open();
-            var cmd = TestConnection.CreateCommand();
-            try
-            {
-                cmd.CommandText = "create schema data_test;";
-                cmd.ExecuteNonQuery();
-            }
-            catch (MySqlException e)
-            {
-                if (e.Number != 1007)
-                    throw e;
-            }
-            cmd.CommandText = "use data_test";
-            cmd.ExecuteNonQuery();
-
-            try
-            {
-                cmd.CommandText = new JoinRequest().GetCreateTableString(TableName);
-                cmd.ExecuteNonQuery();
-            }
-            catch (MySqlException e)
-            {
-                if (e.Number != 1050)
-                    throw e;
-                cmd.CommandText = "delete from " + TableName + ";";
-                cmd.ExecuteNonQuery();
-            }
+            TestingMySqlConnectionUtil.InitializeDatabaseSchema(
+                TestConnection,
+                new JoinRequest().GetCreateTableString(TableName),
+                TableName
+            );
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            var cmd = TestConnection.CreateCommand();
-            cmd.CommandText = "drop table " + TableName + ";";
-            cmd.ExecuteNonQuery();
-            cmd.CommandText = "drop schema data_test;";
-            cmd.ExecuteNonQuery();
+            TestingMySqlConnectionUtil.DestoryDatabase();
             TestConnection.Close();
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OldManInTheShopServer.Data;
 using OldManInTheShopServer.Data.MySql;
 using System.Text;
+using MySql.Data.MySqlClient;
 
 namespace MechanicsAssistantServerTests
 {
@@ -104,6 +105,7 @@ namespace MechanicsAssistantServerTests
         {
             if (!DatabaseInitialized)
                 return true;
+            Console.WriteLine("Annihilating database");
             MySqlDataManipulator closer = new MySqlDataManipulator();
             using (closer)
             {
@@ -121,4 +123,37 @@ namespace MechanicsAssistantServerTests
             return true;
         }
     }
+
+    public class TestingMySqlConnectionUtil {
+        public static bool DatabaseInitialized = false;
+    
+        public static void InitializeDatabaseSchema(MySqlConnection connectionIn, string tableCreationString, string tableName) {
+            if(!DatabaseInitialized)
+            {
+                TestingDatabaseCreationUtils.InitializeDatabaseSchema();
+                DatabaseInitialized = true;
+            }
+            connectionIn.ConnectionString = TestingConstants.ConnectionString;
+            connectionIn.Open();
+            var cmd = connectionIn.CreateCommand();
+            cmd.CommandText = "select count(*) from information_schema.tables where table_name=\"{tableName}\"";
+            var reader = cmd.ExecuteReader();
+            int count = 0;
+            using(reader) {
+                reader.Read();
+                count = reader.GetInt32(0);
+            }
+            if(count == 0)
+            {
+                cmd.CommandText = tableCreationString;
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static void DestoryDatabase() {
+            TestingDatabaseCreationUtils.DestoryDatabase();
+            DatabaseInitialized = false;
+        }
+    }
+
 }
