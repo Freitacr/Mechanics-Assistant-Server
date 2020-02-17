@@ -27,6 +27,11 @@ namespace OldManInTheShopServer.Util
             return Pairs.Remove(key);
         }
 
+        public object this[string key] {
+            get { return Pairs[key]; }
+            set { Pairs[key] = value; }
+        }
+
         public override string ToString()
         {
             return ParseDictionaryStrObj(Pairs);
