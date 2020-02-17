@@ -99,7 +99,7 @@ namespace OldManInTheShopServer.Net.Api
 #endif
         {
             POST += HandlePostRequest;
-            GET += HandleGetRequest;
+            PUT += HandleGetRequest;
             DELETE += HandleDeleteRequest;
             PATCH += HandlePatchRequest;
         }

@@ -20,7 +20,7 @@ namespace OldManInTheShopServer.Net.Api
     }
 
     [DataContract]
-    class RepairJobApiFullRequest
+    class RepairJobApiRequest
     {
         [DataMember]
         public RepairJobEntry ContainedEntry = default;
@@ -66,7 +66,7 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                RepairJobApiFullRequest entry = JsonDataObjectUtil<RepairJobApiFullRequest>.ParseObject(ctx);
+                RepairJobApiRequest entry = JsonDataObjectUtil<RepairJobApiRequest>.ParseObject(ctx);
                 if (!ValidateFullRequest(entry))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
@@ -281,7 +281,7 @@ namespace OldManInTheShopServer.Net.Api
             return true;
         }
 
-        private bool ValidateFullRequest(RepairJobApiFullRequest req)
+        private bool ValidateFullRequest(RepairJobApiRequest req)
         {
             if (!ValidateRepairJobEntry(req.ContainedEntry))
                 return false;
