@@ -13,6 +13,7 @@ namespace MechanicsAssistantServerTests
             public string Password;
             public string SecurityQuestion;
             public string SecurityAnswer;
+            public int AccessLevel;
 
             public JsonDictionaryStringConstructor ConstructCreationMessage()
             {
@@ -103,7 +104,8 @@ namespace MechanicsAssistantServerTests
             Email = "abcd@ac.com",
             Password = "Pass_Pass_pass_JSON",
             SecurityQuestion = "What is best on toast?",
-            SecurityAnswer = "Baked Beans"
+            SecurityAnswer = "Baked Beans",
+            AccessLevel = 1
         };
 
 
@@ -112,7 +114,32 @@ namespace MechanicsAssistantServerTests
             Email = "abc@bc.com",
             Password = "12345",
             SecurityQuestion = "Toast?",
-            SecurityAnswer = "Toast"
+            SecurityAnswer = "Toast",
+            AccessLevel = 1
+        };
+
+        public static readonly TestingUser ValidUser3 = new TestingUser() {
+            Email = "cba@cb.com",
+            Password= "ManDoorHandHookCarDoor",
+            SecurityQuestion = "What is a group of crows called?",
+            SecurityAnswer = "A \"Crowhort\"",
+            AccessLevel = AccessLevelMasks.AdminMask | AccessLevelMasks.PartMask | AccessLevelMasks.SafetyMask | AccessLevelMasks.MechanicMask
+        };
+
+        public static readonly TestingUser ValidUser4 = new TestingUser() {
+            Email = "cbd",
+            Password = "thc",
+            SecurityQuestion = "Favourite Building",
+            SecurityAnswer = "Dispensory",
+            AccessLevel = AccessLevelMasks.MechanicMask | AccessLevelMasks.PartMask
+        };
+
+        public static readonly TestingUser ValidUser5 = new TestingUser() {
+            Email = "bobbuilder@safety.co.uk",
+            Password = "HardHat",
+            SecurityQuestion = "What is the best organization on Earth?",
+            SecurityAnswer = "OSHA",
+            AccessLevel = AccessLevelMasks.MechanicMask | AccessLevelMasks.SafetyMask
         };
 
     }

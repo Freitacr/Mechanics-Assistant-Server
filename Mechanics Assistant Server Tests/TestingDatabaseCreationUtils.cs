@@ -73,7 +73,8 @@ namespace MechanicsAssistantServerTests
                             TestingUserStorage.ValidUser1.Email,
                             TestingUserStorage.ValidUser1.Password,
                             TestingUserStorage.ValidUser1.SecurityQuestion,
-                            TestingUserStorage.ValidUser1.SecurityAnswer
+                            TestingUserStorage.ValidUser1.SecurityAnswer,
+                            TestingUserStorage.ValidUser1.AccessLevel
                             )
                         )
                     {
@@ -88,7 +89,56 @@ namespace MechanicsAssistantServerTests
                             TestingUserStorage.ValidUser2.Email,
                             TestingUserStorage.ValidUser2.Password,
                             TestingUserStorage.ValidUser2.SecurityQuestion,
-                            TestingUserStorage.ValidUser2.SecurityAnswer
+                            TestingUserStorage.ValidUser2.SecurityAnswer,
+                            TestingUserStorage.ValidUser2.AccessLevel
+                            )
+                        )
+                    {
+                        Console.WriteLine("Encountered an error adding the second valid user.");
+                        Console.WriteLine(initializer.LastException.Message);
+                        return false;
+                    }
+                }
+                if (initializer.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser3.Email)).Count == 0)
+                {
+                    if (!initializer.AddUser(
+                            TestingUserStorage.ValidUser3.Email,
+                            TestingUserStorage.ValidUser3.Password,
+                            TestingUserStorage.ValidUser3.SecurityQuestion,
+                            TestingUserStorage.ValidUser3.SecurityAnswer,
+                            TestingUserStorage.ValidUser3.AccessLevel
+                            )
+                        )
+                    {
+                        Console.WriteLine("Encountered an error adding the second valid user.");
+                        Console.WriteLine(initializer.LastException.Message);
+                        return false;
+                    }
+                }
+                if (initializer.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser4.Email)).Count == 0)
+                {
+                    if (!initializer.AddUser(
+                            TestingUserStorage.ValidUser4.Email,
+                            TestingUserStorage.ValidUser4.Password,
+                            TestingUserStorage.ValidUser4.SecurityQuestion,
+                            TestingUserStorage.ValidUser4.SecurityAnswer,
+                            TestingUserStorage.ValidUser4.AccessLevel
+                            )
+                        )
+                    {
+                        Console.WriteLine("Encountered an error adding the second valid user.");
+                        Console.WriteLine(initializer.LastException.Message);
+                        return false;
+                    }
+                }
+                if (initializer.GetUsersWhere(string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser5.Email)).Count == 0)
+                {
+                    if (!initializer.AddUser(
+                            TestingUserStorage.ValidUser5.Email,
+                            TestingUserStorage.ValidUser5.Password,
+                            TestingUserStorage.ValidUser5.SecurityQuestion,
+                            TestingUserStorage.ValidUser5.SecurityAnswer,
+                            TestingUserStorage.ValidUser5.AccessLevel
                             )
                         )
                     {
