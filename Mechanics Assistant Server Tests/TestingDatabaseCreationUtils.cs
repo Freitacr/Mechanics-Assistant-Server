@@ -60,7 +60,7 @@ namespace MechanicsAssistantServerTests
                     return false;
                 if (!InitializePartCatelogueEntries())
                     return false;
-                if (InitializePartsRequests())
+                if (!InitializePartsRequests())
                     return false;
             }
             MySqlDataManipulator.GlobalConfiguration.Connect(TestingConstants.ConnectionString);
@@ -172,14 +172,14 @@ namespace MechanicsAssistantServerTests
             if(!manipulator.Connect(TestingConstants.ConnectionString))
                 return false;
             using(manipulator) {
-                if(manipulator.GetJoinRequests(2).Count == 0) {
+                if(manipulator.GetJoinRequests(1).Count == 0) {
                     if(!manipulator.AddJoinRequest(TestingJoinRequest.ValidRequest1.CompanyId, TestingJoinRequest.ValidRequest1.UserId))
                     {
                         Console.WriteLine(manipulator.LastException.Message);
                         return false;
                     }
                 }
-                if(manipulator.GetJoinRequests(3).Count == 0) {
+                if(manipulator.GetJoinRequests(2).Count == 0) {
                     if(!manipulator.AddJoinRequest(TestingJoinRequest.ValidRequest2.CompanyId, TestingJoinRequest.ValidRequest2.UserId))
                     {
                         Console.WriteLine(manipulator.LastException.Message);
@@ -284,6 +284,7 @@ namespace MechanicsAssistantServerTests
             }
             return true;
         }
+        
         public static bool DestoryDatabase()
         {
             if (!DatabaseInitialized)
