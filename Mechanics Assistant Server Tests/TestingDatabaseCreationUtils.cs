@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using OldManInTheShopServer.Data;
+using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Data.MySql;
 using System.Text;
 using MySql.Data.MySqlClient;
@@ -45,8 +45,22 @@ namespace MechanicsAssistantServerTests
                         return false;
                     }
                 }
+                if(manipulator.GetCompanyById(2) == null) {
+                    if (!manipulator.AddCompany(TestingCompanyStorage.ValidCompany2))
+                    {
+                        Console.WriteLine("Encountered an error adding the second valid company");
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                }
                 DatabaseInitialized = true;
                 if (!InitializeUsers())
+                    return false;
+                if (!InitializeJoinRequests())
+                    return false;
+                if (!InitializePartCatelogueEntries())
+                    return false;
+                if (InitializePartsRequests())
                     return false;
             }
             MySqlDataManipulator.GlobalConfiguration.Connect(TestingConstants.ConnectionString);
@@ -110,7 +124,7 @@ namespace MechanicsAssistantServerTests
                             )
                         )
                     {
-                        Console.WriteLine("Encountered an error adding the second valid user.");
+                        Console.WriteLine("Encountered an error adding the third valid user.");
                         Console.WriteLine(initializer.LastException.Message);
                         return false;
                     }
@@ -126,7 +140,7 @@ namespace MechanicsAssistantServerTests
                             )
                         )
                     {
-                        Console.WriteLine("Encountered an error adding the second valid user.");
+                        Console.WriteLine("Encountered an error adding the fourth valid user.");
                         Console.WriteLine(initializer.LastException.Message);
                         return false;
                     }
@@ -142,7 +156,7 @@ namespace MechanicsAssistantServerTests
                             )
                         )
                     {
-                        Console.WriteLine("Encountered an error adding the second valid user.");
+                        Console.WriteLine("Encountered an error adding the fifth valid user.");
                         Console.WriteLine(initializer.LastException.Message);
                         return false;
                     }
@@ -151,6 +165,125 @@ namespace MechanicsAssistantServerTests
             }
         }
 
+        public static bool InitializeJoinRequests() {
+            if (!DatabaseInitialized)
+                return false;
+            MySqlDataManipulator manipulator= new MySqlDataManipulator();
+            if(!manipulator.Connect(TestingConstants.ConnectionString))
+                return false;
+            using(manipulator) {
+                if(manipulator.GetJoinRequests(2).Count == 0) {
+                    if(!manipulator.AddJoinRequest(TestingJoinRequest.ValidRequest1.CompanyId, TestingJoinRequest.ValidRequest1.UserId))
+                    {
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                }
+                if(manipulator.GetJoinRequests(3).Count == 0) {
+                    if(!manipulator.AddJoinRequest(TestingJoinRequest.ValidRequest2.CompanyId, TestingJoinRequest.ValidRequest2.UserId))
+                    {
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public static bool InitializePartCatelogueEntries() {
+            if (!DatabaseInitialized)
+                return false;
+            MySqlDataManipulator manipulator = new MySqlDataManipulator();
+            if(!manipulator.Connect(TestingConstants.ConnectionString))
+                return false;
+            using(manipulator) {
+                if(manipulator.GetPartCatalogueEntries(1).Count == 0) {
+                    if(!manipulator.AddPartEntry(
+                        1, new PartCatalogueEntry() {
+                            Make = TestingPartEntry.ValidPartEntry1.Make,
+                            Model = TestingPartEntry.ValidPartEntry1.Model,
+                            Year = TestingPartEntry.ValidPartEntry1.Year,
+                            PartId = TestingPartEntry.ValidPartEntry1.PartId,
+                            PartName = TestingPartEntry.ValidPartEntry1.PartName
+                        }
+                    ))
+                    {
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                    if(!manipulator.AddPartEntry(
+                        1, new PartCatalogueEntry() {
+                            Make = TestingPartEntry.ValidPartEntry2.Make,
+                            Model = TestingPartEntry.ValidPartEntry2.Model,
+                            Year = TestingPartEntry.ValidPartEntry2.Year,
+                            PartId = TestingPartEntry.ValidPartEntry2.PartId,
+                            PartName = TestingPartEntry.ValidPartEntry2.PartName
+                        }
+                    ))
+                    {
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                    if(!manipulator.AddPartEntry(
+                        1, new PartCatalogueEntry() {
+                            Make = TestingPartEntry.ValidPartEntry3.Make,
+                            Model = TestingPartEntry.ValidPartEntry3.Model,
+                            Year = TestingPartEntry.ValidPartEntry3.Year,
+                            PartId = TestingPartEntry.ValidPartEntry3.PartId,
+                            PartName = TestingPartEntry.ValidPartEntry3.PartName
+                        }
+                    ))
+                    {
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        public static bool InitializePartsRequests() {
+            if (!DatabaseInitialized)
+                return false;
+            MySqlDataManipulator manipulator = new MySqlDataManipulator();
+            if(!manipulator.Connect(TestingConstants.ConnectionString))
+                return false;
+            using(manipulator) {
+                if(manipulator.GetPartsRequests(1).Count == 0) {
+                    if(!manipulator.AddPartsRequest(1, new PartsRequest() {
+                        JobId = TestingPartsRequest.ValidRequest1.JobId,
+                        ReferencedParts = TestingPartsRequest.ValidRequest1.ReferencedParts,
+                        UserId = TestingPartsRequest.ValidRequest1.UserId
+                    }))
+                    {
+                        Console.WriteLine("Failed to add the first valid parts request");
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                    if(!manipulator.AddPartsRequest(1, new PartsRequest() {
+                        JobId = TestingPartsRequest.ValidRequest2.JobId,
+                        ReferencedParts = TestingPartsRequest.ValidRequest2.ReferencedParts,
+                        UserId = TestingPartsRequest.ValidRequest2.UserId
+                    }))
+                    {
+                        Console.WriteLine("Failed to add the second valid parts request");
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                    if(!manipulator.AddPartsRequest(1, new PartsRequest() {
+                        JobId = TestingPartsRequest.ValidRequest3.JobId,
+                        ReferencedParts = TestingPartsRequest.ValidRequest3.ReferencedParts,
+                        UserId = TestingPartsRequest.ValidRequest3.UserId
+                    }))
+                    {
+                        Console.WriteLine("Failed to add the third valid parts request");
+                        Console.WriteLine(manipulator.LastException.Message);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
         public static bool DestoryDatabase()
         {
             if (!DatabaseInitialized)
