@@ -29,8 +29,6 @@ namespace OldManInTheShopServer.Net.Api
         public string PartId = default;
         [DataMember]
         public string PartName = default;
-        [DataMember]
-        public int CompanyId = default;
     }
 
     [DataContract]
@@ -155,7 +153,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     PartCatalogueEntry ent = new PartCatalogueEntry(entry.Make,entry.Model,entry.Year,entry.PartId,entry.PartName);
-                    res = connection.AddPartEntry(entry.CompanyId, ent);
+                    res = connection.AddPartEntry(mappedUser.Company, ent);
                     if (!res)
                     {
                         WriteBodyResponse(ctx,500,"Unexpected Server Error",connection.LastException.Message);
@@ -176,11 +174,11 @@ namespace OldManInTheShopServer.Net.Api
         private bool ValidateFullPostRequest(CompanyPartsApiFullPostRequest req)
         {
 
-            if (req.UserId == -1)
+            if (req.UserId <= 0)
                 return false;
-            if (req.LoginToken == null || req.LoginToken.Equals(""))
+            if (req.LoginToken == null || req.LoginToken.Equals("") || req.LoginToken.Equals("x''"))
                 return false;
-            if (req.AuthToken == null || req.AuthToken.Equals(""))
+            if (req.AuthToken == null || req.AuthToken.Equals("") || req.AuthToken.Equals("x''"))
                 return false;
             if (req.Make == null || req.Make.Equals(""))
                 return false;
@@ -191,8 +189,6 @@ namespace OldManInTheShopServer.Net.Api
             if (req.PartId == null || req.PartId.Equals(""))
                 return false;
             if (req.PartName == null || req.PartName.Equals(""))
-                return false;
-            if (req.CompanyId == -1)
                 return false;
             return true;
         }

@@ -122,7 +122,7 @@ namespace MechanicsAssistantServerTests
             Email = "cba@cb.com",
             Password= "ManDoorHandHookCarDoor",
             SecurityQuestion = "What is a group of crows called?",
-            SecurityAnswer = "A \"Crowhort\"",
+            SecurityAnswer = "A Crowhort",
             AccessLevel = AccessLevelMasks.AdminMask | AccessLevelMasks.PartMask | AccessLevelMasks.SafetyMask | AccessLevelMasks.MechanicMask
         };
 

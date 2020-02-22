@@ -32,6 +32,19 @@ namespace MechanicsAssistantServerTests {
             PartId = "GELI-OR-HP",
             PartName = "Hydraulic Pump O-Ring"
         };
+
+        public JsonDictionaryStringConstructor ConstructAdditionRequest(int userId, string loginToken, string authToken) {
+            JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+            ret["UserId"] = userId;
+            ret["LoginToken"] = loginToken;
+            ret["AuthToken"] = authToken;
+            ret["Make"] = Make;
+            ret["Model"] = Model;
+            ret["Year"] = Year;
+            ret["PartId"] = PartId;
+            ret["PartName"] = PartName;
+            return ret;
+        }
     }
 
 
