@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Json;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Net;
 using OldManInTheShopServer.Data.MySql.TableDataTypes;
@@ -98,7 +98,6 @@ namespace OldManInTheShopServer.Net.Api
         {
             POST += HandlePostRequest;
             PUT += HandleGetRequest;
-            DELETE += HandleDeleteRequest;
             PATCH += HandlePatchRequest;
         }
 
@@ -280,17 +279,11 @@ namespace OldManInTheShopServer.Net.Api
         /// under the tab Company/Parts, starting row 51
         /// </summary>
         /// <param name="ctx">HttpListenerContext to respond to</param>
-        private void HandleDeleteRequest(HttpListenerContext ctx)
+        private void HandleDeleteRequest(HttpListenerContext ctx, CompanyPartsApiDeleteRequest req)
         {
             try
             {
-                if (!ctx.Request.HasEntityBody)
-                {
-                    WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
-                    return;
-                }
-                CompanyPartsApiDeleteRequest entry = JsonDataObjectUtil<CompanyPartsApiDeleteRequest>.ParseObject(ctx);
-                if (!ValidateDeleteRequest(entry))
+                if (!ValidateDeleteRequest(req))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
@@ -304,18 +297,18 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
-                    OverallUser mappedUser = connection.GetUserById(entry.UserId);
+                    OverallUser mappedUser = connection.GetUserById(req.UserId);
                     if (mappedUser == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "User was not found on on the server");
                         return;
                     }
-                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
+                    if (!UserVerificationUtil.LoginTokenValid(mappedUser, req.LoginToken))
                     {
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
-                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, entry.AuthToken))
+                    if (!UserVerificationUtil.AuthTokenValid(mappedUser, req.AuthToken))
                     {
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
                         return;
@@ -326,13 +319,13 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
 
-                    if(connection.GetPartCatalogueEntryById(mappedUser.Company, entry.PartEntryId) == null)
+                    if(connection.GetPartCatalogueEntryById(mappedUser.Company, req.PartEntryId) == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Part entry with the given id was not found");
                         return;
                     }
 
-                    if(!connection.RemovePartCatalogueEntry(mappedUser.Company, entry.PartEntryId))
+                    if(!connection.RemovePartCatalogueEntry(mappedUser.Company, req.PartEntryId))
                     {
                         WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occured while removing part entry: " + connection.LastException.Message);
                         return;
@@ -365,9 +358,20 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
                     return;
                 }
-                CompanyPartsApiPatchRequest entry = JsonDataObjectUtil<CompanyPartsApiPatchRequest>.ParseObject(ctx);
+
+                string reqStr;
+                using (var reader = new StreamReader(ctx.Request.InputStream))
+                {
+                    reqStr = reader.ReadToEnd();
+                }
+                CompanyPartsApiPatchRequest entry = JsonDataObjectUtil<CompanyPartsApiPatchRequest>.ParseObject(reqStr);
                 if (!ValidatePatchRequest(entry))
                 {
+                    CompanyPartsApiDeleteRequest entry2 = JsonDataObjectUtil<CompanyPartsApiDeleteRequest>.ParseObject(reqStr);
+                    if(entry2 != null) {
+                        HandleDeleteRequest(ctx, entry2);
+                        return;
+                    }                
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
@@ -468,9 +472,9 @@ namespace OldManInTheShopServer.Net.Api
 
         private bool ValidateDeleteRequest(CompanyPartsApiDeleteRequest req)
         {
-            if (req.LoginToken == null)
+            if (req.LoginToken == null || req.LoginToken.Equals("x''"))
                 return false;
-            if (req.AuthToken == null)
+            if (req.AuthToken == null || req.AuthToken.Equals("x''"))
                 return false;
             if (req.UserId <= 0)
                 return false;

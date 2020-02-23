@@ -45,6 +45,15 @@ namespace MechanicsAssistantServerTests {
             ret["PartName"] = PartName;
             return ret;
         }
+
+        public JsonDictionaryStringConstructor ConstructDeletionRequest(int userId, string loginToken, string authToken, int entryId) {
+            JsonDictionaryStringConstructor ret = new JsonDictionaryStringConstructor();
+            ret["UserId"] = userId;
+            ret["LoginToken"] = loginToken;
+            ret["AuthToken"] = authToken;
+            ret["PartEntryId"] = entryId;
+            return ret;
+        }
     }
 
 
