@@ -291,15 +291,15 @@ namespace OldManInTheShopServer.Net.Api
         {
             if (entryIn == null)
                 return false;
-            if (entryIn.JobId == "")
+            if (entryIn.JobId == null || entryIn.JobId == "")
                 return false;
-            if (entryIn.Make == "")
+            if (entryIn.Make == null || entryIn.Make == "")
                 return false;
-            if (entryIn.Model == "")
+            if (entryIn.Model == null || entryIn.Model == "")
                 return false;
-            if (entryIn.Complaint == "")
+            if (entryIn.Complaint == null || entryIn.Complaint == "")
                 return false;
-            if (entryIn.Problem == "")
+            if (entryIn.Problem == null || entryIn.Problem == "")
                 return false;
             return true;
         }

@@ -110,7 +110,7 @@ namespace MechanicsAssistantServerTests.TestNet
             Complaint = "Wont start",
             Problem = ""
         };
-        public static readonly TestingRepairJob AttackJob= new TestingRepairJob()
+        public static readonly TestingRepairJob AttackJob = new TestingRepairJob()
         {
             //initiliz fields
             JobId = "12347",
@@ -119,5 +119,13 @@ namespace MechanicsAssistantServerTests.TestNet
             Complaint = "Wont start",
             Problem = "Out of gas"
         };
+        public static readonly TestingRepairJob NoIdJob = new TestingRepairJob()
+        {
+            Make = "<AutoMaker",
+            Model = "Mod",
+            Complaint = "Wont start",
+            Problem = "Out of gas"
+        };
+
     }
 }
