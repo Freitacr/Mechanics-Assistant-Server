@@ -61,6 +61,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -72,15 +73,19 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
+
                     bool res = connection.Connect(MySqlDataManipulator.GlobalConfiguration.GetConnectionString());
                     if (!res)
                     {
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region Validate User
                     OverallUser mappedUser = connection.GetUserById(req.UserId);
                     if (mappedUser == null)
                     {
@@ -99,6 +104,8 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
                         return;
                     }
+                    #endregion
+
                     UserSettingsEntry numPredictionsRequested = JsonDataObjectUtil<List<UserSettingsEntry>>.ParseObject(mappedUser.Settings).FirstOrDefault(entry => entry.Key.Equals(UserSettingsEntryKeys.ArchiveQueryResults));
                     if (numPredictionsRequested == null)
                     {
@@ -106,7 +113,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     int numRequested = int.Parse(numPredictionsRequested.Value);
-
+                    #region Input sanitation
                     string whereString = "";
                     bool addedWhere = false;
                     if(req.Entry.Complaint != null)
@@ -147,6 +154,8 @@ namespace OldManInTheShopServer.Net.Api
                         whereString += " Year =" + req.Entry.Year;
                         addedWhere = true;
                     }
+                    #endregion
+
                     if (!addedWhere)
                     {
                         WriteBodyResponse(ctx, 400, "Bad Request", "No fields in the request's entry were filled");

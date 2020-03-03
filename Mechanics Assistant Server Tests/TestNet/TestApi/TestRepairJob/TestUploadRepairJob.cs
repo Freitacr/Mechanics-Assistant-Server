@@ -33,86 +33,520 @@ namespace MechanicsAssistantServerTests.TestNet.TestApi.TestRepairJob {
 
         [TestMethod]
         public void TestUploadRepairJobNoSimilarJob(){
-            throw new NotImplementedException();
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1,manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                        TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                            uploadingUser.UserId,
+                            loginTokens.LoginToken,
+                            loginTokens.AuthToken,
+                            0
+                         ), "POST"
+                     );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException)
+                {
+                    Assert.Fail("Received an error message when one was not expected");
+                }
+                Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
         public void TestUploadRepairJobSimilarJobsForced() {
-            throw new NotImplementedException();
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                        TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                            uploadingUser.UserId,
+                            loginTokens.LoginToken,
+                            loginTokens.AuthToken,
+                            1
+                        ), "POST"
+                    );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException)
+                {
+                    Assert.Fail("Received an error message when one was not expected");
+                }
+                Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+            }
         }
 
         [TestMethod]
         public void TestUploadRepairJobsSimilarJobsGetList() {
-            throw new NotImplementedException();
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                
+                manipulator.AddDataEntry(1,TestingRepairJobStorage.RepairJob1.CreateEntry(),true);
+                manipulator.AddDataEntry(1, TestingRepairJobStorage.RepairJob2.CreateEntry(), false);
+
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                        TestingRepairJobStorage.SimilarJob1.ConstructCreationMessage(
+                            uploadingUser.UserId,
+                            loginTokens.LoginToken,
+                            loginTokens.AuthToken,
+                            0
+                        ), "POST"
+                    );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                    Assert.Fail("Expected an error message but never received one");
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.Conflict, resp.StatusCode);
+
+            }
         }
 
         [TestMethod]
-        public void TestConflictOnUploadRepairJobDuplicateJobForced(){
-            throw new NotImplementedException();
+        public void TestBadRequestOnInvalidUserId() { 
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                        -1,
+                        loginTokens.LoginToken,
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnInvalidUserId() {
-            throw new NotImplementedException();
+        public void TestBadRequestOnEmptyLoginToken()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        "",
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnEmptyLoginToken(){
-            throw new NotImplementedException();
+        public void TestBadRequestOnEmptyAuthToken()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        loginTokens.LoginToken,
+                        "",
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnEmptyAuthToken() {
-            throw new NotImplementedException();
+        public void TestBadRequestOnEmptyRepairJobMake()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.NoMakeJob.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        loginTokens.LoginToken,
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnEmptyRepairJobMake() {
-            throw new NotImplementedException();
+        public void TestBadRequestOnEmptyRepairJobModel()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.NoModelJob.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        loginTokens.LoginToken,
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnEmptyRepairJobModel(){
-            throw new NotImplementedException();
+        public void TestBadRequestOnEmptyRepairJobProblem()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.NoProblemJob.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        loginTokens.LoginToken,
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnEmptyRepairJobProblem() {
-            throw new NotImplementedException();
+        public void TestBadRequestOnEmptyRepairJobComplaint()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.NoComplaintJob.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        loginTokens.LoginToken,
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
+        }
+
+
+        [TestMethod]
+        public void TestBadRequestOnCrossSiteScriptingCharacters()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.AttackJob.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        loginTokens.LoginToken,
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.BadRequest, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnEmptyRepairJobComplaint() {
-            throw new NotImplementedException();
+        public void TestUnauthorizedOnNotLoggedInUser()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        "I'm Logged-In I Swear!",
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.Unauthorized, resp.StatusCode);
+            }
+
         }
 
-
         [TestMethod]
-        public void TestBadRequestOnCrossSiteScriptingCharacters() {
-            throw new NotImplementedException();
+        public void TestUnauthorizedOnNonAuthenticatedUser()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                        uploadingUser.UserId,
+                        loginTokens.LoginToken,
+                        "I'm Autherized I Swear!",
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.Unauthorized, resp.StatusCode);
+            }
+
         }
 
         [TestMethod]
-        public void TestBadRequestOnInvalidDuplicateValue() {
-            throw new NotImplementedException();
+        public void TestNotFoundOnNonExistentUser()
+        {
+            using (MySqlDataManipulator manipulator = new MySqlDataManipulator())
+            {
+                manipulator.Connect(TestingConstants.ConnectionString);
+                NetTestingUserUtils.AuthenticateTestingUser(TestingUserStorage.ValidUser1, manipulator);
+                var uploadingUser = manipulator.GetUsersWhere(
+                    string.Format("Email=\"{0}\"", TestingUserStorage.ValidUser1.Email)
+                    )[0];
+                var loginTokens = UserVerificationUtil.ExtractLoginTokens(uploadingUser);
+                object[] contextAndRequest = ServerTestingMessageSwitchback.SwitchbackMessage(
+                    TestingRepairJobStorage.RepairJob1.ConstructCreationMessage(
+                        uploadingUser.UserId+1000000,
+                        loginTokens.LoginToken,
+                        loginTokens.AuthToken,
+                        0
+                    ), "POST"
+                );
+                var ctx = contextAndRequest[0] as HttpListenerContext;
+                var req = contextAndRequest[1] as HttpWebRequest;
+                HttpWebResponse resp = null;
+                TestApi.POST(ctx);
+                try
+                {
+                    resp = req.EndGetResponse(contextAndRequest[2] as IAsyncResult) as HttpWebResponse;
+                }
+                catch (WebException e)
+                {
+                    resp = e.Response as HttpWebResponse;
+                    string message = e.Message;
+                }
+                Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
+            }
+
         }
-
-        [TestMethod]
-        public void TestUnauthorizedOnNotLoggedInUser() {
-            throw new NotImplementedException();
-        }
-
-        [TestMethod]
-        public void TestUnauthorizedOnNonAuthenticatedUser() {
-            throw new NotImplementedException();
-        }
-
-        [TestMethod]
-        public void TestNotFoundOnNonExistentUser() {
-            throw new NotImplementedException();
-        }   
-
-
 
     }
 }

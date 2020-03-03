@@ -91,6 +91,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -102,6 +103,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -111,6 +114,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -127,7 +131,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was ezpired or incorrect");
                         return;
                     }
+                    #endregion
 
+                    #region Action Handling
                     res = connection.AddJoinRequest(entry.CompanyId,entry.UserId);
                     if (!res)
                     {
@@ -135,6 +141,8 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx,200,"OK");
+                    #endregion
+
                 }
             }
             catch (HttpListenerException)
@@ -178,6 +186,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -199,10 +208,14 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an administrative user");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     var requests = connection.GetJoinRequests(mappedUser.Company);
                     JsonListStringConstructor returnConstructor = new JsonListStringConstructor();
                     requests.ForEach(req => returnConstructor.AddElement(WriteJoinRequestToOutput(req, connection)));
                     WriteBodyResponse(ctx, 200, "OK", returnConstructor.ToString());
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -243,6 +256,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -254,6 +268,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -263,6 +279,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -284,6 +301,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an administrative user");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     var request = connection.GetJoinRequestById(mappedUser.Company, entry.RequestId);
                     if (request == null)
                     {
@@ -296,6 +316,8 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
+
                 }
             }
             catch (HttpListenerException)
@@ -317,6 +339,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -335,6 +358,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -344,6 +369,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -365,6 +391,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an administrative user");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     var request = connection.GetJoinRequestById(mappedUser.Company, entry.RequestId);
                     if(request == null)
                     {
@@ -379,6 +408,8 @@ namespace OldManInTheShopServer.Net.Api
                     mappedUser.AccessLevel = 1;
                     connection.UpdateUserAccessLevel(mappedUser);
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
+
                 }
             }
             catch (HttpListenerException)

@@ -110,6 +110,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -121,6 +122,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -130,6 +133,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx,500,"Unexpected Server Error","Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -151,6 +155,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx,401,"Not Authorized","Not marked as a Parts User");
                         return;
                     }
+                    #endregion
+
+                    #region Post Part
                     PartCatalogueEntry ent = new PartCatalogueEntry(entry.Make,entry.Model,entry.Year,entry.PartId,entry.PartName);
                     res = connection.AddPartEntry(mappedUser.Company, ent);
                     if (!res)
@@ -159,6 +166,8 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
+
                 }
             }
             catch (HttpListenerException)
@@ -201,6 +210,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -212,6 +222,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -221,6 +233,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -242,12 +255,15 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Autherized", "Not marked as a Parts User");
                         return;
                     }
+                    #endregion
 
+                    #region Get Parts List
                     List<PartCatalogueEntry> catelogue = connection.GetPartCatalogueEntries(mappedUser.Company);
                     JsonListStringConstructor retConstructor = new JsonListStringConstructor();
                     catelogue.ForEach(part => retConstructor.AddElement(WritePartCatelogueEntryToOutput(part)));
 
                     WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -283,11 +299,14 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ValidateDeleteRequest(req))
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -297,6 +316,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(req.UserId);
                     if (mappedUser == null)
                     {
@@ -318,7 +338,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Autherized", "Not marked as a Parts User");
                         return;
                     }
+                    #endregion
 
+                    #region Delete Parts Request
                     if(connection.GetPartCatalogueEntryById(mappedUser.Company, req.PartEntryId) == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "Part entry with the given id was not found");
@@ -331,6 +353,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -353,6 +376,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Inpute Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -375,6 +399,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -384,6 +410,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -405,7 +432,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Autherized", "Not marked as a Parts User");
                         return;
                     }
+                    #endregion
 
+                    #region Edit Parts Entry
                     var partEntry = connection.GetPartCatalogueEntryById(mappedUser.Company, entry.PartEntryId);
 
                     if (partEntry == null)
@@ -442,6 +471,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)

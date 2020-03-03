@@ -58,6 +58,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -69,6 +70,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -78,6 +81,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -99,10 +103,14 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an admin");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     List<OverallUser> companyUsers = connection.GetUsersWhere("Company=" + mappedUser.Company);
                     JsonListStringConstructor retConstructor = new JsonListStringConstructor();
                     companyUsers.ForEach(user => retConstructor.AddElement(ConvertUserToOutput(user)));
                     WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -130,6 +138,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -141,6 +150,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -150,6 +161,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -171,6 +183,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "User was not an admin");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     OverallUser user = connection.GetUserById(entry.CompanyUserId);
                     if(user == null)
                     {
@@ -184,6 +199,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (Exception e)

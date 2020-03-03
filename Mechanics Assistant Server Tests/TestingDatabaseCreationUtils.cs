@@ -4,6 +4,7 @@ using OldManInTheShopServer.Data.MySql.TableDataTypes;
 using OldManInTheShopServer.Data.MySql;
 using System.Text;
 using MySql.Data.MySqlClient;
+using OldManInTheShopServer.Util;
 
 namespace MechanicsAssistantServerTests
 {
@@ -61,6 +62,8 @@ namespace MechanicsAssistantServerTests
                 if (!InitializePartCatelogueEntries())
                     return false;
                 if (!InitializePartsRequests())
+                    return false;
+                if (!GlobalModelHelper.LoadOrTrainGlobalModels(ReflectionHelper.GetAllKeywordPredictors()))
                     return false;
             }
             MySqlDataManipulator.GlobalConfiguration.Connect(TestingConstants.ConnectionString);

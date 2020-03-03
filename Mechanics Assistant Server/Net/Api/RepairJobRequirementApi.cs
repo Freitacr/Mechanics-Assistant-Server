@@ -93,6 +93,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -105,6 +106,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
@@ -115,6 +118,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
                     {
@@ -126,6 +130,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     RepairJobEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
                     if (repairEntry == null && connection.LastException == null)
                     {
@@ -152,6 +159,8 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
+
                 }
             }
             catch (HttpListenerException)
@@ -173,6 +182,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -185,6 +195,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
@@ -195,6 +207,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
                     {
@@ -206,6 +219,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     RepairJobEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
                     if (repairEntry == null && connection.LastException == null)
                     {
@@ -246,6 +262,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -267,6 +284,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -279,6 +297,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
@@ -289,6 +309,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
                     {
@@ -300,6 +321,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     RepairJobEntry repairEntry = connection.GetDataEntryById(mappedUser.Company, entry.RepairJobId, false);
                     if (repairEntry == null && connection.LastException == null)
                     {
@@ -331,6 +355,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)

@@ -61,6 +61,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -72,6 +73,7 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
@@ -82,6 +84,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if(mappedUser==null)
                     {
@@ -98,7 +101,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
+                    #endregion
 
+                    #region Input Sanitation
                     if (entry.ContainedEntry.Complaint.Contains('<'))
                     {
                         WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
@@ -119,7 +124,16 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
                         return;
                     }
+                    if (entry.ContainedEntry.JobId.Contains('<'))
+                    {
+                        WriteBodyResponse(ctx, 400, "Bad Request", "Request contained the < character, which is disallowed due to cross site scripting attacks");
+                        return;
+                    }
+                    #endregion
 
+                    #region Action Handling
+
+                    #region Forced Upload
                     if (!(entry.Duplicate == 0))
                     {
                         //Now that we know the user is good, actually do the addition.
@@ -131,6 +145,8 @@ namespace OldManInTheShopServer.Net.Api
                         }
                         WriteBodylessResponse(ctx, 200, "OK");
                     }
+                    #endregion
+                    
                     else
                     {
                         //test if there exists similar
@@ -142,6 +158,7 @@ namespace OldManInTheShopServer.Net.Api
                         {
                             dataCollectionsWhere.Add(x);
                         }
+                        #region No Similar Jobs
                         //if none force through
                         if (dataCollectionsWhere.Count==0)
                         {
@@ -153,6 +170,9 @@ namespace OldManInTheShopServer.Net.Api
                             }
                             WriteBodylessResponse(ctx, 200, "OK");
                         }
+                        #endregion
+
+                        #region Similar Jobs Return
                         //if yes 409 with similar jobs
                         else
                         {
@@ -186,7 +206,10 @@ namespace OldManInTheShopServer.Net.Api
                                 return r;
                             }
                         }
+                        #endregion
+
                     }
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -288,6 +311,8 @@ namespace OldManInTheShopServer.Net.Api
             if (req.LoginToken == "")
                 return false;
             if (req.UserId == -1)
+                return false;
+            if (req.AuthToken == "")
                 return false;
             return true;
         }

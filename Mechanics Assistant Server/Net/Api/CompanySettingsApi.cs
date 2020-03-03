@@ -59,6 +59,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
@@ -75,6 +76,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields in the request were filled");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -84,12 +87,16 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     var user = connection.GetUserById(entry.UserId);
                     if (user == null)
                     {
                         WriteBodyResponse(ctx, 404, "Not Found", "User was not found on the server");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     List<CompanySettingsEntry> entries = connection.GetCompanySettings(user.Company);
                     if (entries == null)
                     {
@@ -99,6 +106,7 @@ namespace OldManInTheShopServer.Net.Api
                     JsonListStringConstructor retConstructor = new JsonListStringConstructor();
                     entries.ForEach(obj => retConstructor.AddElement(WriteSettingToOutput(obj)));
                     WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString());
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -167,6 +175,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
@@ -183,6 +192,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields in the request were filled");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -192,6 +203,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     var user = connection.GetUserById(entry.UserId);
                     if (user == null)
                     {
@@ -204,7 +216,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Internal Server Error", "Error occured while retrieving settings: " + connection.LastException.Message);
                         return;
                     }
+                    #endregion
 
+                    #region Action Handling
                     var toModify = entries.Where(obj => obj.SettingKey.Equals(entry.SettingsKey)).FirstOrDefault();
                     if(toModify == null)
                     {
@@ -219,6 +233,7 @@ namespace OldManInTheShopServer.Net.Api
                     }
 
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)

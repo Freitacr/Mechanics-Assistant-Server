@@ -47,6 +47,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
@@ -63,6 +64,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -72,6 +75,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     var user = connection.GetUserById(req.ReportingUserId);
                     if (user == null)
                     {
@@ -88,7 +92,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Unauthorized", "Auth Token was expired or incorrect");
                         return;
                     }
+                    #endregion
 
+                    #region Action Handling
                     var users = connection.GetUsersWhere("Settings like \"%Value\\\":\\\"" + req.ReportedDisplayName + "%\"");
                     if (users == null)
                     {
@@ -101,6 +107,7 @@ namespace OldManInTheShopServer.Net.Api
                         connection.UpdateUsersSettings(reportedUser);
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)

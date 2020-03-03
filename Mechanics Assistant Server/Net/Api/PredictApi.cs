@@ -63,6 +63,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -74,6 +75,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -83,6 +86,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(req.UserId);
                     if (mappedUser == null)
                     {
@@ -94,6 +98,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\"" + CompanySettingsKey.Public + "\"")[0];
                     bool isPublic = bool.Parse(isPublicSetting.SettingValue);
                     if (!isPublic && mappedUser.Company != req.CompanyId)
@@ -107,6 +114,7 @@ namespace OldManInTheShopServer.Net.Api
                     DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
                     string ret = processor.ProcessQueryForSimilarQueries(req.Entry, connection, req.CompanyId, req.ComplaintGroupId, numQueriesRequested);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -123,6 +131,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -134,6 +143,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -143,6 +154,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected Server Error", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(req.UserId);
                     if (mappedUser == null)
                     {
@@ -154,6 +166,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Login token was incorrect.");
                         return;
                     }
+                    #endregion
+
+                    #region Action Handling
                     CompanySettingsEntry isPublicSetting = connection.GetCompanySettingsWhere(req.CompanyId, "SettingKey=\""+ CompanySettingsKey.Public + "\"")[0];
                     bool isPublic = bool.Parse(isPublicSetting.SettingValue);
                     if(!isPublic && mappedUser.Company != req.CompanyId)
@@ -171,6 +186,7 @@ namespace OldManInTheShopServer.Net.Api
                     DatabaseQueryProcessor processor = new DatabaseQueryProcessor();
                     string ret = processor.ProcessQueryForComplaintGroups(req.Entry, connection, req.CompanyId, numRequested);
                     WriteBodyResponse(ctx, 200, "OK", ret, "application/json");
+                    #endregion
                 }
             }
             catch (HttpListenerException)

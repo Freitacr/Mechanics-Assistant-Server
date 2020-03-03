@@ -68,6 +68,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
@@ -84,6 +85,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -93,6 +96,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region Action Handling
                     var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
                     if (users == null)
                     {
@@ -111,6 +115,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -143,6 +148,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "No Body", "Request lacked a body");
@@ -166,6 +172,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Incorrect Format", "Not all fields of the request were filled");
                     return;
                 }
+                #endregion
+
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
                 {
@@ -175,6 +183,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region Action Handling
                     var users = connection.GetUsersWhere(" Email = \"" + req.Email + "\"");
                     if (users.Count == 0)
                     {
@@ -199,6 +208,8 @@ namespace OldManInTheShopServer.Net.Api
                     retConstructor.SetMapping("userId", loggedInUser.UserId);
                     retConstructor.SetMapping("accessLevel", loggedInUser.AccessLevel);
                     WriteBodyResponse(ctx, 200, "OK", retConstructor.ToString(), "application/json");
+                    #endregion
+
                 }
             }
             catch (HttpListenerException)

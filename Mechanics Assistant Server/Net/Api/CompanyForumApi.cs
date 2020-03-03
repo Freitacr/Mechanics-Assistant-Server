@@ -80,6 +80,7 @@ namespace OldManInTheShopServer.Net.Api
         private void HandlePostRequest(HttpListenerContext ctx)
         {
             try {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -91,6 +92,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
@@ -101,6 +104,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (!UserVerificationUtil.LoginTokenValid(mappedUser, entry.LoginToken))
                     {
@@ -119,6 +123,8 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
                         return;
                     }
+                    #endregion
+
                     //user is good, add post text
                     res = connection.AddForumPost(entry.CompanyId, entry.JobEntryId, new UserToTextEntry() { Text = entry.PostText, UserId = entry.UserId });
                     if (!res)
@@ -181,6 +187,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -193,6 +200,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
@@ -203,6 +212,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if (mappedUser == null)
                     {
@@ -221,6 +231,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Cannot access other company's private data");
                         return;
                     }
+                    #endregion
+
+                    #region Get Forum
                     RepairJobEntry forumEntry = connection.GetDataEntryById(entry.CompanyId, entry.JobEntryId);
                     if(forumEntry == null)
                     {
@@ -252,6 +265,7 @@ namespace OldManInTheShopServer.Net.Api
                     }
                     forumPosts.ForEach(post => returnListConstructor.AddElement(ConvertForumPostToJson(post, connection)));
                     WriteBodyResponse(ctx, 200, "OK", returnListConstructor.ToString(), "application/json");
+                    #endregion
                 }
             }
             catch (HttpListenerException)
@@ -290,6 +304,7 @@ namespace OldManInTheShopServer.Net.Api
         {
             try
             {
+                #region Input Validation
                 if (!ctx.Request.HasEntityBody)
                 {
                     WriteBodyResponse(ctx, 400, "Bad Request", "No Body");
@@ -302,6 +317,8 @@ namespace OldManInTheShopServer.Net.Api
                     WriteBodyResponse(ctx, 400, "Bad Request", "Incorrect Format");
                     return;
                 }
+                #endregion
+
                 //Otherwise we have a valid entry, validate user
                 MySqlDataManipulator connection = new MySqlDataManipulator();
                 using (connection)
@@ -312,6 +329,7 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 500, "Unexpected ServerError", "Connection to database failed");
                         return;
                     }
+                    #region User Validation
                     OverallUser mappedUser = connection.GetUserById(entry.UserId);
                     if(mappedUser == null)
                     {
@@ -328,7 +346,9 @@ namespace OldManInTheShopServer.Net.Api
                         WriteBodyResponse(ctx, 401, "Not Authorized", "Auth token was expired or incorrect");
                         return;
                     }
+                    #endregion
 
+                    #region Delete Forum
                     UserToTextEntry forumPost = connection.GetForumPostById(mappedUser.Company, entry.JobEntryId, entry.ForumPostId);
                     if(forumPost == null)
                     {
@@ -346,6 +366,7 @@ namespace OldManInTheShopServer.Net.Api
                         return;
                     }
                     WriteBodylessResponse(ctx, 200, "OK");
+                    #endregion
                 }
             }
             catch (HttpListenerException)
