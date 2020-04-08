@@ -73,6 +73,7 @@ namespace OldManInTheShopServer
 
         static void RenewCertificate()
         {
+            return;
             try
             {
                 Thread.Sleep(TimeSpan.FromMinutes(1));
